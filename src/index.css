@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@theme{
+    --color-orange:#ff5501;
+    --color-blue:#033568;
+    --font-Main:"Golos Text", "sans-serif";
+}
+.container{
+    @apply w-full max-w-[1440px] mx-auto px-5
+}

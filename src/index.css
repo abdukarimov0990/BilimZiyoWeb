@@ -1,9 +1,25 @@
 @import "tailwindcss";
 @theme{
-    --color-orange:#ff5501;
+    --color-yellow:#ffe502;
     --color-blue:#033568;
-    --font-Main:"Golos Text", "sans-serif";
+    --color-red:#ff0000;
+    --font-Main:"Montserrat", "sans-serif";
 }
 .container{
     @apply w-full max-w-[1440px] mx-auto px-5
 }
+.hero-section {
+    height: 87vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(
+      to bottom,
+      #ffffff 0%,     /* boshida oq */
+      #ffffff 1%,     /* oq qismini biroz cho‘zib turadi */
+      #ff5501 15%,    /* moviy (Wix’dagi ohang) */
+      #0d0d0d 40%,    /* asta qora tomon o‘tadi */
+      #000000 100%    /* pastdan toza qora */
+    );
+  }
+  
+    

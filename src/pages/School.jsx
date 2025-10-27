@@ -5,7 +5,8 @@ import {
   PiChalkboardTeacher, PiMonitor, PiShield, PiForkKnife, 
   PiBookOpen, PiGlobe, PiStar, PiLightbulb, PiHeart, 
   PiShootingStar, PiCaretDown, PiCheckCircle, PiX,
-  PiStudent, PiGraduationCap, PiCalendar, PiTrophy
+  PiStudent, PiGraduationCap, PiCalendar, PiTrophy,
+  PiFacebookLogo, PiInstagramLogo, PiTelegramLogo, PiYoutubeLogo
 } from "react-icons/pi";
 import { 
   BsAward, BsRobot, BsArrowRight, BsPlayCircle,
@@ -223,6 +224,21 @@ const School = () => {
           email: "info@bilimmaktab.uz",
           hours: "Dushanba - Juma: 8:00 - 18:00"
         }
+      },
+      footer: {
+        description: "Bizning maktabimiz har bir bolaning potentsialini to'liq ro'yobga chiqarishga yordam beradigan zamonaviy ta'lim muassasasidir.",
+        quickLinks: "Tezkor Havolalar",
+        contact: "Aloqa",
+        social: "Ijtimoiy Tarmoqlar",
+        rights: "Barcha huquqlar himoyalangan",
+        links: [
+          { name: "Asosiy", href: "#" },
+          { name: "Afzalliklar", href: "#advantages" },
+          { name: "Statistika", href: "#stats" },
+          { name: "Galereya", href: "#gallery" },
+          { name: "FAQ", href: "#faq" },
+          { name: "Aloqa", href: "#contact" }
+        ]
       }
     },
     ru: {
@@ -393,6 +409,21 @@ const School = () => {
           email: "info@bilimmaktab.uz",
           hours: "Понедельник - Пятница: 8:00 - 18:00"
         }
+      },
+      footer: {
+        description: "Наша школа - это современное образовательное учреждение, которое помогает каждому ребенку полностью раскрыть свой потенциал.",
+        quickLinks: "Быстрые Ссылки",
+        contact: "Контакты",
+        social: "Социальные Сети",
+        rights: "Все права защищены",
+        links: [
+          { name: "Главная", href: "#" },
+          { name: "Преимущества", href: "#advantages" },
+          { name: "Статистика", href: "#stats" },
+          { name: "Галерея", href: "#gallery" },
+          { name: "FAQ", href: "#faq" },
+          { name: "Контакты", href: "#contact" }
+        ]
       }
     },
     en: {
@@ -563,6 +594,21 @@ const School = () => {
           email: "info@bilimmaktab.uz",
           hours: "Monday - Friday: 8:00 - 18:00"
         }
+      },
+      footer: {
+        description: "Our school is a modern educational institution that helps every child fully realize their potential.",
+        quickLinks: "Quick Links",
+        contact: "Contact",
+        social: "Social Media",
+        rights: "All rights reserved",
+        links: [
+          { name: "Home", href: "#" },
+          { name: "Advantages", href: "#advantages" },
+          { name: "Statistics", href: "#stats" },
+          { name: "Gallery", href: "#gallery" },
+          { name: "FAQ", href: "#faq" },
+          { name: "Contact", href: "#contact" }
+        ]
       }
     }
   };
@@ -607,6 +653,190 @@ const School = () => {
     >
       {children}
     </motion.div>
+  );
+
+  // Footer komponenti
+  const Footer = () => (
+    <footer className="bg-gradient-to-br from-gray-900 to-gray-800 text-white relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-0 left-0 w-72 h-72 bg-orange-500 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500 rounded-full translate-x-1/2 translate-y-1/2"></div>
+      </div>
+
+      <div className="container mx-auto px-6 py-12 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* School Info */}
+          <motion.div 
+            className="lg:col-span-2"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 rounded-xl">
+                <GiTeacher className="text-2xl text-white" />
+              </div>
+              <h3 className="text-2xl font-bold">Bilim Maktab</h3>
+            </div>
+            <p className="text-gray-300 leading-relaxed mb-6 max-w-md">
+              {currentContent.footer.description}
+            </p>
+            <div className="flex gap-4">
+              <motion.a 
+                href="#" 
+                className="bg-white/10 p-3 rounded-xl hover:bg-orange-500 transition-all duration-300 backdrop-blur-sm"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <PiFacebookLogo className="text-xl" />
+              </motion.a>
+              <motion.a 
+                href="#" 
+                className="bg-white/10 p-3 rounded-xl hover:bg-orange-500 transition-all duration-300 backdrop-blur-sm"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <PiInstagramLogo className="text-xl" />
+              </motion.a>
+              <motion.a 
+                href="#" 
+                className="bg-white/10 p-3 rounded-xl hover:bg-orange-500 transition-all duration-300 backdrop-blur-sm"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <PiTelegramLogo className="text-xl" />
+              </motion.a>
+              <motion.a 
+                href="#" 
+                className="bg-white/10 p-3 rounded-xl hover:bg-orange-500 transition-all duration-300 backdrop-blur-sm"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <PiYoutubeLogo className="text-xl" />
+              </motion.a>
+            </div>
+          </motion.div>
+
+          {/* Quick Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <h4 className="text-lg font-bold mb-6 text-orange-400">{currentContent.footer.quickLinks}</h4>
+            <ul className="space-y-3">
+              {currentContent.footer.links.map((link, index) => (
+                <li key={index}>
+                  <motion.a 
+                    href={link.href}
+                    className="text-gray-300 hover:text-orange-400 transition-colors duration-300 flex items-center gap-2 group"
+                    whileHover={{ x: 5 }}
+                  >
+                    <span className="w-2 h-2 bg-orange-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                    {link.name}
+                  </motion.a>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Contact Info */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            viewport={{ once: true }}
+          >
+            <h4 className="text-lg font-bold mb-6 text-orange-400">{currentContent.footer.contact}</h4>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-orange-500/20 p-2 rounded-lg">
+                  <PiMapPin className="text-orange-400" />
+                </div>
+                <span className="text-gray-300 text-sm">{currentContent.contact.info.address}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-orange-500/20 p-2 rounded-lg">
+                  <PiPhone className="text-orange-400" />
+                </div>
+                <span className="text-gray-300 text-sm">{currentContent.contact.info.phone}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-orange-500/20 p-2 rounded-lg">
+                  <PiEnvelope className="text-orange-400" />
+                </div>
+                <span className="text-gray-300 text-sm">{currentContent.contact.info.email}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-orange-500/20 p-2 rounded-lg">
+                  <PiClock className="text-orange-400" />
+                </div>
+                <span className="text-gray-300 text-sm">{currentContent.contact.info.hours}</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Bottom Bar */}
+        <motion.div 
+          className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <p className="text-gray-400 text-sm mb-4 md:mb-0">
+            © 2024 Bilim Maktab. {currentContent.footer.rights}
+          </p>
+          <div className="flex gap-6 text-sm text-gray-400">
+            <motion.a 
+              href="#" 
+              className="hover:text-orange-400 transition-colors"
+              whileHover={{ scale: 1.05 }}
+            >
+              Maxfiylik siyosati
+            </motion.a>
+            <motion.a 
+              href="#" 
+              className="hover:text-orange-400 transition-colors"
+              whileHover={{ scale: 1.05 }}
+            >
+              Foydalanish shartlari
+            </motion.a>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Floating elements */}
+      <motion.div 
+        className="absolute bottom-10 right-10 w-8 h-8 bg-orange-500 rounded-full"
+        animate={{ 
+          y: [0, -20, 0],
+          scale: [1, 1.2, 1]
+        }}
+        transition={{ 
+          duration: 3, 
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+      <motion.div 
+        className="absolute top-10 left-10 w-6 h-6 bg-blue-500 rounded-full"
+        animate={{ 
+          y: [0, 15, 0],
+          scale: [1, 1.1, 1]
+        }}
+        transition={{ 
+          duration: 4, 
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1
+        }}
+      />
+    </footer>
   );
 
   return (
@@ -1401,6 +1631,9 @@ const School = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import logo from '../assets/img/logo.png'
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   PiPhone, PiMapPin, PiEnvelope, PiClock, PiUsers, 
@@ -675,10 +676,7 @@ const School = () => {
             viewport={{ once: true }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 rounded-xl">
-                <GiTeacher className="text-2xl text-white" />
-              </div>
-              <h3 className="text-2xl font-bold">Bilim Maktab</h3>
+              <img src={logo} alt="" className="w-60"/>
             </div>
             <p className="text-gray-300 leading-relaxed mb-6 max-w-md">
               {currentContent.footer.description}

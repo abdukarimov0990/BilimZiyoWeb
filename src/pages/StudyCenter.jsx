@@ -1,6 +1,6 @@
 import { BookOpen, BrainCircuit, Globe2, GraduationCapIcon, icons, LightbulbIcon, RocketIcon, School2, TargetIcon, Users2 } from 'lucide-react'
 import React, { useState } from 'react'
-import { FaArrowRight, FaBolt, FaCalendarCheck, FaChalkboardTeacher, FaChevronDown, FaMapMarkerAlt, FaPlay, FaRegStar, FaSchool, FaUserGraduate, FaUsers } from 'react-icons/fa'
+import { FaArrowRight, FaBolt, FaCalendarCheck, FaChalkboardTeacher, FaChevronDown, FaMapMarkerAlt, FaPlay, FaRegStar, FaSchool, FaUserGraduate, FaUsers, FaPhone, FaEnvelope, FaFacebook, FaTelegram, FaInstagram } from 'react-icons/fa'
 import { MdArrowRightAlt } from 'react-icons/md'
 import { AnimatePresence, motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -10,7 +10,7 @@ import "swiper/css";
 import { BsBookshelf } from 'react-icons/bs';
 import { LiaUserGraduateSolid } from 'react-icons/lia';
 import { Link } from 'react-router';
-
+import logo from '../assets/img/BZwhite.png'
 const StudyCenter = () => {
   const courses = [
     {
@@ -261,23 +261,34 @@ const StudyCenter = () => {
   const [activeTeacher, setActiveTeacher] = useState(teachers[0]);
   const [activeCourse, setActiveCourse] = useState(courses[0]);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [contactOpen, setContactOpen] = useState(false);
+  
+  // Yangi FAQ ma'lumotlari
   const faqs = [
     {
-      q: "Kurslarga qanday ro'yxatdan o'taman?",
-      a: "Siz bizning saytimizdagi 'Ro'yxatdan o'tish' tugmasi orqali yoki filialga tashrif buyurib ro'yxatdan o'tishingiz mumkin.",
+      q: "Kurslarga qanday ro'yxatdan o'tish mumkin?",
+      a: "Siz veb-saytimizdagi 'Ro'yxatdan o'tish' tugmasi orqali, telefon qilish orqali (+998 90 123 45 67) yoki filiallarimizga shaxsan tashrif buyurib ro'yxatdan o'tishingiz mumkin. Batafsil ma'lumot uchun biz bilan bog'laning."
     },
     {
       q: "Darslar qanday formatda o'tiladi?",
-      a: "Darslar onlayn va oflayn formatlarda, o'quvchining qulayligiga qarab tashkil etiladi.",
+      a: "Darslar onlayn (Zoom platformasi orqali) va oflayn formatlarda, shuningdek gibrid tarzda o'tkaziladi. O'quvchilar o'zlariga qulay formatni tanlashlari mumkin."
     },
     {
       q: "Kurs davomiyligi qancha?",
-      a: "Odatda 3 oydan 6 oygacha davom etadi, lekin kurs turiga qarab o'zgaradi.",
+      a: "Kurs turiga qarab davomiylik 3 oydan 12 oygacha davom etadi. Har bir kurs uchun aniq dastur va o'quv rejasi mavjud."
     },
     {
       q: "To'lovni bo'lib to'lash mumkinmi?",
-      a: "Ha, o'quv markazimizda to'lovni bosqichma-bosqich amalga oshirish imkoniyati mavjud.",
+      a: "Ha, o'quv markazimizda to'lovni bosqichma-bosqich (oylik, choraklik) amalga oshirish imkoniyati mavjud. Shuningdek, chet tillari kurslari uchun maxsus chegirmalar mavjud."
     },
+    {
+      q: "O'qituvchilar qanday malakaga ega?",
+      a: "Barcha o'qituvchilarimiz yuqori malakali mutaxassislar bo'lib, xalqaro sertifikatlar (IELTS, CELTA, DELTA) va keng tajribaga egadirlar."
+    },
+    {
+      q: "Dars materiallari qanday taqdim etiladi?",
+      a: "Barcha o'quv materiallari zamonaviy darsliklar, multimedia resurslari va maxsus tayyorlangan o'quv qo'llanmalardan iborat. Onlayn platforma orqali qo'shimcha materiallar ham taqdim etiladi."
+    }
   ];
 
   const advantages = [
@@ -302,6 +313,7 @@ const StudyCenter = () => {
       desc: "Filiallarimiz shaharning markaziy va qulay joylarida joylashgan.",
     },
   ];
+  
   const images = [
     {
       id: 1,
@@ -341,12 +353,36 @@ const StudyCenter = () => {
     },
   ];
 
+  // Yangi footer ma'lumotlari
+  const footerLinks = {
+    courses: [
+      "Ingliz tili",
+      "Matematika", 
+      "Rus tili",
+      "Koreys tili",
+      "Dasturlash",
+      "Rasm chizish"
+    ],
+    branches: [
+      "Yunusobod filiali",
+      "Chilonzor filiali",
+      "Mirzo Ulug'bek filiali"
+    ],
+    contacts: [
+      "+998 90 123 45 67",
+      "+998 91 234 56 78",
+      "info@studycenter.uz"
+    ]
+  };
+
   // 2 martalab arrayni takrorlab, infinite loop effekti uchun
   const loopImages = [...images, ...images];
   const loopIeltsResults = [...ieltsResults, ...ieltsResults];
   const loopCefrResults = [...cefrResults, ...cefrResults];
 
   const [activeIndex, setActiveIndex] = useState(null);
+  const [selectedTime, setSelectedTime] = useState("");
+  const [selectedFormat, setSelectedFormat] = useState("guruh");
 
   // Background illustrations array
   const backgroundIcons = [
@@ -403,15 +439,96 @@ const StudyCenter = () => {
       {/* Background illustrations for entire site */}
       <BackgroundIllustrations />
 
-      {/* hero */}
+      {/* Floating Contact Button */}
+      <motion.div
+        className="fixed bottom-6 right-6 z-50"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        <motion.button
+          onClick={() => setContactOpen(!contactOpen)}
+          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <FaPhone size={24} />
+        </motion.button>
+
+        <AnimatePresence>
+          {contactOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.8 }}
+              className="absolute bottom-full right-0 mb-4 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-gray-200 min-w-64"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div className="bg-green-500/20 p-2 rounded-lg">
+                    <FaPhone className="text-green-600" size={20} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">+998 90 123 45 67</p>
+                    <p className="text-sm text-gray-600">Asosiy raqam</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div className="bg-blue-500/20 p-2 rounded-lg">
+                    <FaPhone className="text-blue-600" size={20} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">+998 91 234 56 78</p>
+                    <p className="text-sm text-gray-600">Qo'shimcha raqam</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div className="bg-purple-500/20 p-2 rounded-lg">
+                    <FaEnvelope className="text-purple-600" size={20} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">info@studycenter.uz</p>
+                    <p className="text-sm text-gray-600">Email</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* hero - eski holatiga qaytarildi */}
       <section className='h-[87vh] flex flex-col justify-center items-center relative overflow-hidden'>
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-white z-0"></div>
         <BackgroundIllustrations sectionClass="z-0" />
+        
+        {/* Background elements qo'shildi */}
+        <motion.div 
+          className="absolute top-20 left-10 text-6xl opacity-20"
+          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+          transition={{ duration: 6, repeat: Infinity }}
+        >📚</motion.div>
+        <motion.div 
+          className="absolute top-40 right-20 text-5xl opacity-20"
+          animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
+          transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+        >✏️</motion.div>
+        <motion.div 
+          className="absolute bottom-32 left-20 text-4xl opacity-20"
+          animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 4, repeat: Infinity, delay: 2 }}
+        >🔬</motion.div>
+        <motion.div 
+          className="absolute bottom-40 right-16 text-6xl opacity-20"
+          animate={{ y: [0, 20, 0], rotate: [0, 10, 0] }}
+          transition={{ duration: 7, repeat: Infinity, delay: 0.5 }}
+        >🎓</motion.div>
+        
         <div className="relative z-10 text-center">
           <h1 className='text-7xl text-center font-semibold'>Farzinding uchun yorqin kelajak <br /> <span className='italic text-blue font-semibold'>shu yerdan boshlanadi</span></h1>
           <p className='font-normal text-lg mt-4 text-center'>Profissional o'qituvchilar, qulay joylashuv hamda br 21-asr talablariga <br /> mos keluvchi o'quv tizimi</p>
           <div className="flex justify-center gap-5 items-center mt-4">
-            <a href='#' className="
+            <a href='#contact' className="
               relative overflow-hidden 
               py-2 pl-6 pr-3 
               bg-blue text-white 
@@ -446,6 +563,7 @@ const StudyCenter = () => {
         </div>
       </section>
 
+      {/* Features Section */}
       <section className="py-16 bg-gradient-to-b from-white to-blue/5 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container relative z-10">
@@ -493,6 +611,7 @@ const StudyCenter = () => {
         </div>
       </section>
 
+      {/* Teachers Section */}
       <section className="py-20 bg-gradient-to-b from-blue/5 to-white relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10">
@@ -501,7 +620,7 @@ const StudyCenter = () => {
           </h2>
 
           <div className="flex flex-col lg:flex-row gap-12 justify-center items-start">
-            {/* Chap tomonda — o'qituvchilar ro'yxati */}
+            {/* Teachers list */}
             <div className="flex flex-col gap-4 w-full lg:w-1/4">
               {teachers.map((t) => (
                 <motion.div
@@ -529,9 +648,9 @@ const StudyCenter = () => {
               ))}
             </div>
 
-            {/* O'ng tomonda — tanlangan ustoz ma'lumoti */}
+            {/* Selected teacher details */}
             <div className="flex flex-col lg:flex-row gap-8 items-center lg:w-3/4">
-              {/* Video qismi */}
+              {/* Video section */}
               <motion.div
                 key={activeTeacher.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -551,7 +670,7 @@ const StudyCenter = () => {
                 </div>
               </motion.div>
 
-              {/* Tavsif qismi */}
+              {/* Description section */}
               <motion.div
                 key={activeTeacher.name}
                 initial={{ opacity: 0, y: 20 }}
@@ -581,7 +700,7 @@ const StudyCenter = () => {
         </div>
       </section>
 
-      {/* Results Section - Updated with Marquees */}
+      {/* Results Section */}
       <section className="py-20 bg-gradient-to-b from-white to-blue/5 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10">
@@ -589,9 +708,9 @@ const StudyCenter = () => {
             Bizning <span className="text-gray-800">natijalarimiz</span>
           </h2>
 
-          {/* IELTS Results Marquee - Right to Left */}
+          {/* IELTS Results Marquee */}
           <div className="mb-16">
-            <h3 className="text-3xl font-bold text-center mb-8 text-blue">IELTS Natijalari</h3>
+            <h3 className="text-3xl font-bold text-center mb-8 text-blue">IELTS Natijalar</h3>
             <div className="relative overflow-hidden">
               <motion.div
                 className="flex gap-6"
@@ -628,9 +747,9 @@ const StudyCenter = () => {
             </div>
           </div>
 
-          {/* CEFR Results Marquee - Left to Right */}
+          {/* CEFR Results Marquee */}
           <div>
-            <h3 className="text-3xl font-bold text-center mb-8 text-green-600">CEFR Natijalari</h3>
+            <h3 className="text-3xl font-bold text-center mb-8 text-green-600">CEFR Natijalar</h3>
             <div className="relative overflow-hidden">
               <motion.div
                 className="flex gap-6"
@@ -669,6 +788,7 @@ const StudyCenter = () => {
         </div>
       </section>
 
+      {/* Courses Section */}
       <section className="py-20 bg-gradient-to-b from-blue/5 to-white relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10">
@@ -677,7 +797,7 @@ const StudyCenter = () => {
           </h2>
 
           <div className="flex flex-col lg:flex-row gap-12">
-            {/* Chap ustun - Kurslar ro'yxati */}
+            {/* Courses list */}
             <div className="w-full lg:w-2/5 space-y-4">
               {courses.map((course) => (
                 <motion.div
@@ -716,7 +836,7 @@ const StudyCenter = () => {
               ))}
             </div>
 
-            {/* O'ng ustun - Tanlangan kurs ma'lumotlari */}
+            {/* Selected course details */}
             <motion.div
               key={activeCourse.id}
               initial={{ opacity: 0, x: 20 }}
@@ -732,7 +852,7 @@ const StudyCenter = () => {
                 </div>
               </div>
 
-              {/* Kurs tafsilotlari */}
+              {/* Course details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 bg-blue/5 rounded-xl">
@@ -756,7 +876,7 @@ const StudyCenter = () => {
                 </div>
               </div>
 
-              {/* Kurs imkoniyatlari */}
+              {/* Course features */}
               <div className="mb-8">
                 <h4 className="text-xl font-semibold text-gray-800 mb-4">Kurs imkoniyatlari:</h4>
                 <div className="grid grid-cols-1 gap-3">
@@ -775,7 +895,7 @@ const StudyCenter = () => {
                 </div>
               </div>
 
-              {/* Ro'yxatdan o'tish tugmasi */}
+              {/* Registration button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -788,27 +908,32 @@ const StudyCenter = () => {
         </div>
       </section>
 
+      {/* FAQ Section - Yangilangan */}
       <section className="py-24 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
-        <div className="container mx-auto max-w-3xl relative z-10">
+        <div className="container mx-auto max-w-4xl relative z-10">
           <h2 className="text-5xl font-bold mb-12 text-center">
             Ko'p so'raladigan <span className="text-blue italic">savollar</span>
           </h2>
 
           <div className="space-y-4">
             {faqs.map((faq, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-white border border-blue/10 rounded-2xl shadow-sm hover:shadow-blue/20 transition-all duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white border border-blue/10 rounded-2xl shadow-sm hover:shadow-blue/20 transition-all duration-300 overflow-hidden"
               >
                 <button
                   onClick={() => setActiveIndex(activeIndex === index ? null : index)}
-                  className="w-full flex justify-between items-center p-5 text-left font-medium text-lg"
+                  className="w-full flex justify-between items-center p-6 text-left font-medium text-lg hover:bg-blue/5 transition-colors duration-300"
                 >
-                  {faq.q}
+                  <span className="text-gray-800 pr-4">{faq.q}</span>
                   <motion.div
                     animate={{ rotate: activeIndex === index ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
+                    className="flex-shrink-0"
                   >
                     <FaChevronDown className="text-blue" />
                   </motion.div>
@@ -821,18 +946,19 @@ const StudyCenter = () => {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.4 }}
-                      className="px-5 pb-5 text-gray-600"
+                      className="px-6 pb-6 text-gray-600 leading-relaxed border-t border-blue/10"
                     >
                       {faq.a}
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Advantages Section */}
       <section className="py-24 bg-gradient-to-b from-blue/10 to-white relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10">
@@ -864,7 +990,7 @@ const StudyCenter = () => {
         </div>
       </section>
 
-      {/* Gallery Section with Modal */}
+      {/* Gallery Section */}
       <section className="py-24 bg-gradient-to-b from-blue/10 to-white overflow-hidden relative">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto text-center mb-12 relative z-10">
@@ -948,7 +1074,8 @@ const StudyCenter = () => {
         </AnimatePresence>
       </section>
 
-      <section className="py-24 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
+      {/* Contact Section - Yangilangan */}
+      <section id="contact" className="py-24 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-start relative z-10">
           
@@ -957,7 +1084,7 @@ const StudyCenter = () => {
             initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="rounded-2xl overflow-hidden shadow-md border border-blue/10 h-[450px]"
+            className="rounded-2xl overflow-hidden shadow-md border border-blue/10 h-[500px]"
           >
             <iframe
               title="Our Location"
@@ -986,7 +1113,7 @@ const StudyCenter = () => {
                 <input
                   type="text"
                   placeholder="Ali Valiyev"
-                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none"
+                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300"
                 />
               </div>
               <div>
@@ -994,7 +1121,7 @@ const StudyCenter = () => {
                 <input
                   type="number"
                   placeholder="18"
-                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none"
+                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300"
                 />
               </div>
             </div>
@@ -1006,7 +1133,7 @@ const StudyCenter = () => {
                 <input
                   type="tel"
                   placeholder="+998 90 123 45 67"
-                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none"
+                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300"
                 />
               </div>
               <div>
@@ -1014,7 +1141,7 @@ const StudyCenter = () => {
                 <input
                   type="tel"
                   placeholder="+998 91 765 43 21"
-                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none"
+                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300"
                 />
               </div>
             </div>
@@ -1022,30 +1149,64 @@ const StudyCenter = () => {
             {/* Kurs tanlash */}
             <div>
               <label className="block text-gray-600 mb-2">Kursni tanlang</label>
-              <select className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none">
+              <select className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300">
                 {courses.map(course => (
                   <option key={course.id}>{course.name}</option>
                 ))}
               </select>
             </div>
 
+            {/* O'qish formati */}
+            <div>
+              <label className="block text-gray-600 mb-2">O'qish formati</label>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { value: "guruh", label: "Guruh bilan" },
+                  { value: "mini", label: "Mini guruh" },
+                  { value: "individual", label: "Alohida 1-1" }
+                ].map((format) => (
+                  <button
+                    key={format.value}
+                    type="button"
+                    onClick={() => setSelectedFormat(format.value)}
+                    className={`p-3 rounded-xl border transition-all duration-300 ${
+                      selectedFormat === format.value
+                        ? "bg-blue text-white border-blue"
+                        : "border-blue/20 hover:bg-blue/5"
+                    }`}
+                  >
+                    {format.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Vaqt tanlash */}
             <div>
               <label className="block text-gray-600 mb-2">Qulay vaqtni tanlang</label>
-              <select className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none mb-3">
-                <option>Ertalab</option>
-                <option>Kunduzgi</option>
-                <option>Kechgi</option>
+              <select 
+                className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none mb-3 transition-all duration-300"
+                onChange={(e) => setSelectedTime(e.target.value)}
+                value={selectedTime}
+              >
+                <option value="">Vaqtni tanlang</option>
+                <option value="morning">9:00 - 10:30</option>
+                <option value="morning">10:30 - 12:00</option>
+                <option value="morning">12:00 - 14:00</option>
+                <option value="morning">10:30 - 12:00</option>
+                <option value="morning">15:30 - 17:00</option>
+                <option value="morning">17:00 - 18:30</option>
               </select>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {[
-                  "09:00 - 10:30",
-                  "10:30 - 12:00",
-                  "12:00 - 13:30",
-                  "14:00 - 15:30",
-                  "15:30 - 17:00",
-                  "18:30 - 20:00",
+                {selectedTime && [
+                  "08:00 - 09:30",
+                  "09:30 - 11:00", 
+                  "11:00 - 12:30",
+                  "13:00 - 14:30",
+                  "14:30 - 16:00",
+                  "16:00 - 17:30",
+                  "17:00 - 18:30"
                 ].map((time) => (
                   <button
                     key={time}
@@ -1063,13 +1224,85 @@ const StudyCenter = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              className="w-full bg-blue text-white py-4 rounded-xl font-semibold hover:bg-blue/90 transition-all duration-300"
+              className="w-full bg-blue text-white py-4 rounded-xl font-semibold hover:bg-blue/90 transition-all duration-300 shadow-lg"
             >
               Yuborish
             </motion.button>
           </motion.form>
         </div>
       </section>
+
+      {/* Footer - Yangi qo'shildi */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Logo va description */}
+            <div className="lg:col-span-1">
+              <Link to="/"><img src={logo} alt="" className='w-60 mb-6'/></Link>
+              <p className="text-gray-400 mb-4 leading-relaxed">
+                14 yillik tajribaga ega o'quv markazi. Sizning muvaffaqiyatingiz - bizning g'ururimiz.
+              </p>
+              <div className="flex gap-4">
+                <a href="#" className="text-gray-400 hover:text-blue transition-colors duration-300">
+                  <FaFacebook size={20} />
+                </a>
+                <a href="#" className="text-gray-400 hover:text-blue transition-colors duration-300">
+                  <FaTelegram size={20} />
+                </a>
+                <a href="#" className="text-gray-400 hover:text-blue transition-colors duration-300">
+                  <FaInstagram size={20} />
+                </a>
+              </div>
+            </div>
+
+            {/* Kurslar */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Kurslar</h4>
+              <ul className="space-y-2">
+                {footerLinks.courses.map((course, index) => (
+                  <li key={index}>
+                    <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">
+                      {course}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Filiallar */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Filiallar</h4>
+              <ul className="space-y-2">
+                {footerLinks.branches.map((branch, index) => (
+                  <li key={index}>
+                    <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">
+                      {branch}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Kontaktlar */}
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Bog'lanish</h4>
+              <ul className="space-y-3">
+                {footerLinks.contacts.map((contact, index) => (
+                  <li key={index} className="flex items-center gap-2 text-gray-400">
+                    {index < 2 ? <FaPhone size={14} /> : <FaEnvelope size={14} />}
+                    {contact}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom section */}
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 Study Center. Barcha huquqlar himoyalangan.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

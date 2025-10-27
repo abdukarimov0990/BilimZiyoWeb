@@ -4,21 +4,49 @@ import {
   PiPhone, PiMapPin, PiEnvelope, PiClock, PiUsers, 
   PiChalkboardTeacher, PiMonitor, PiShield, PiForkKnife, 
   PiBookOpen, PiGlobe, PiStar, PiLightbulb, PiHeart, 
-  PiShootingStar, PiCaretDown, PiCheckCircle, PiX 
+  PiShootingStar, PiCaretDown, PiCheckCircle, PiX,
+  PiStudent, PiGraduationCap, PiCalendar, PiTrophy
 } from "react-icons/pi";
-import { BsAward, BsRobot, BsArrowRight, BsPlayCircle } from "react-icons/bs";
-import { TbGymnastics } from "react-icons/tb";
+import { 
+  BsAward, BsRobot, BsArrowRight, BsPlayCircle,
+  BsPersonCheck, BsBook, BsClock, BsGraphUp
+} from "react-icons/bs";
+import { 
+  TbGymnastics,
+  TbUsers,
+  TbChefHat,
+  TbDeviceDesktop,
+  TbHeartbeat,
+  TbLibrary,
+  TbShieldCheck
+} from "react-icons/tb";
+import { 
+  FaUsers,
+  FaChalkboardTeacher,
+  FaLaptopCode,
+  FaShieldAlt,
+  FaDumbbell,
+  FaBookReader,
+  FaHeart
+} from "react-icons/fa";
+import { 
+  GiTeacher,
+  GiMeal,
+  GiSecurityGate,
+  GiGymBag,
+  GiBookshelf
+} from "react-icons/gi";
 
 const School = () => {
   const [languageOpen, setLanguageOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(null);
-  const [isMarqueeHovered, setIsMarqueeHovered] = useState(false);
   const [activeLanguage, setActiveLanguage] = useState({
     code: "uz",
     name: "O'zbek",
     flag: "🇺🇿"
   });
   const [selectedImage, setSelectedImage] = useState(null);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const languages = [
     { code: "uz", name: "O'zbek", flag: "🇺🇿" },
@@ -47,28 +75,28 @@ const School = () => {
             bgGradient: "from-blue-50 to-cyan-50"
           },
           {
-            icon: <PiForkKnife className="text-3xl" />,
+            icon: <GiMeal className="text-3xl" />,
             title: "Sifatli Ovqatlanish",
             description: "Kuniga ikki marta to'liq issiq ovqat bilan ta'minlash",
             gradient: "from-green-500 to-emerald-500",
             bgGradient: "from-green-50 to-emerald-50"
           },
           {
-            icon: <PiUsers className="text-3xl" />,
+            icon: <TbUsers className="text-3xl" />,
             title: "Kichik Sinflar",
             description: "Har bir sinfda maksimal 18 nafargacha o'quvchi",
             gradient: "from-purple-500 to-pink-500",
             bgGradient: "from-purple-50 to-pink-50"
           },
           {
-            icon: <PiChalkboardTeacher className="text-3xl" />,
+            icon: <GiTeacher className="text-3xl" />,
             title: "Tajribali O'qituvchilar",
             description: "Yuqori malakali va tajribali o'qituvchilar jamoasi",
             gradient: "from-orange-500 to-red-500",
             bgGradient: "from-orange-50 to-red-50"
           },
           {
-            icon: <PiMonitor className="text-3xl" />,
+            icon: <TbDeviceDesktop className="text-3xl" />,
             title: "Zamonaviy Texnologiyalar",
             description: "Har bir sinfda zamonaviy interaktiv doskalar",
             gradient: "from-indigo-500 to-blue-500",
@@ -82,28 +110,28 @@ const School = () => {
             bgGradient: "from-teal-50 to-green-50"
           },
           {
-            icon: <PiShield className="text-3xl" />,
+            icon: <GiSecurityGate className="text-3xl" />,
             title: "Xavfsiz Muhit",
             description: "24/7 kamera nazorati va xavfsizlik xizmati",
             gradient: "from-red-500 to-pink-500",
             bgGradient: "from-red-50 to-pink-50"
           },
           {
-            icon: <TbGymnastics className="text-3xl" />,
+            icon: <GiGymBag className="text-3xl" />,
             title: "Sport Faoliyati",
             description: "Turli sport turlari va jismoniy tarbiya",
             gradient: "from-yellow-500 to-orange-500",
             bgGradient: "from-yellow-50 to-orange-50"
           },
           {
-            icon: <PiBookOpen className="text-3xl" />,
+            icon: <GiBookshelf className="text-3xl" />,
             title: "Kutubxona",
             description: "Zamonaviy kutubxona va o'qish zali",
             gradient: "from-purple-500 to-indigo-500",
             bgGradient: "from-purple-50 to-indigo-50"
           },
           {
-            icon: <PiHeart className="text-3xl" />,
+            icon: <TbHeartbeat className="text-3xl" />,
             title: "Psixologik Yordam",
             description: "Maktab psixologi tomonidan yordam",
             gradient: "from-pink-500 to-rose-500",
@@ -114,10 +142,38 @@ const School = () => {
       stats: {
         title: "Raqamlarda Biz",
         items: [
-          { number: "500+", label: "O'quvchi", suffix: "", icon: "👨‍🎓" },
-          { number: "50", label: "Malakali o'qituvchi", suffix: "+", icon: "👩‍🏫" },
-          { number: "15", label: "Yillik tajriba", suffix: "+", icon: "📅" },
-          { number: "98", label: "Muvaffaqiyat foizi", suffix: "%", icon: "🏆" }
+          { 
+            number: "500+", 
+            label: "O'quvchi", 
+            suffix: "", 
+            icon: <PiStudent className="text-4xl" />,
+            gradient: "from-blue-500 to-cyan-500",
+            bgColor: "bg-gradient-to-br from-blue-500/20 to-cyan-500/20"
+          },
+          { 
+            number: "50", 
+            label: "Malakali o'qituvchi", 
+            suffix: "+", 
+            icon: <GiTeacher className="text-4xl" />,
+            gradient: "from-green-500 to-emerald-500",
+            bgColor: "bg-gradient-to-br from-green-500/20 to-emerald-500/20"
+          },
+          { 
+            number: "15", 
+            label: "Yillik tajriba", 
+            suffix: "+", 
+            icon: <PiCalendar className="text-4xl" />,
+            gradient: "from-orange-500 to-red-500",
+            bgColor: "bg-gradient-to-br from-orange-500/20 to-red-500/20"
+          },
+          { 
+            number: "98", 
+            label: "Muvaffaqiyat foizi", 
+            suffix: "%", 
+            icon: <PiTrophy className="text-4xl" />,
+            gradient: "from-purple-500 to-pink-500",
+            bgColor: "bg-gradient-to-br from-purple-500/20 to-pink-500/20"
+          }
         ]
       },
       faq: {
@@ -189,28 +245,28 @@ const School = () => {
             bgGradient: "from-blue-50 to-cyan-50"
           },
           {
-            icon: <PiForkKnife className="text-3xl" />,
+            icon: <GiMeal className="text-3xl" />,
             title: "Качественное Питание",
             description: "Двухразовое полноценное горячее питание в день",
             gradient: "from-green-500 to-emerald-500",
             bgGradient: "from-green-50 to-emerald-50"
           },
           {
-            icon: <PiUsers className="text-3xl" />,
+            icon: <TbUsers className="text-3xl" />,
             title: "Маленькие Классы",
             description: "Максимум 18 учеников в каждом классе",
             gradient: "from-purple-500 to-pink-500",
             bgGradient: "from-purple-50 to-pink-50"
           },
           {
-            icon: <PiChalkboardTeacher className="text-3xl" />,
+            icon: <GiTeacher className="text-3xl" />,
             title: "Опытные Учителя",
             description: "Команда высококвалифицированных и опытных учителей",
             gradient: "from-orange-500 to-red-500",
             bgGradient: "from-orange-50 to-red-50"
           },
           {
-            icon: <PiMonitor className="text-3xl" />,
+            icon: <TbDeviceDesktop className="text-3xl" />,
             title: "Современные Технологии",
             description: "Современные интерактивные доски в каждом классе",
             gradient: "from-indigo-500 to-blue-500",
@@ -224,28 +280,28 @@ const School = () => {
             bgGradient: "from-teal-50 to-green-50"
           },
           {
-            icon: <PiShield className="text-3xl" />,
+            icon: <GiSecurityGate className="text-3xl" />,
             title: "Безопасная Среда",
             description: "Круглосуточное видеонаблюдение и служба безопасности",
             gradient: "from-red-500 to-pink-500",
             bgGradient: "from-red-50 to-pink-50"
           },
           {
-            icon: <TbGymnastics className="text-3xl" />,
+            icon: <GiGymBag className="text-3xl" />,
             title: "Спортивная Деятельность",
             description: "Различные виды спорта и физическое воспитание",
             gradient: "from-yellow-500 to-orange-500",
             bgGradient: "from-yellow-50 to-orange-50"
           },
           {
-            icon: <PiBookOpen className="text-3xl" />,
+            icon: <GiBookshelf className="text-3xl" />,
             title: "Библиотека",
             description: "Современная библиотека и читальный зал",
             gradient: "from-purple-500 to-indigo-500",
             bgGradient: "from-purple-50 to-indigo-50"
           },
           {
-            icon: <PiHeart className="text-3xl" />,
+            icon: <TbHeartbeat className="text-3xl" />,
             title: "Психологическая Помощь",
             description: "Помощь школьного психолога",
             gradient: "from-pink-500 to-rose-500",
@@ -256,10 +312,38 @@ const School = () => {
       stats: {
         title: "Мы в цифрах",
         items: [
-          { number: "500+", label: "Учеников", suffix: "", icon: "👨‍🎓" },
-          { number: "50", label: "Квалифицированных учителей", suffix: "+", icon: "👩‍🏫" },
-          { number: "15", label: "Лет опыта", suffix: "+", icon: "📅" },
-          { number: "98", label: "Успеваемость", suffix: "%", icon: "🏆" }
+          { 
+            number: "500+", 
+            label: "Учеников", 
+            suffix: "", 
+            icon: <PiStudent className="text-4xl" />,
+            gradient: "from-blue-500 to-cyan-500",
+            bgColor: "bg-gradient-to-br from-blue-500/20 to-cyan-500/20"
+          },
+          { 
+            number: "50", 
+            label: "Квалифицированных учителей", 
+            suffix: "+", 
+            icon: <GiTeacher className="text-4xl" />,
+            gradient: "from-green-500 to-emerald-500",
+            bgColor: "bg-gradient-to-br from-green-500/20 to-emerald-500/20"
+          },
+          { 
+            number: "15", 
+            label: "Лет опыта", 
+            suffix: "+", 
+            icon: <PiCalendar className="text-4xl" />,
+            gradient: "from-orange-500 to-red-500",
+            bgColor: "bg-gradient-to-br from-orange-500/20 to-red-500/20"
+          },
+          { 
+            number: "98", 
+            label: "Успеваемость", 
+            suffix: "%", 
+            icon: <PiTrophy className="text-4xl" />,
+            gradient: "from-purple-500 to-pink-500",
+            bgColor: "bg-gradient-to-br from-purple-500/20 to-pink-500/20"
+          }
         ]
       },
       faq: {
@@ -331,28 +415,28 @@ const School = () => {
             bgGradient: "from-blue-50 to-cyan-50"
           },
           {
-            icon: <PiForkKnife className="text-3xl" />,
+            icon: <GiMeal className="text-3xl" />,
             title: "Quality Nutrition",
             description: "Two full hot meals per day",
             gradient: "from-green-500 to-emerald-500",
             bgGradient: "from-green-50 to-emerald-50"
           },
           {
-            icon: <PiUsers className="text-3xl" />,
+            icon: <TbUsers className="text-3xl" />,
             title: "Small Classes",
             description: "Maximum 18 students in each class",
             gradient: "from-purple-500 to-pink-500",
             bgGradient: "from-purple-50 to-pink-50"
           },
           {
-            icon: <PiChalkboardTeacher className="text-3xl" />,
+            icon: <GiTeacher className="text-3xl" />,
             title: "Experienced Teachers",
             description: "Team of highly qualified and experienced teachers",
             gradient: "from-orange-500 to-red-500",
             bgGradient: "from-orange-50 to-red-50"
           },
           {
-            icon: <PiMonitor className="text-3xl" />,
+            icon: <TbDeviceDesktop className="text-3xl" />,
             title: "Modern Technologies",
             description: "Modern interactive boards in every classroom",
             gradient: "from-indigo-500 to-blue-500",
@@ -366,28 +450,28 @@ const School = () => {
             bgGradient: "from-teal-50 to-green-50"
           },
           {
-            icon: <PiShield className="text-3xl" />,
+            icon: <GiSecurityGate className="text-3xl" />,
             title: "Safe Environment",
             description: "24/7 camera surveillance and security service",
             gradient: "from-red-500 to-pink-500",
             bgGradient: "from-red-50 to-pink-50"
           },
           {
-            icon: <TbGymnastics className="text-3xl" />,
+            icon: <GiGymBag className="text-3xl" />,
             title: "Sports Activities",
             description: "Various sports and physical education",
             gradient: "from-yellow-500 to-orange-500",
             bgGradient: "from-yellow-50 to-orange-50"
           },
           {
-            icon: <PiBookOpen className="text-3xl" />,
+            icon: <GiBookshelf className="text-3xl" />,
             title: "Library",
             description: "Modern library and reading room",
             gradient: "from-purple-500 to-indigo-500",
             bgGradient: "from-purple-50 to-indigo-50"
           },
           {
-            icon: <PiHeart className="text-3xl" />,
+            icon: <TbHeartbeat className="text-3xl" />,
             title: "Psychological Support",
             description: "Help from school psychologist",
             gradient: "from-pink-500 to-rose-500",
@@ -398,10 +482,38 @@ const School = () => {
       stats: {
         title: "Our Numbers",
         items: [
-          { number: "500+", label: "Students", suffix: "", icon: "👨‍🎓" },
-          { number: "50", label: "Qualified Teachers", suffix: "+", icon: "👩‍🏫" },
-          { number: "15", label: "Years Experience", suffix: "+", icon: "📅" },
-          { number: "98", label: "Success Rate", suffix: "%", icon: "🏆" }
+          { 
+            number: "500+", 
+            label: "Students", 
+            suffix: "", 
+            icon: <PiStudent className="text-4xl" />,
+            gradient: "from-blue-500 to-cyan-500",
+            bgColor: "bg-gradient-to-br from-blue-500/20 to-cyan-500/20"
+          },
+          { 
+            number: "50", 
+            label: "Qualified Teachers", 
+            suffix: "+", 
+            icon: <GiTeacher className="text-4xl" />,
+            gradient: "from-green-500 to-emerald-500",
+            bgColor: "bg-gradient-to-br from-green-500/20 to-emerald-500/20"
+          },
+          { 
+            number: "15", 
+            label: "Years Experience", 
+            suffix: "+", 
+            icon: <PiCalendar className="text-4xl" />,
+            gradient: "from-orange-500 to-red-500",
+            bgColor: "bg-gradient-to-br from-orange-500/20 to-red-500/20"
+          },
+          { 
+            number: "98", 
+            label: "Success Rate", 
+            suffix: "%", 
+            icon: <PiTrophy className="text-4xl" />,
+            gradient: "from-purple-500 to-pink-500",
+            bgColor: "bg-gradient-to-br from-purple-500/20 to-pink-500/20"
+          }
         ]
       },
       faq: {
@@ -466,6 +578,9 @@ const School = () => {
     { id: 6, src: "/g6.jpg", title: "Hovli", emoji: "🌳" }
   ];
 
+  // 2 marta takrorlash marquee uchun
+  const loopImages = [...galleryImages, ...galleryImages];
+
   const toggleFaq = (index) => {
     setFaqOpen(faqOpen === index ? null : index);
   };
@@ -482,6 +597,17 @@ const School = () => {
   const closeImageModal = () => {
     setSelectedImage(null);
   };
+
+  // 3D Icon komponenti
+  const Icon3D = ({ children, className = "" }) => (
+    <motion.div 
+      className={`transform transition-all duration-500 hover:scale-110 hover:rotate-12 ${className}`}
+      whileHover={{ scale: 1.1, rotate: 5 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      {children}
+    </motion.div>
+  );
 
   return (
     <div className="w-full overflow-x-hidden overflow-y-auto">
@@ -541,34 +667,70 @@ const School = () => {
         </div>
       </div>
 
+      {/* Floating Contact Button */}
+      <motion.div
+        className="fixed bottom-6 right-6 z-50"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        <motion.button
+          onClick={() => setContactOpen(!contactOpen)}
+          className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <PiPhone size={24} />
+        </motion.button>
+
+        <AnimatePresence>
+          {contactOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.8 }}
+              className="absolute bottom-full right-0 mb-4 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-gray-200 min-w-64"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div className="bg-green-500/20 p-2 rounded-lg">
+                    <PiPhone className="text-green-600" size={20} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">+998 90 123 45 67</p>
+                    <p className="text-sm text-gray-600">Asosiy raqam</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div className="bg-blue-500/20 p-2 rounded-lg">
+                    <PiPhone className="text-blue-600" size={20} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">+998 91 234 56 78</p>
+                    <p className="text-sm text-gray-600">Qo'shimcha raqam</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div className="bg-purple-500/20 p-2 rounded-lg">
+                    <PiEnvelope className="text-purple-600" size={20} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">info@bilimmaktab.uz</p>
+                    <p className="text-sm text-gray-600">Email</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-orange-50">
+      <section className="min-h-[80vh] flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-orange-50">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-5"></div>
         
-        {/* Animated Background Elements */}
-        <motion.div 
-          className="absolute top-20 left-10 text-6xl opacity-20"
-          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-          transition={{ duration: 6, repeat: Infinity }}
-        >📚</motion.div>
-        <motion.div 
-          className="absolute top-40 right-20 text-5xl opacity-20"
-          animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
-          transition={{ duration: 5, repeat: Infinity, delay: 1 }}
-        >✏️</motion.div>
-        <motion.div 
-          className="absolute bottom-32 left-20 text-4xl opacity-20"
-          animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 4, repeat: Infinity, delay: 2 }}
-        >🔬</motion.div>
-        <motion.div 
-          className="absolute bottom-40 right-16 text-6xl opacity-20"
-          animate={{ y: [0, 20, 0], rotate: [0, 10, 0] }}
-          transition={{ duration: 7, repeat: Infinity, delay: 0.5 }}
-        >🎓</motion.div>
-        
         <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-6xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -580,7 +742,7 @@ const School = () => {
             </motion.div>
 
             <motion.h1 
-              className="text-5xl md:text-7xl lg:text-8xl font-bold text-gray-900 mb-6 leading-tight"
+              className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight"
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
@@ -593,7 +755,7 @@ const School = () => {
             </motion.h1>
             
             <motion.p 
-              className="text-xl md:text-2xl lg:text-3xl text-gray-700 mb-8 font-light"
+              className="text-xl md:text-2xl text-gray-700 mb-8 font-light"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -602,7 +764,7 @@ const School = () => {
             </motion.p>
             
             <motion.p 
-              className="text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed"
+              className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
@@ -636,25 +798,9 @@ const School = () => {
             </motion.div>
           </div>
         </div>
-        
-        <motion.div 
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-gray-600 flex flex-col items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-        >
-          <span className="mb-2 text-sm font-medium">Aylantiring</span>
-          <motion.div 
-            className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center"
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-          >
-            <div className="w-1 h-3 bg-gray-400 rounded-full mt-2" />
-          </motion.div>
-        </motion.div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section with 3D Icons */}
       <section className="py-16 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
         <div className="container mx-auto px-6">
           <motion.div 
@@ -674,15 +820,28 @@ const School = () => {
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.05 }}
               >
-                <div className="text-6xl mb-4">{stat.icon}</div>
                 <motion.div
-                  className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent"
+                  className={`inline-flex items-center justify-center p-6 rounded-2xl mb-4 ${stat.bgColor} backdrop-blur-sm border border-white/10`}
+                  whileHover={{ 
+                    scale: 1.1,
+                    rotate: [0, -5, 5, 0],
+                    transition: { duration: 0.5 }
+                  }}
+                >
+                    <div className={`text-transparent bg-clip-text bg-gradient-to-r ${stat.gradient}`}>
+                      <span className="text-white">                      {stat.icon}
+                      </span>
+                    </div>
+                </motion.div>
+                
+                <motion.div
+                  className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent"
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity, delay: index * 0.5 }}
                 >
                   {stat.number}<span className="text-orange-300">{stat.suffix}</span>
                 </motion.div>
-                <p className="text-gray-300 text-lg font-medium">{stat.label}</p>
+                <p className="text-gray-300 text-base font-medium">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -695,7 +854,7 @@ const School = () => {
         
         <div className="container mx-auto px-6 relative z-10">
           <motion.div 
-            className="text-center mb-20"
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -711,7 +870,7 @@ const School = () => {
               <span>Eng Yaxshi Ta'lim</span>
             </motion.div>
             
-            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
               <span className="text-gray-900">{currentContent.advantages.title.split(' ')[0]}</span>{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
                 {currentContent.advantages.title.split(' ').slice(1).join(' ')}
@@ -739,8 +898,7 @@ const School = () => {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   whileHover={{ 
-                    y: -5,
-                    scale: 1.02
+                    y: -5
                   }}
                 >
                   <div className="flex items-start gap-4">
@@ -773,25 +931,27 @@ const School = () => {
               viewport={{ once: true }}
             >
               <div className="relative">
-                <div className="w-64 h-64 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-2xl">
+                <div className="w-56 h-56 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-2xl">
                   <div className="text-white text-center">
-                    <div className="text-6xl mb-4">🏫</div>
-                    <div className="text-xl font-bold">Maktabimiz</div>
+                    <Icon3D>
+                      <GiTeacher className="text-5xl mb-4" />
+                    </Icon3D>
+                    <div className="text-lg font-bold">Maktabimiz</div>
                   </div>
                 </div>
                 <motion.div 
-                  className="absolute -top-4 -right-4 bg-white rounded-full p-4 shadow-xl"
+                  className="absolute -top-4 -right-4 bg-white rounded-full p-3 shadow-xl"
                   animate={{ rotate: [0, 10, -10, 0] }}
                   transition={{ duration: 4, repeat: Infinity }}
                 >
-                  <PiStar className="text-2xl text-orange-500" />
+                  <PiStar className="text-xl text-orange-500" />
                 </motion.div>
                 <motion.div 
-                  className="absolute -bottom-4 -left-4 bg-white rounded-full p-4 shadow-xl"
+                  className="absolute -bottom-4 -left-4 bg-white rounded-full p-3 shadow-xl"
                   animate={{ rotate: [0, -10, 10, 0] }}
                   transition={{ duration: 4, repeat: Infinity, delay: 1 }}
                 >
-                  <PiHeart className="text-2xl text-red-500" />
+                  <PiHeart className="text-xl text-red-500" />
                 </motion.div>
               </div>
             </motion.div>
@@ -807,8 +967,7 @@ const School = () => {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   whileHover={{ 
-                    y: -5,
-                    scale: 1.02
+                    y: -5
                   }}
                 >
                   <div className="flex items-start gap-4">
@@ -835,9 +994,8 @@ const School = () => {
         </div>
       </section>
 
-      {/* Gallery Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50 relative">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-5"></div>
+      {/* Gallery Section with Double Marquee */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
         <div className="container mx-auto px-6 relative z-10">
           <motion.div 
             className="text-center mb-16"
@@ -846,7 +1004,7 @@ const School = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
               <span className="text-gray-900">Maktab</span>{" "}
               <span className="text-orange-500">hayotimiz</span>
             </h2>
@@ -855,35 +1013,88 @@ const School = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {galleryImages.map((image, index) => (
+          {/* First Marquee - Right to Left */}
+          <div className="mb-8">
+            <div className="relative overflow-hidden">
               <motion.div
-                key={image.id}
-                className="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border border-gray-200"
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.05 }}
-                onClick={() => openImageModal(image)}
+                className="flex gap-6"
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 20,
+                  ease: "linear",
+                }}
               >
-                <div className="aspect-video bg-gradient-to-br from-orange-100 to-blue-100 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-6xl mb-4">{image.emoji}</div>
-                    <div className="text-xl font-bold text-gray-800">{image.title}</div>
-                  </div>
-                </div>
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                {loopImages.map((image, index) => (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileHover={{ opacity: 1, scale: 1 }}
-                    className="bg-white/90 rounded-full p-4"
+                    key={`${image.id}-${index}`}
+                    className="flex-shrink-0 w-80 group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border border-gray-200"
+                    whileHover={{ scale: 1.05 }}
+                    onClick={() => openImageModal(image)}
                   >
-                    <BsPlayCircle className="text-3xl text-orange-500" />
+                    <div className="aspect-video bg-gradient-to-br from-orange-100 to-blue-100 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-5xl mb-4">{image.emoji}</div>
+                        <div className="text-lg font-bold text-gray-800">{image.title}</div>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0 }}
+                        whileHover={{ opacity: 1, scale: 1 }}
+                        className="bg-white/90 rounded-full p-3"
+                      >
+                        <BsPlayCircle className="text-2xl text-orange-500" />
+                      </motion.div>
+                    </div>
                   </motion.div>
-                </div>
+                ))}
               </motion.div>
-            ))}
+              <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-20"></div>
+              <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-20"></div>
+            </div>
+          </div>
+
+          {/* Second Marquee - Left to Right */}
+          <div>
+            <div className="relative overflow-hidden">
+              <motion.div
+                className="flex gap-6"
+                animate={{ x: ["-50%", "0%"] }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 18,
+                  ease: "linear",
+                }}
+              >
+                {loopImages.map((image, index) => (
+                  <motion.div
+                    key={`${image.id}-${index}-reverse`}
+                    className="flex-shrink-0 w-80 group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border border-gray-200"
+                    whileHover={{ scale: 1.05 }}
+                    onClick={() => openImageModal(image)}
+                  >
+                    <div className="aspect-video bg-gradient-to-br from-blue-100 to-orange-100 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-5xl mb-4">{image.emoji}</div>
+                        <div className="text-lg font-bold text-gray-800">{image.title}</div>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0 }}
+                        whileHover={{ opacity: 1, scale: 1 }}
+                        className="bg-white/90 rounded-full p-3"
+                      >
+                        <BsPlayCircle className="text-2xl text-orange-500" />
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+              <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-20"></div>
+              <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-20"></div>
+            </div>
           </div>
 
           {/* Image Modal */}
@@ -939,13 +1150,11 @@ const School = () => {
               </motion.div>
             )}
           </AnimatePresence>
-
         </div>
       </section>
 
       {/* FAQ Section */}
       <section className="py-20 bg-white relative">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-5"></div>
         <div className="container mx-auto px-6 relative z-10">
           <motion.div 
             className="text-center mb-16"
@@ -954,7 +1163,7 @@ const School = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
               <span className="text-gray-900">Maktabimiz</span>{" "}
               <span className="text-orange-500">haqida savollar</span>
             </h2>
@@ -972,12 +1181,12 @@ const School = () => {
                 viewport={{ once: true }}
               >
                 <motion.button 
-                  className="w-full p-8 text-left flex justify-between items-center bg-white hover:bg-gray-50 transition-colors duration-300 group"
+                  className="w-full p-6 text-left flex justify-between items-center bg-white hover:bg-gray-50 transition-colors duration-300 group"
                   onClick={() => toggleFaq(index)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <span className="text-xl font-semibold text-gray-800 group-hover:text-orange-600 transition-colors pr-4">
+                  <span className="text-lg font-semibold text-gray-800 group-hover:text-orange-600 transition-colors pr-4">
                     {faq.question}
                   </span>
                   <motion.div
@@ -985,7 +1194,7 @@ const School = () => {
                     transition={{ duration: 0.3 }}
                     className="text-orange-500 group-hover:text-orange-600 flex-shrink-0"
                   >
-                    <PiCaretDown size={24} />
+                    <PiCaretDown size={20} />
                   </motion.div>
                 </motion.button>
                 
@@ -998,7 +1207,7 @@ const School = () => {
                       transition={{ duration: 0.3 }}
                       className="overflow-hidden"
                     >
-                      <div className="p-8 pt-0 text-gray-600 bg-white leading-relaxed text-lg">
+                      <div className="p-6 pt-0 text-gray-600 bg-white leading-relaxed">
                         {faq.answer}
                       </div>
                     </motion.div>
@@ -1012,7 +1221,6 @@ const School = () => {
 
       {/* Contact Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50 relative">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1562813733-b31f71025d54?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80')] bg-cover bg-center opacity-5"></div>
         <div className="container mx-auto px-6 relative z-10">
           <motion.div 
             className="text-center mb-16"
@@ -1021,7 +1229,7 @@ const School = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
               <span className="text-gray-900">Maktabimiz</span>{" "}
               <span className="text-orange-500">bilan bog'laning</span>
             </h2>
@@ -1079,13 +1287,7 @@ const School = () => {
                         <option>2-sinf</option>
                         <option>3-sinf</option>
                         <option>4-sinf</option>
-                        <option>5-sinf</option>
-                        <option>6-sinf</option>
-                        <option>7-sinf</option>
-                        <option>8-sinf</option>
-                        <option>9-sinf</option>
-                        <option>10-sinf</option>
-                        <option>11-sinf</option>
+                        <option disabled className="text-gray-400 italic">Yuqori sinflarga qabul yaqin yillarda ochiladi</option>
                       </select>
                     </div>
                   </div>
@@ -1112,40 +1314,40 @@ const School = () => {
                 <div className="space-y-6 mt-8 pt-8 border-t border-gray-200">
                   <div className="flex items-start gap-4">
                     <div className="bg-orange-500/20 p-3 rounded-xl mt-1">
-                      <PiMapPin size={24} className="text-orange-500" />
+                      <PiMapPin size={20} className="text-orange-500" />
                     </div>
                     <div>
-                      <p className="font-semibold text-lg text-gray-800">Manzil</p>
+                      <p className="font-semibold text-gray-800">Manzil</p>
                       <p className="text-gray-600">{currentContent.contact.info.address}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start gap-4">
                     <div className="bg-orange-500/20 p-3 rounded-xl mt-1">
-                      <PiPhone size={24} className="text-orange-500" />
+                      <PiPhone size={20} className="text-orange-500" />
                     </div>
                     <div>
-                      <p className="font-semibold text-lg text-gray-800">Telefon</p>
+                      <p className="font-semibold text-gray-800">Telefon</p>
                       <p className="text-gray-600">{currentContent.contact.info.phone}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start gap-4">
                     <div className="bg-orange-500/20 p-3 rounded-xl mt-1">
-                      <PiEnvelope size={24} className="text-orange-500" />
+                      <PiEnvelope size={20} className="text-orange-500" />
                     </div>
                     <div>
-                      <p className="font-semibold text-lg text-gray-800">Email</p>
+                      <p className="font-semibold text-gray-800">Email</p>
                       <p className="text-gray-600">{currentContent.contact.info.email}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start gap-4">
                     <div className="bg-orange-500/20 p-3 rounded-xl mt-1">
-                      <PiClock size={24} className="text-orange-500" />
+                      <PiClock size={20} className="text-orange-500" />
                     </div>
                     <div>
-                      <p className="font-semibold text-lg text-gray-800">Ish vaqti</p>
+                      <p className="font-semibold text-gray-800">Ish vaqti</p>
                       <p className="text-gray-600">{currentContent.contact.info.hours}</p>
                     </div>
                   </div>
@@ -1168,7 +1370,9 @@ const School = () => {
                 
                 <div className="mt-8 bg-white/20 rounded-2xl p-6 h-48 flex items-center justify-center backdrop-blur-sm relative z-10">
                   <div className="text-center">
-                    <div className="text-4xl mb-2">🏫</div>
+                    <Icon3D>
+                      <GiTeacher className="text-5xl mb-4" />
+                    </Icon3D>
                     <p className="font-semibold text-lg">Maktabimiz</p>
                     <p className="text-white/80">Sizni kutmoqdamiz!</p>
                   </div>

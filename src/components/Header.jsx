@@ -127,7 +127,7 @@ const Header = () => {
           </nav>
 
           {/* Right Side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 z-50">
             {/* Language Selector */}
             <div className="relative">
               <button

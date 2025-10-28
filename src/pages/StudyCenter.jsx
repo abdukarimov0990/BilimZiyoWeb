@@ -792,9 +792,6 @@ const StudyCenter = () => {
         </div>
       </section>
 
-      {/* Courses Section */}
-{/* Courses Section - Yangilangan */}
-{/* Courses Section - Yangilangan */}
 <section className="py-12 lg:py-20 bg-gradient-to-b from-blue/5 to-white relative overflow-hidden">
   <BackgroundIllustrations sectionClass="z-0" />
   <div className="container mx-auto relative z-10 px-4 lg:px-0">

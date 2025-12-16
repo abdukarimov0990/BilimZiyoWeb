@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import logo from '../assets/img/logo02.png';
+import logo from '../assets/img/BZ.png';
 import { Link } from 'react-router';
 import { BiUser, BiMenu, BiX, BiChevronDown } from 'react-icons/bi';
 import { useLanguage } from '../context/LanguageContext';
@@ -128,7 +128,7 @@ const Sheader = () => {
               <Link
                 key={i}
                 to={nav.link}
-                className="relative text-white font-medium tracking-wide transition-all duration-300 group"
+                className="relative text-black font-medium tracking-wide transition-all duration-300 group"
               >
                 <span className="relative z-10 group-hover:text-orange-100 drop-shadow-sm">
                   {nav.nav}
@@ -146,7 +146,7 @@ const Sheader = () => {
             <div className="relative">
               <button
                 onClick={() => setLanguageOpen(!languageOpen)}
-                className="z-10 flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-300/30 text-white backdrop-blur-lg hover:bg-orange-500/20 transition-all duration-300 group shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
+                className="z-10 flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-300/30 text-black backdrop-blur-lg hover:bg-orange-500/20 transition-all duration-300 group shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
                 style={{
                   background: `
                     linear-gradient(
@@ -199,8 +199,8 @@ const Sheader = () => {
                       onClick={() => handleLanguageSelect(lang)}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-all duration-200 group relative z-10 ${
                         activeLanguage.code === lang.code
-                          ? 'bg-orange-500/25 text-white shadow-inner shadow-orange-500/20'
-                          : 'text-orange-100 hover:bg-orange-500/15 hover:text-white'
+                          ? 'bg-orange-500/25 text-black shadow-inner shadow-orange-500/20'
+                          : 'text-orange-100 hover:bg-orange-500/15 hover:text-black'
                       }`}
                     >
                       <img 
@@ -223,7 +223,7 @@ const Sheader = () => {
 
             {/* Register Button */}
             <button 
-              className="hidden md:flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500/25 to-orange-400/20 backdrop-blur-lg text-white font-medium shadow-2xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all duration-300 group border border-orange-300/40"
+              className="hidden md:flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500/25 to-orange-400/20 backdrop-blur-lg text-black font-medium shadow-2xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all duration-300 group border border-orange-300/40"
               style={{
                 background: `
                   linear-gradient(
@@ -242,7 +242,7 @@ const Sheader = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden text-white text-2xl p-2 rounded-xl bg-orange-500/10 border border-orange-300/30 hover:bg-orange-500/20 transition-all duration-300 shadow-lg shadow-orange-500/10"
+              className="lg:hidden text-black text-2xl p-2 rounded-xl bg-orange-500/10 border border-orange-300/30 hover:bg-orange-500/20 transition-all duration-300 shadow-lg shadow-orange-500/10"
             >
               {mobileMenuOpen ? <BiX /> : <BiMenu />}
             </button>
@@ -298,7 +298,7 @@ const Sheader = () => {
             {/* Close Button */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="self-end text-white text-2xl p-2 rounded-xl bg-orange-500/10 border border-orange-300/30 hover:bg-orange-500/20 transition-all duration-300 shadow-lg shadow-orange-500/10"
+              className="self-end text-black text-2xl p-2 rounded-xl bg-orange-500/10 border border-orange-300/30 hover:bg-orange-500/20 transition-all duration-300 shadow-lg shadow-orange-500/10"
             >
               <BiX />
             </button>
@@ -309,7 +309,7 @@ const Sheader = () => {
                 key={i}
                 to={nav.link}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-xl font-medium text-orange-100 hover:text-white transition-all duration-300 py-3 px-6 rounded-xl hover:bg-orange-500/15 w-full text-center border border-transparent hover:border-orange-300/20 shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
+                className="text-xl font-medium text-orange-100 hover:text-black transition-all duration-300 py-3 px-6 rounded-xl hover:bg-orange-500/15 w-full text-center border border-transparent hover:border-orange-300/20 shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
               >
                 {nav.nav}
               </Link>
@@ -318,7 +318,7 @@ const Sheader = () => {
             {/* Mobile Register Button */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="px-8 py-4 rounded-xl bg-gradient-to-r from-orange-500/25 to-orange-400/20 text-white font-semibold shadow-2xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 transition-all duration-300 border border-orange-300/40 w-full mt-4"
+              className="px-8 py-4 rounded-xl bg-gradient-to-r from-orange-500/25 to-orange-400/20 text-black font-semibold shadow-2xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 transition-all duration-300 border border-orange-300/40 w-full mt-4"
               style={{
                 background: `
                   linear-gradient(

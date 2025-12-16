@@ -132,7 +132,7 @@ const Header = () => {
               <Link
                 key={i}
                 to={nav.link}
-                className="relative text-white font-medium tracking-wide transition-all duration-300 group"
+                className="relative text-black font-medium tracking-wide transition-all duration-300 group"
               >
                 <span className="relative z-10 group-hover:text-blue-100 drop-shadow-sm">
                   {nav.nav}
@@ -150,7 +150,7 @@ const Header = () => {
             <div className="relative">
               <button
                 onClick={() => setLanguageOpen(!languageOpen)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-300/30 text-white backdrop-blur-lg hover:bg-blue-500/20 transition-all duration-300 group shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-300/30 text-black backdrop-blur-lg hover:bg-blue-500/20 transition-all duration-300 group shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
                 style={{
                   background: `
                     linear-gradient(
@@ -203,8 +203,8 @@ const Header = () => {
                       onClick={() => handleLanguageSelect(lang)}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-all duration-200 group relative z-10 ${
                         activeLanguage.code === lang.code
-                          ? 'bg-blue-500/25 text-white shadow-inner shadow-blue-500/20'
-                          : 'text-blue-100 hover:bg-blue-500/15 hover:text-white'
+                          ? 'bg-blue-500/25 text-black shadow-inner shadow-blue-500/20'
+                          : 'text-blue-100 hover:bg-blue-500/15 hover:text-black'
                       }`}
                     >
                       <img 
@@ -227,7 +227,7 @@ const Header = () => {
 
             {/* Register Button */}
             <button 
-              className="hidden md:flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500/25 to-blue-400/20 backdrop-blur-lg text-white font-medium shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 active:scale-95 transition-all duration-300 group border border-blue-300/40"
+              className="hidden md:flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500/25 to-blue-400/20 backdrop-blur-lg text-black font-medium shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 active:scale-95 transition-all duration-300 group border border-blue-300/40"
               style={{
                 background: `
                   linear-gradient(
@@ -246,7 +246,7 @@ const Header = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden text-white text-2xl p-2 rounded-xl bg-blue-500/10 border border-blue-300/30 hover:bg-blue-500/20 transition-all duration-300 shadow-lg shadow-blue-500/10"
+              className="lg:hidden text-black text-2xl p-2 rounded-xl bg-blue-500/10 border border-blue-300/30 hover:bg-blue-500/20 transition-all duration-300 shadow-lg shadow-blue-500/10"
             >
               {mobileMenuOpen ? <BiX /> : <BiMenu />}
             </button>
@@ -302,7 +302,7 @@ const Header = () => {
             {/* Close Button */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="self-end text-white text-2xl p-2 rounded-xl bg-blue-500/10 border border-blue-300/30 hover:bg-blue-500/20 transition-all duration-300 shadow-lg shadow-blue-500/10"
+              className="self-end text-black text-2xl p-2 rounded-xl bg-blue-500/10 border border-blue-300/30 hover:bg-blue-500/20 transition-all duration-300 shadow-lg shadow-blue-500/10"
             >
               <BiX />
             </button>
@@ -313,7 +313,7 @@ const Header = () => {
                 key={i}
                 to={nav.link}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-xl font-medium text-blue-100 hover:text-white transition-all duration-300 py-3 px-6 rounded-xl hover:bg-blue-500/15 w-full text-center border border-transparent hover:border-blue-300/20 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
+                className="text-xl font-medium text-blue-100 hover:text-black transition-all duration-300 py-3 px-6 rounded-xl hover:bg-blue-500/15 w-full text-center border border-transparent hover:border-blue-300/20 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
               >
                 {nav.nav}
               </Link>
@@ -322,7 +322,7 @@ const Header = () => {
             {/* Mobile Register Button */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="px-8 py-4 rounded-xl bg-gradient-to-r from-blue-500/25 to-blue-400/20 text-white font-semibold shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 transition-all duration-300 border border-blue-300/40 w-full mt-4"
+              className="px-8 py-4 rounded-xl bg-gradient-to-r from-blue-500/25 to-blue-400/20 text-black font-semibold shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 transition-all duration-300 border border-blue-300/40 w-full mt-4"
               style={{
                 background: `
                   linear-gradient(

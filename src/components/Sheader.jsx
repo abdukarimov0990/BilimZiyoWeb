@@ -1,33 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../assets/img/logo02.png';
-import uzbFlag from '../assets/img/uzb.svg';
-import rusFlag from '../assets/img/rus.svg';
-import engFlag from '../assets/img/eng.svg';
 import { Link } from 'react-router';
 import { BiUser, BiMenu, BiX, BiChevronDown } from 'react-icons/bi';
+import { useLanguage } from '../context/LanguageContext';
 
 const Sheader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [activeLanguage, setActiveLanguage] = useState({
-    code: 'UZ',
-    name: "O'zbek",
-    flag: uzbFlag,
-  });
+  
+  const { activeLanguage, languages, changeLanguage } = useLanguage();
 
-  const navs = [
-    { nav: "Asosiy", link: "/school" },
-    { nav: "Kurslarimiz", link: "/courses" },
-    { nav: "Jamoa", link: "/team" },
-    { nav: "FAQ", link: "/faq" },
-  ];
+  // Tillarni tarjima qilish uchun obyekt
+  const translations = {
+    UZ: {
+      navs: [
+        { nav: "Asosiy", link: "/school" },
+        { nav: "Kurslarimiz", link: "/courses" },
+        { nav: "Jamoa", link: "/team" },
+        { nav: "FAQ", link: "/faq" },
+      ],
+      register: "Ro'yxatdan o'tish",
+    },
+    RU: {
+      navs: [
+        { nav: "Главная", link: "/school" },
+        { nav: "Курсы", link: "/courses" },
+        { nav: "Команда", link: "/team" },
+        { nav: "FAQ", link: "/faq" },
+      ],
+      register: "Регистрация",
+    },
+    EN: {
+      navs: [
+        { nav: "Home", link: "/school" },
+        { nav: "Courses", link: "/courses" },
+        { nav: "Team", link: "/team" },
+        { nav: "FAQ", link: "/faq" },
+      ],
+      register: "Register",
+    },
+  };
 
-  const languages = [
-    { code: 'UZ', name: "O'zbek", flag: uzbFlag },
-    { code: 'RU', name: 'Русский', flag: rusFlag },
-    { code: 'EN', name: 'English', flag: engFlag },
-  ];
+  const currentTranslations = translations[activeLanguage.code];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,14 +53,14 @@ const Sheader = () => {
   }, []);
 
   const handleLanguageSelect = (lang) => {
-    setActiveLanguage(lang);
+    changeLanguage(lang.code);
     setLanguageOpen(false);
   };
 
   return (
     <header
       className={`
-        fixed top-4 left-1/2 -translate-x-1/2 z-50
+        fixed overflow-visible top-4 left-1/2 -translate-x-1/2 z-50
         transition-all duration-500
         w-[95%] max-w-7xl
         ${isScrolled ? 'scale-[0.98]' : 'scale-100'}
@@ -60,7 +75,6 @@ const Sheader = () => {
           border border-orange-300/40
           rounded-2xl
           shadow-2xl shadow-orange-500/20
-          overflow-hidden
           transition-all duration-500
           ${isScrolled ? 'shadow-orange-500/25' : 'shadow-orange-500/15'}
         `}
@@ -110,7 +124,7 @@ const Sheader = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
-            {navs.map((nav, i) => (
+            {currentTranslations.navs.map((nav, i) => (
               <Link
                 key={i}
                 to={nav.link}
@@ -127,12 +141,12 @@ const Sheader = () => {
           </nav>
 
           {/* Right Side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 z-10">
             {/* Language Selector */}
             <div className="relative">
               <button
                 onClick={() => setLanguageOpen(!languageOpen)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-300/30 text-white backdrop-blur-lg hover:bg-orange-500/20 transition-all duration-300 group shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
+                className="z-10 flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-300/30 text-white backdrop-blur-lg hover:bg-orange-500/20 transition-all duration-300 group shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
                 style={{
                   background: `
                     linear-gradient(
@@ -148,6 +162,9 @@ const Sheader = () => {
                   alt={activeLanguage.name} 
                   className="w-5 h-5 rounded-full transition-transform duration-300 group-hover:scale-110 drop-shadow" 
                 />
+                <span className="text-sm font-medium drop-shadow-sm">
+                  {activeLanguage.code}
+                </span>
                 <BiChevronDown
                   className={`transition-all duration-300 ${languageOpen ? 'rotate-180 text-orange-200' : 'text-orange-100'}`}
                 />
@@ -191,7 +208,13 @@ const Sheader = () => {
                         alt={lang.name} 
                         className="w-5 h-5 rounded-full transition-transform duration-300 group-hover:scale-110 drop-shadow" 
                       />
-                      <span className="font-medium drop-shadow-sm">{lang.code}</span>
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium drop-shadow-sm">{lang.code}</span>
+                        <span className="text-xs text-orange-200/80">{lang.name}</span>
+                      </div>
+                      {activeLanguage.code === lang.code && (
+                        <div className="ml-auto w-2 h-2 rounded-full bg-orange-300 shadow-sm" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -213,7 +236,7 @@ const Sheader = () => {
               }}
             >
               <BiUser size={18} className="transition-transform duration-300 group-hover:scale-110 drop-shadow" />
-              <span className="font-semibold drop-shadow-sm">Ro'yxatdan o'tish</span>
+              <span className="font-semibold drop-shadow-sm">{currentTranslations.register}</span>
             </button>
 
             {/* Mobile Menu Button */}
@@ -281,7 +304,7 @@ const Sheader = () => {
             </button>
 
             {/* Navigation Links */}
-            {navs.map((nav, i) => (
+            {currentTranslations.navs.map((nav, i) => (
               <Link
                 key={i}
                 to={nav.link}
@@ -307,7 +330,7 @@ const Sheader = () => {
                 `,
               }}
             >
-              <BiUser className="inline-block mr-2" /> Ro'yxatdan o'tish
+              <BiUser className="inline-block mr-2" /> {currentTranslations.register}
             </button>
           </div>
         </div>
@@ -316,4 +339,4 @@ const Sheader = () => {
   );
 };
 
-export default Sheader;
+export default Sheader; 

@@ -1,33 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../assets/img/BZ.png';
-import uzbFlag from '../assets/img/uzb.svg';
-import rusFlag from '../assets/img/rus.svg';
-import engFlag from '../assets/img/eng.svg';
 import { Link } from 'react-router';
 import { BiUser, BiMenu, BiX, BiChevronDown } from 'react-icons/bi';
+import { useLanguage } from '../context/LanguageContext';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [activeLanguage, setActiveLanguage] = useState({
-    code: 'UZ',
-    name: "O'zbek",
-    flag: uzbFlag,
-  });
+  
+  const { activeLanguage, languages, changeLanguage } = useLanguage();
 
-  const navs = [
-    { nav: "Asosiy", link: "/" },
-    { nav: "Kurslarimiz", link: "/courses" },
-    { nav: "Jamoa", link: "/team" },
-    { nav: "FAQ", link: "/faq" },
-  ];
+  // Navigation links for different languages
+  const translations = {
+    UZ: {
+      navs: [
+        { nav: "Asosiy", link: "/" },
+        { nav: "Kurslarimiz", link: "/courses" },
+        { nav: "Jamoa", link: "/team" },
+        { nav: "FAQ", link: "/faq" },
+      ],
+      register: "Ro'yxatdan o'tish",
+    },
+    RU: {
+      navs: [
+        { nav: "Главная", link: "/" },
+        { nav: "Курсы", link: "/courses" },
+        { nav: "Команда", link: "/team" },
+        { nav: "FAQ", link: "/faq" },
+      ],
+      register: "Регистрация",
+    },
+    EN: {
+      navs: [
+        { nav: "Home", link: "/" },
+        { nav: "Courses", link: "/courses" },
+        { nav: "Team", link: "/team" },
+        { nav: "FAQ", link: "/faq" },
+      ],
+      register: "Register",
+    },
+  };
 
-  const languages = [
-    { code: 'UZ', name: "O'zbek", flag: uzbFlag },
-    { code: 'RU', name: 'Русский', flag: rusFlag },
-    { code: 'EN', name: 'English', flag: engFlag },
-  ];
+  const currentTranslations = translations[activeLanguage.code] || translations.UZ;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,8 +53,12 @@ const Header = () => {
   }, []);
 
   const handleLanguageSelect = (lang) => {
-    setActiveLanguage(lang);
+    changeLanguage(lang.code);
     setLanguageOpen(false);
+    // Refresh the page to update all content
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   return (
@@ -60,7 +79,6 @@ const Header = () => {
           border border-blue-300/40
           rounded-2xl
           shadow-2xl shadow-blue-500/20
-          overflow-hidden
           transition-all duration-500
           ${isScrolled ? 'shadow-blue-500/25' : 'shadow-blue-500/15'}
         `}
@@ -110,7 +128,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
-            {navs.map((nav, i) => (
+            {currentTranslations.navs.map((nav, i) => (
               <Link
                 key={i}
                 to={nav.link}
@@ -148,6 +166,9 @@ const Header = () => {
                   alt={activeLanguage.name} 
                   className="w-5 h-5 rounded-full transition-transform duration-300 group-hover:scale-110 drop-shadow" 
                 />
+                <span className="text-sm font-medium drop-shadow-sm">
+                  {activeLanguage.code}
+                </span>
                 <BiChevronDown
                   className={`transition-all duration-300 ${languageOpen ? 'rotate-180 text-blue-200' : 'text-blue-100'}`}
                 />
@@ -156,7 +177,7 @@ const Header = () => {
               {/* Language Dropdown */}
               {languageOpen && (
                 <div 
-                  className="absolute right-0 mt-2 w-48 bg-gradient-to-b from-blue-500/15 to-blue-600/10 backdrop-blur-3xl rounded-xl border border-blue-300/40 shadow-2xl shadow-blue-500/25 overflow-hidden"
+                  className="absolute right-0 mt-2 w-48 bg-gradient-to-b from-blue-500/15 to-blue-600/10 backdrop-blur-3xl rounded-xl border border-blue-300/40 shadow-2xl shadow-blue-500/25 overflow-hidden z-50"
                   style={{
                     WebkitBackdropFilter: 'blur(50px) saturate(200%)',
                     backdropFilter: 'blur(50px) saturate(200%)',
@@ -191,7 +212,13 @@ const Header = () => {
                         alt={lang.name} 
                         className="w-5 h-5 rounded-full transition-transform duration-300 group-hover:scale-110 drop-shadow" 
                       />
-                      <span className="font-medium drop-shadow-sm">{lang.code}</span>
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium drop-shadow-sm">{lang.code}</span>
+                        <span className="text-xs text-blue-200/80">{lang.name}</span>
+                      </div>
+                      {activeLanguage.code === lang.code && (
+                        <div className="ml-auto w-2 h-2 rounded-full bg-blue-300 shadow-sm" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -213,7 +240,7 @@ const Header = () => {
               }}
             >
               <BiUser size={18} className="transition-transform duration-300 group-hover:scale-110 drop-shadow" />
-              <span className="font-semibold drop-shadow-sm">Ro'yxatdan o'tish</span>
+              <span className="font-semibold drop-shadow-sm">{currentTranslations.register}</span>
             </button>
 
             {/* Mobile Menu Button */}
@@ -281,7 +308,7 @@ const Header = () => {
             </button>
 
             {/* Navigation Links */}
-            {navs.map((nav, i) => (
+            {currentTranslations.navs.map((nav, i) => (
               <Link
                 key={i}
                 to={nav.link}
@@ -307,7 +334,7 @@ const Header = () => {
                 `,
               }}
             >
-              <BiUser className="inline-block mr-2" /> Ro'yxatdan o'tish
+              <BiUser className="inline-block mr-2" /> {currentTranslations.register}
             </button>
           </div>
         </div>

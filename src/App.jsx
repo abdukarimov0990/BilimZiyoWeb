@@ -3,18 +3,22 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } 
 import MainLayout from './Layouts/MainLayout'
 import School from './pages/School'
 import StudyCenter from './pages/StudyCenter'
+import { LanguageProvider } from './context/LanguageContext'
 
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
-    <Route element={<MainLayout/>}>
-      <Route path='/school' element={<School/>}/>
-      <Route path='/' element={<StudyCenter/>}/>
-    </Route>
+      <Route element={<MainLayout/>}>
+        <Route path='/school' element={<School/>}/>
+        <Route path='/' element={<StudyCenter/>}/>
+      </Route>
     )
   )
+  
   return (
-   <RouterProvider router={router}/>
+    <LanguageProvider>
+      <RouterProvider router={router}/>
+    </LanguageProvider>
   )
 }
 

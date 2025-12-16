@@ -1,20 +1,26 @@
 import React, { useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import { BookOpen, BrainCircuit, Globe2, GraduationCapIcon, icons, LightbulbIcon, RocketIcon, School2, TargetIcon, Users2 } from 'lucide-react'
-import { FaArrowRight, FaBolt, FaCalendarCheck, FaChalkboardTeacher, FaChevronDown, FaMapMarkerAlt, FaPlay, FaRegStar, FaSchool, FaUserGraduate, FaUsers, FaPhone, FaEnvelope, FaFacebook, FaTelegram, FaInstagram } from 'react-icons/fa'
+import { FaArrowRight, FaBolt, FaCalendarCheck, FaChalkboardTeacher, FaChevronDown, FaMapMarkerAlt, FaPlay, FaRegStar, FaSchool, FaUserGraduate, FaUsers, FaPhone, FaEnvelope, FaFacebook, FaTelegram, FaInstagram, FaFileUpload, FaUser, FaBriefcase } from 'react-icons/fa'
 import { MdArrowRightAlt } from 'react-icons/md'
 import { AnimatePresence, motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
+import { Autoplay, Navigation, Pagination, EffectCoverflow } from "swiper/modules";
 import event from '../assets/img/event.jpg'
 import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/effect-coverflow";
 import { BsBookshelf } from 'react-icons/bs';
 import { LiaUserGraduateSolid } from 'react-icons/lia';
 import { Link } from 'react-router';
 import logo from '../assets/img/BZwhite.png'
+import useMeasure from "react-use-measure"
+
 
 const StudyCenter = () => {
   const { activeLanguage, getLanguageContent } = useLanguage();
+  const [ref, { height }] = useMeasure()
 
   // Barcha tillar uchun tarjimalar
   const translations = {
@@ -56,6 +62,48 @@ const StudyCenter = () => {
         subtitle: "jamoamiz:",
         yearsExp: "yillik tajriba",
         students: "o'quvchi o'qitdi"
+      },
+      teachingTeam: {
+        title: "O'qituvchilarimiz",
+        subtitle: "haqida",
+        joinTeam: "Jamoamizga qo'shiling",
+        subjects: {
+          english: "Ingliz tili",
+          math: "Matematika",
+          russian: "Rus tili",
+          korean: "Koreys tili",
+          programming: "Dasturlash",
+          drawing: "Rasm chizish",
+          physics: "Fizika",
+          chemistry: "Kimyo"
+        }
+      },
+      joinForm: {
+        title: "Jamoamizga qo'shiling",
+        name: "Ism-sharifingiz",
+        phone: "Telefon raqamingiz",
+        birthDate: "Tug'ilgan sanangiz",
+        languages: "Qaysi tillarni bilasiz?",
+        address: "Yashash manzilingiz",
+        position: "Qaysi lavozimda ishlamoqchisiz?",
+        positions: {
+          teacher: "O'qituvchi",
+          assistant: "Yordamchi o'qituvchi",
+          admin: "Administrator",
+          cashier: "Kassir",
+          other: "Boshqa"
+        },
+        education: "Ma'lumotingiz (qayerda o'qigansiz?)",
+        experience: "Ish tajribangiz (qayerda va qancha vaqt ishlagansiz?)",
+        ieltsCertificate: "IELTS sertifikatingiz rasmini yuklang",
+        cv: "Rezyume/CV yuklang",
+        additionalInfo: "Qo'shimcha ma'lumot yoki taklifingiz",
+        upload: "Faylni yuklash",
+        submit: "Ariza yuborish",
+        close: "Yopish",
+        additionalQuestions: "Agar yana qo'shimcha savollar bo'lsa: @BilimZiyoHR'ga yozishingiz mumkin!",
+        required: "* Majburiy maydonlar",
+        ieltsRequired: "IELTS sertifikati faqat o'qituvchi yoki yordamchi o'qituvchi tanlaganda majburiy"
       },
       results: {
         title: "Bizning",
@@ -270,6 +318,48 @@ const StudyCenter = () => {
         yearsExp: "лет опыта",
         students: "студентов обучил"
       },
+      teachingTeam: {
+        title: "Наши",
+        subtitle: "преподаватели",
+        joinTeam: "Присоединиться к команде",
+        subjects: {
+          english: "Английский язык",
+          math: "Математика",
+          russian: "Русский язык",
+          korean: "Корейский язык",
+          programming: "Программирование",
+          drawing: "Рисование",
+          physics: "Физика",
+          chemistry: "Химия"
+        }
+      },
+      joinForm: {
+        title: "Присоединиться к команде",
+        name: "Ваше ФИО",
+        phone: "Ваш номер телефона",
+        birthDate: "Дата рождения",
+        languages: "Какие языки вы знаете?",
+        address: "Адрес проживания",
+        position: "На какую должность претендуете?",
+        positions: {
+          teacher: "Преподаватель",
+          assistant: "Помощник преподавателя",
+          admin: "Администратор",
+          cashier: "Кассир",
+          other: "Другое"
+        },
+        education: "Ваше образование (где учились?)",
+        experience: "Опыт работы (где и сколько работали?)",
+        ieltsCertificate: "Загрузите фото сертификата IELTS",
+        cv: "Загрузите резюме/CV",
+        additionalInfo: "Дополнительная информация или предложения",
+        upload: "Загрузить файл",
+        submit: "Отправить заявку",
+        close: "Закрыть",
+        additionalQuestions: "Если есть дополнительные вопросы: пишите @BilimZiyoHR!",
+        required: "* Обязательные поля",
+        ieltsRequired: "Сертификат IELTS обязателен только для преподавателя или помощника преподавателя"
+      },
       results: {
         title: "Наши",
         subtitle: "результаты:",
@@ -483,6 +573,48 @@ const StudyCenter = () => {
         yearsExp: "years of experience",
         students: "students taught"
       },
+      teachingTeam: {
+        title: "Our",
+        subtitle: "Teaching Staff",
+        joinTeam: "Join Our Team",
+        subjects: {
+          english: "English Language",
+          math: "Mathematics",
+          russian: "Russian Language",
+          korean: "Korean Language",
+          programming: "Programming",
+          drawing: "Drawing",
+          physics: "Physics",
+          chemistry: "Chemistry"
+        }
+      },
+      joinForm: {
+        title: "Join Our Team",
+        name: "Your Full Name",
+        phone: "Your Phone Number",
+        birthDate: "Date of Birth",
+        languages: "Which languages do you know?",
+        address: "Your Address",
+        position: "Which position are you interested in?",
+        positions: {
+          teacher: "Teacher",
+          assistant: "Assistant Teacher",
+          admin: "Administrator",
+          cashier: "Cashier",
+          other: "Other"
+        },
+        education: "Your Education (where did you study?)",
+        experience: "Work Experience (where and how long have you worked?)",
+        ieltsCertificate: "Upload IELTS Certificate Photo",
+        cv: "Upload Resume/CV",
+        additionalInfo: "Additional Information or Suggestions",
+        upload: "Upload File",
+        submit: "Submit Application",
+        close: "Close",
+        additionalQuestions: "If you have additional questions: write to @BilimZiyoHR!",
+        required: "* Required fields",
+        ieltsRequired: "IELTS certificate is required only for Teacher or Assistant Teacher positions"
+      },
       results: {
         title: "Our",
         subtitle: "results:",
@@ -666,21 +798,21 @@ const StudyCenter = () => {
     {
       id: 1,
       name: activeLanguage.code === 'UZ' ? "Ingliz tili" : activeLanguage.code === 'RU' ? "Английский язык" : "English Language",
-      desc: activeLanguage.code === 'UZ' ? "Boshlang'ichdan IELTS darajasigacha" : 
-            activeLanguage.code === 'RU' ? "От начального до уровня IELTS" : 
-            "From beginner to IELTS level",
+      desc: activeLanguage.code === 'UZ' ? "Boshlang'ichdan IELTS darajasigacha" :
+        activeLanguage.code === 'RU' ? "От начального до уровня IELTS" :
+          "From beginner to IELTS level",
       icon: "🇬🇧",
       details: {
         duration: activeLanguage.code === 'UZ' ? "6-9 oy" : activeLanguage.code === 'RU' ? "6-9 месяцев" : "6-9 months",
-        level: activeLanguage.code === 'UZ' ? "Boshlang'ichdan IELTS gacha" : 
-               activeLanguage.code === 'RU' ? "От начального до IELTS" : 
-               "From beginner to IELTS",
-        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" : 
-                activeLanguage.code === 'RU' ? "Групповые и индивидуальные" : 
-                "Group and individual",
-        price: activeLanguage.code === 'UZ' ? "400,000 so'm/oy" : 
-               activeLanguage.code === 'RU' ? "400 000 сум/месяц" : 
-               "400,000 soums/month",
+        level: activeLanguage.code === 'UZ' ? "Boshlang'ichdan IELTS gacha" :
+          activeLanguage.code === 'RU' ? "От начального до IELTS" :
+            "From beginner to IELTS",
+        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" :
+          activeLanguage.code === 'RU' ? "Групповые и индивидуальные" :
+            "Group and individual",
+        price: activeLanguage.code === 'UZ' ? "400,000 so'm/oy" :
+          activeLanguage.code === 'RU' ? "400 000 сум/месяц" :
+            "400,000 soums/month",
         features: activeLanguage.code === 'UZ' ? [
           "Native speaker bilan mashg'ulotlar",
           "IELTS imtihoniga tayyorgarlik",
@@ -702,21 +834,21 @@ const StudyCenter = () => {
     {
       id: 2,
       name: activeLanguage.code === 'UZ' ? "Matematika" : activeLanguage.code === 'RU' ? "Математика" : "Mathematics",
-      desc: activeLanguage.code === 'UZ' ? "Maktab va oliy ta'lim uchun chuqur tayyorgarlik" : 
-            activeLanguage.code === 'RU' ? "Глубокая подготовка для школы и высшего образования" : 
-            "Deep preparation for school and higher education",
+      desc: activeLanguage.code === 'UZ' ? "Maktab va oliy ta'lim uchun chuqur tayyorgarlik" :
+        activeLanguage.code === 'RU' ? "Глубокая подготовка для школы и высшего образования" :
+          "Deep preparation for school and higher education",
       icon: "📊",
       details: {
         duration: activeLanguage.code === 'UZ' ? "8-10 oy" : activeLanguage.code === 'RU' ? "8-10 месяцев" : "8-10 months",
-        level: activeLanguage.code === 'UZ' ? "1-11 sinflar va abituriyentlar" : 
-               activeLanguage.code === 'RU' ? "1-11 классы и абитуриенты" : 
-               "Grades 1-11 and applicants",
-        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" : 
-                activeLanguage.code === 'RU' ? "Групповые и индивидуальные" : 
-                "Group and individual",
-        price: activeLanguage.code === 'UZ' ? "350,000 so'm/oy" : 
-               activeLanguage.code === 'RU' ? "350 000 сум/месяц" : 
-               "350,000 soums/month",
+        level: activeLanguage.code === 'UZ' ? "1-11 sinflar va abituriyentlar" :
+          activeLanguage.code === 'RU' ? "1-11 классы и абитуриенты" :
+            "Grades 1-11 and applicants",
+        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" :
+          activeLanguage.code === 'RU' ? "Групповые и индивидуальные" :
+            "Group and individual",
+        price: activeLanguage.code === 'UZ' ? "350,000 so'm/oy" :
+          activeLanguage.code === 'RU' ? "350 000 сум/месяц" :
+            "350,000 soums/month",
         features: activeLanguage.code === 'UZ' ? [
           "Maktab dasturi va olimpiada tayyorgarligi",
           "DTM va imtihonlarga tayyorgarlik",
@@ -738,21 +870,21 @@ const StudyCenter = () => {
     {
       id: 3,
       name: activeLanguage.code === 'UZ' ? "Rus tili" : activeLanguage.code === 'RU' ? "Русский язык" : "Russian Language",
-      desc: activeLanguage.code === 'UZ' ? "Noldan so'zlash darajasigacha" : 
-            activeLanguage.code === 'RU' ? "От нуля до уровня разговорной речи" : 
-            "From zero to conversational level",
+      desc: activeLanguage.code === 'UZ' ? "Noldan so'zlash darajasigacha" :
+        activeLanguage.code === 'RU' ? "От нуля до уровня разговорной речи" :
+          "From zero to conversational level",
       icon: "🇷🇺",
       details: {
         duration: activeLanguage.code === 'UZ' ? "4-6 oy" : activeLanguage.code === 'RU' ? "4-6 месяцев" : "4-6 months",
-        level: activeLanguage.code === 'UZ' ? "Boshlang'ich va o'rta" : 
-               activeLanguage.code === 'RU' ? "Начальный и средний" : 
-               "Beginner and intermediate",
-        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" : 
-                activeLanguage.code === 'RU' ? "Групповые и индивидуальные" : 
-                "Group and individual",
-        price: activeLanguage.code === 'UZ' ? "300,000 so'm/oy" : 
-               activeLanguage.code === 'RU' ? "300 000 сум/месяц" : 
-               "300,000 soums/month",
+        level: activeLanguage.code === 'UZ' ? "Boshlang'ich va o'rta" :
+          activeLanguage.code === 'RU' ? "Начальный и средний" :
+            "Beginner and intermediate",
+        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" :
+          activeLanguage.code === 'RU' ? "Групповые и индивидуальные" :
+            "Group and individual",
+        price: activeLanguage.code === 'UZ' ? "300,000 so'm/oy" :
+          activeLanguage.code === 'RU' ? "300 000 сум/месяц" :
+            "300,000 soums/month",
         features: activeLanguage.code === 'UZ' ? [
           "Grammatika va leksika",
           "Og'zaki nutqni rivojlantirish",
@@ -774,21 +906,21 @@ const StudyCenter = () => {
     {
       id: 4,
       name: activeLanguage.code === 'UZ' ? "Koreys tili" : activeLanguage.code === 'RU' ? "Корейский язык" : "Korean Language",
-      desc: activeLanguage.code === 'UZ' ? "TOPIK imtihoniga tayyorgarlik" : 
-            activeLanguage.code === 'RU' ? "Подготовка к экзамену TOPIK" : 
-            "TOPIK exam preparation",
+      desc: activeLanguage.code === 'UZ' ? "TOPIK imtihoniga tayyorgarlik" :
+        activeLanguage.code === 'RU' ? "Подготовка к экзамену TOPIK" :
+          "TOPIK exam preparation",
       icon: "🇰🇷",
       details: {
         duration: activeLanguage.code === 'UZ' ? "6-8 oy" : activeLanguage.code === 'RU' ? "6-8 месяцев" : "6-8 months",
-        level: activeLanguage.code === 'UZ' ? "Boshlang'ichdan TOPIK 2 gacha" : 
-               activeLanguage.code === 'RU' ? "От начального до TOPIK 2" : 
-               "From beginner to TOPIK 2",
-        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" : 
-                activeLanguage.code === 'RU' ? "Групповые и индивидуальные" : 
-                "Group and individual",
-        price: activeLanguage.code === 'UZ' ? "450,000 so'm/oy" : 
-               activeLanguage.code === 'RU' ? "450 000 сум/месяц" : 
-               "450,000 soums/month",
+        level: activeLanguage.code === 'UZ' ? "Boshlang'ichdan TOPIK 2 gacha" :
+          activeLanguage.code === 'RU' ? "От начального до TOPIK 2" :
+            "From beginner to TOPIK 2",
+        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" :
+          activeLanguage.code === 'RU' ? "Групповые и индивидуальные" :
+            "Group and individual",
+        price: activeLanguage.code === 'UZ' ? "450,000 so'm/oy" :
+          activeLanguage.code === 'RU' ? "450 000 сум/месяц" :
+            "450,000 soums/month",
         features: activeLanguage.code === 'UZ' ? [
           "Hangul o'qish va yozish",
           "TOPIK imtihon strategiyalari",
@@ -810,17 +942,17 @@ const StudyCenter = () => {
     {
       id: 5,
       name: activeLanguage.code === 'UZ' ? "Dasturlash" : activeLanguage.code === 'RU' ? "Программирование" : "Programming",
-      desc: activeLanguage.code === 'UZ' ? "Python va JavaScript asoslari" : 
-            activeLanguage.code === 'RU' ? "Основы Python и JavaScript" : 
-            "Python and JavaScript basics",
+      desc: activeLanguage.code === 'UZ' ? "Python va JavaScript asoslari" :
+        activeLanguage.code === 'RU' ? "Основы Python и JavaScript" :
+          "Python and JavaScript basics",
       icon: "💻",
       details: {
         duration: activeLanguage.code === 'UZ' ? "7-9 oy" : activeLanguage.code === 'RU' ? "7-9 месяцев" : "7-9 months",
         level: activeLanguage.code === 'UZ' ? "Boshlang'ich" : activeLanguage.code === 'RU' ? "Начальный" : "Beginner",
         format: activeLanguage.code === 'UZ' ? "Amaliy kurs" : activeLanguage.code === 'RU' ? "Практический курс" : "Practical course",
-        price: activeLanguage.code === 'UZ' ? "500,000 so'm/oy" : 
-               activeLanguage.code === 'RU' ? "500 000 сум/месяц" : 
-               "500,000 soums/month",
+        price: activeLanguage.code === 'UZ' ? "500,000 so'm/oy" :
+          activeLanguage.code === 'RU' ? "500 000 сум/месяц" :
+            "500,000 soums/month",
         features: activeLanguage.code === 'UZ' ? [
           "Python dasturlash asoslari",
           "Web development (HTML, CSS, JS)",
@@ -842,19 +974,19 @@ const StudyCenter = () => {
     {
       id: 6,
       name: activeLanguage.code === 'UZ' ? "Rasm chizish" : activeLanguage.code === 'RU' ? "Рисование" : "Drawing",
-      desc: activeLanguage.code === 'UZ' ? "Asosiy texnikalar va uslublar" : 
-            activeLanguage.code === 'RU' ? "Основные техники и стили" : 
-            "Basic techniques and styles",
+      desc: activeLanguage.code === 'UZ' ? "Asosiy texnikalar va uslublar" :
+        activeLanguage.code === 'RU' ? "Основные техники и стили" :
+          "Basic techniques and styles",
       icon: "🎨",
       details: {
         duration: activeLanguage.code === 'UZ' ? "3-5 oy" : activeLanguage.code === 'RU' ? "3-5 месяцев" : "3-5 months",
-        level: activeLanguage.code === 'UZ' ? "Boshlang'ich va o'rta" : 
-               activeLanguage.code === 'RU' ? "Начальный и средний" : 
-               "Beginner and intermediate",
+        level: activeLanguage.code === 'UZ' ? "Boshlang'ich va o'rta" :
+          activeLanguage.code === 'RU' ? "Начальный и средний" :
+            "Beginner and intermediate",
         format: activeLanguage.code === 'UZ' ? "Amaliy kurs" : activeLanguage.code === 'RU' ? "Практический курс" : "Practical course",
-        price: activeLanguage.code === 'UZ' ? "400,000 so'm/oy" : 
-               activeLanguage.code === 'RU' ? "400 000 сум/месяц" : 
-               "400,000 soums/month",
+        price: activeLanguage.code === 'UZ' ? "400,000 so'm/oy" :
+          activeLanguage.code === 'RU' ? "400 000 сум/месяц" :
+            "400,000 soums/month",
         features: activeLanguage.code === 'UZ' ? [
           "Qalam texnikasi",
           "Ranglar nazariyasi",
@@ -875,7 +1007,7 @@ const StudyCenter = () => {
     }
   ];
 
-  const ieltsResults = [ 
+  const ieltsResults = [
     {
       id: 1,
       name: activeLanguage.code === 'UZ' ? "Dilnoza Karimova" : activeLanguage.code === 'RU' ? "Дилноза Каримова" : "Dilnoza Karimova",
@@ -951,11 +1083,11 @@ const StudyCenter = () => {
       exp: 6,
       students: 1000,
       video: "https://via.placeholder.com/400x500.png?text=Gozal",
-      desc: activeLanguage.code === 'UZ' 
+      desc: activeLanguage.code === 'UZ'
         ? "Ingliz tilidan dars berishga qiziqishim maktab davridan boshlangan va shu yo'nalishni hayotimga bog'lashga qaror qilganman. Maqsadim - o'quvchilarning potensialini ochish va ularni nafaqat ingliz tiliga, balki boshqa sohalarga ham qiziqtira olish."
         : activeLanguage.code === 'RU'
-        ? "Мой интерес к преподаванию английского языка начался со школьных лет, и я решил связать свою жизнь с этим направлением. Моя цель - раскрыть потенциал студентов и заинтересовать их не только английским языком, но и другими областями."
-        : "My interest in teaching English started from school years, and I decided to connect my life with this direction. My goal is to reveal the potential of students and interest them not only in English, but also in other areas."
+          ? "Мой интерес к преподаванию английского языка начался со школьных лет, и я решил связать свою жизнь с этим направлением. Моя цель - раскрыть потенциал студентов и заинтересовать их не только английским языком, но и другими областями."
+          : "My interest in teaching English started from school years, and I decided to connect my life with this direction. My goal is to reveal the potential of students and interest them not only in English, but also in other areas."
     },
     {
       id: 2,
@@ -966,11 +1098,11 @@ const StudyCenter = () => {
       exp: 7,
       students: 1200,
       video: "https://via.placeholder.com/400x500.png?text=Sardor",
-      desc: activeLanguage.code === 'UZ' 
+      desc: activeLanguage.code === 'UZ'
         ? "Tajriba va kreativ yondashuv orqali ingliz tilini oson o'rganish yo'llarini ishlab chiqqanman. Har bir o'quvchi - alohida loyiha."
         : activeLanguage.code === 'RU'
-        ? "Через опыт и творческий подход я разработал способы легкого изучения английского языка. Каждый студент - отдельный проект."
-        : "Through experience and creative approach, I have developed ways to easily learn English. Each student is a separate project."
+          ? "Через опыт и творческий подход я разработал способы легкого изучения английского языка. Каждый студент - отдельный проект."
+          : "Through experience and creative approach, I have developed ways to easily learn English. Each student is a separate project."
     },
     {
       id: 3,
@@ -981,11 +1113,11 @@ const StudyCenter = () => {
       exp: 5,
       students: 900,
       video: "https://via.placeholder.com/400x500.png?text=Jakhongir",
-      desc: activeLanguage.code === 'UZ' 
+      desc: activeLanguage.code === 'UZ'
         ? "Ingliz tilini o'rgatishda zamonaviy metodlar va real hayotdagi muloqotga urg'u beraman."
         : activeLanguage.code === 'RU'
-        ? "В преподавании английского языка делаю акцент на современных методах и реальном общении."
-        : "In teaching English, I focus on modern methods and real-life communication."
+          ? "В преподавании английского языка делаю акцент на современных методах и реальном общении."
+          : "In teaching English, I focus on modern methods and real-life communication."
     },
     {
       id: 4,
@@ -996,22 +1128,90 @@ const StudyCenter = () => {
       exp: 8,
       students: 1500,
       video: "https://via.placeholder.com/400x500.png?text=Alijon",
-      desc: activeLanguage.code === 'UZ' 
+      desc: activeLanguage.code === 'UZ'
         ? "Har bir darsda o'quvchini ilhomlantirish - mening asosiy maqsadim. O'quv jarayoni hech qachon zerikarli bo'lmasligi kerak."
         : activeLanguage.code === 'RU'
-        ? "Вдохновлять студента на каждом уроке - моя главная цель. Учебный процесс никогда не должен быть скучным."
-        : "Inspiring the student in every lesson is my main goal. The learning process should never be boring."
+          ? "Вдохновлять студента на каждом уроке - моя главная цель. Учебный процесс никогда не должен быть скучным."
+          : "Inspiring the student in every lesson is my main goal. The learning process should never be boring."
+    },
+  ];
+
+  // Yangi: O'qituvchilar ro'yxati (swiper uchun)
+  const teachingStaff = [
+    {
+      id: 1,
+      name: activeLanguage.code === 'UZ' ? "Dilshod Rajabov" : activeLanguage.code === 'RU' ? "Дилшод Раджабов" : "Dilshod Rajabov",
+      subject: activeLanguage.code === 'UZ' ? "Matematika" : activeLanguage.code === 'RU' ? "Математика" : "Mathematics",
+      image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=500&q=60",
+      experience: activeLanguage.code === 'UZ' ? "8 yillik tajriba" : activeLanguage.code === 'RU' ? "8 лет опыта" : "8 years experience",
+      degree: activeLanguage.code === 'UZ' ? "Fizika-matematika fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр физико-математических наук" : "Master of Physics and Mathematics"
+    },
+    {
+      id: 2,
+      name: activeLanguage.code === 'UZ' ? "Gulnoza Abdullayeva" : activeLanguage.code === 'RU' ? "Гульноза Абдуллаева" : "Gulnoza Abdullayeva",
+      subject: activeLanguage.code === 'UZ' ? "Ingliz tili" : activeLanguage.code === 'RU' ? "Английский язык" : "English Language",
+      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&w=500&q=60",
+      experience: activeLanguage.code === 'UZ' ? "6 yillik tajriba" : activeLanguage.code === 'RU' ? "6 лет опыта" : "6 years experience",
+      degree: activeLanguage.code === 'UZ' ? "Filologiya fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр филологических наук" : "Master of Philology"
+    },
+    {
+      id: 3,
+      name: activeLanguage.code === 'UZ' ? "Farrukh Ismoilov" : activeLanguage.code === 'RU' ? "Фаррух Исмоилов" : "Farrukh Ismoilov",
+      subject: activeLanguage.code === 'UZ' ? "Dasturlash" : activeLanguage.code === 'RU' ? "Программирование" : "Programming",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=60",
+      experience: activeLanguage.code === 'UZ' ? "5 yillik tajriba" : activeLanguage.code === 'RU' ? "5 лет опыта" : "5 years experience",
+      degree: activeLanguage.code === 'UZ' ? "Kompyuter fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр компьютерных наук" : "Master of Computer Science"
+    },
+    {
+      id: 4,
+      name: activeLanguage.code === 'UZ' ? "Shahnoza Karimova" : activeLanguage.code === 'RU' ? "Шахноза Каримова" : "Shahnoza Karimova",
+      subject: activeLanguage.code === 'UZ' ? "Koreys tili" : activeLanguage.code === 'RU' ? "Корейский язык" : "Korean Language",
+      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=60",
+      experience: activeLanguage.code === 'UZ' ? "4 yillik tajriba" : activeLanguage.code === 'RU' ? "4 года опыта" : "4 years experience",
+      degree: activeLanguage.code === 'UZ' ? "Shark tillari magistri" : activeLanguage.code === 'RU' ? "Магистр восточных языков" : "Master of Eastern Languages"
+    },
+    {
+      id: 5,
+      name: activeLanguage.code === 'UZ' ? "Bekzod Yunusov" : activeLanguage.code === 'RU' ? "Бекзод Юнусов" : "Bekzod Yunusov",
+      subject: activeLanguage.code === 'UZ' ? "Rus tili" : activeLanguage.code === 'RU' ? "Русский язык" : "Russian Language",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=60",
+      experience: activeLanguage.code === 'UZ' ? "7 yillik tajriba" : activeLanguage.code === 'RU' ? "7 лет опыта" : "7 years experience",
+      degree: activeLanguage.code === 'UZ' ? "Rus filologiyasi magistri" : activeLanguage.code === 'RU' ? "Магистр русской филологии" : "Master of Russian Philology"
+    },
+    {
+      id: 6,
+      name: activeLanguage.code === 'UZ' ? "Madina Rustamova" : activeLanguage.code === 'RU' ? "Мадина Рустамова" : "Madina Rustamova",
+      subject: activeLanguage.code === 'UZ' ? "Rasm chizish" : activeLanguage.code === 'RU' ? "Рисование" : "Drawing",
+      image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=500&q=60",
+      experience: activeLanguage.code === 'UZ' ? "9 yillik tajriba" : activeLanguage.code === 'RU' ? "9 лет опыта" : "9 years experience",
+      degree: activeLanguage.code === 'UZ' ? "San'atshunoslik magistri" : activeLanguage.code === 'RU' ? "Магистр искусствоведения" : "Master of Art History"
+    },
+    {
+      id: 7,
+      name: activeLanguage.code === 'UZ' ? "Azizbek Sobirov" : activeLanguage.code === 'RU' ? "Азизбек Собиров" : "Azizbek Sobirov",
+      subject: activeLanguage.code === 'UZ' ? "Fizika" : activeLanguage.code === 'RU' ? "Физика" : "Physics",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=500&q=60",
+      experience: activeLanguage.code === 'UZ' ? "10 yillik tajriba" : activeLanguage.code === 'RU' ? "10 лет опыта" : "10 years experience",
+      degree: activeLanguage.code === 'UZ' ? "Fizika fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр физических наук" : "Master of Physics"
+    },
+    {
+      id: 8,
+      name: activeLanguage.code === 'UZ' ? "Zarina Usmonova" : activeLanguage.code === 'RU' ? "Зарина Усманова" : "Zarina Usmonova",
+      subject: activeLanguage.code === 'UZ' ? "Kimyo" : activeLanguage.code === 'RU' ? "Химия" : "Chemistry",
+      image: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=500&q=60",
+      experience: activeLanguage.code === 'UZ' ? "6 yillik tajriba" : activeLanguage.code === 'RU' ? "6 лет опыта" : "6 years experience",
+      degree: activeLanguage.code === 'UZ' ? "Kimyo fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр химических наук" : "Master of Chemistry"
     },
   ];
 
   // Footer ma'lumotlari
   const footerLinks = {
     courses: courses.map(course => course.name),
-    branches: activeLanguage.code === 'UZ' 
+    branches: activeLanguage.code === 'UZ'
       ? ["Yunusobod filiali", "Chilonzor filiali", "Mirzo Ulug'bek filiali"]
       : activeLanguage.code === 'RU'
-      ? ["Юнусабадский филиал", "Чиланзарский филиал", "Мирзо Улугбекский филиал"]
-      : ["Yunusabad Branch", "Chilanzar Branch", "Mirzo Ulugbek Branch"],
+        ? ["Юнусабадский филиал", "Чиланзарский филиал", "Мирзо Улугбекский филиал"]
+        : ["Yunusabad Branch", "Chilanzar Branch", "Mirzo Ulugbek Branch"],
     contacts: [
       "+998 78 333 3773",
       "+998 94 731 3773",
@@ -1026,6 +1226,20 @@ const StudyCenter = () => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedFormat, setSelectedFormat] = useState("guruh");
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    birthDate: '',
+    languages: '',
+    address: '',
+    position: '',
+    education: '',
+    experience: '',
+    ieltsCertificate: null,
+    cv: null,
+    additionalInfo: ''
+  });
 
   const loopImages = [...currentContent.gallery.items, ...currentContent.gallery.items];
   const loopIeltsResults = [...ieltsResults, ...ieltsResults];
@@ -1055,7 +1269,7 @@ const StudyCenter = () => {
           key={index}
           className={`absolute opacity-10 ${item.style} hidden sm:block`}
           initial={{ opacity: 0, scale: 0 }}
-          animate={{ 
+          animate={{
             opacity: [0.05, 0.15, 0.05],
             scale: [1, 1.1, 1],
             rotate: [0, 5, 0]
@@ -1064,7 +1278,8 @@ const StudyCenter = () => {
             duration: 8,
             delay: index * 0.5,
             repeat: Infinity,
-            repeatType: "reverse"
+            repeatType: "reverse",
+            ease: "easeInOut"
           }}
         >
           {item.icon}
@@ -1081,6 +1296,48 @@ const StudyCenter = () => {
     setSelectedImage(null);
   };
 
+  const handleFileChange = (e, field) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        [field]: file
+      }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Bu yerda form ma'lumotlarini backendga yuborish logikasi
+    console.log('Form data:', formData);
+    // Fayllarni yuklash logikasi
+    alert(currentContent.joinForm.submit + ' - ' + activeLanguage.code === 'UZ' ? 'Muvaffaqiyatli yuborildi!' : 'Successfully submitted!');
+    setJoinModalOpen(false);
+    setFormData({
+      name: '',
+      phone: '',
+      birthDate: '',
+      languages: '',
+      address: '',
+      position: '',
+      education: '',
+      experience: '',
+      ieltsCertificate: null,
+      cv: null,
+      additionalInfo: ''
+    });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const isIELTSRequired = formData.position === 'teacher' || formData.position === 'assistant';
+
   return (
     <div className='font-Main relative'>
       {/* Background illustrations for entire site */}
@@ -1091,7 +1348,7 @@ const StudyCenter = () => {
         className="fixed bottom-6 right-6 z-50"
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1 }}
+        transition={{ delay: 1, duration: 0.8, ease: "easeInOut" }}
       >
         <motion.button
           onClick={() => setContactOpen(!contactOpen)}
@@ -1108,6 +1365,7 @@ const StudyCenter = () => {
               initial={{ opacity: 0, y: 20, scale: 0.8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.8 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
               className="absolute bottom-full right-0 mb-4 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-gray-200 min-w-64"
             >
               <div className="space-y-3">
@@ -1148,38 +1406,53 @@ const StudyCenter = () => {
       <section className='h-auto min-h-[87vh] py-10 lg:py-0 flex flex-col justify-center items-center relative overflow-hidden'>
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-white z-0"></div>
         <BackgroundIllustrations sectionClass="z-0" />
-        
+
         {/* Background elements */}
-        <motion.div 
+        <motion.div
           className="absolute top-20 left-5 lg:left-10 text-4xl lg:text-6xl opacity-20"
           animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-          transition={{ duration: 6, repeat: Infinity }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         >📚</motion.div>
-        <motion.div 
+        <motion.div
           className="absolute top-40 right-5 lg:right-20 text-3xl lg:text-5xl opacity-20"
           animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
-          transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+          transition={{ duration: 5, repeat: Infinity, delay: 1, ease: "easeInOut" }}
         >✏️</motion.div>
-        <motion.div 
+        <motion.div
           className="absolute bottom-32 left-5 lg:left-20 text-2xl lg:text-4xl opacity-20"
           animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 4, repeat: Infinity, delay: 2 }}
+          transition={{ duration: 4, repeat: Infinity, delay: 2, ease: "easeInOut" }}
         >🔬</motion.div>
-        <motion.div 
+        <motion.div
           className="absolute bottom-40 right-4 lg:right-16 text-4xl lg:text-6xl opacity-20"
           animate={{ y: [0, 20, 0], rotate: [0, 10, 0] }}
-          transition={{ duration: 7, repeat: Infinity, delay: 0.5 }}
+          transition={{ duration: 7, repeat: Infinity, delay: 0.5, ease: "easeInOut" }}
         >🎓</motion.div>
-        
+
         <div className="relative z-10 text-center px-4 lg:px-0">
-          <h1 className='text-4xl lg:text-7xl text-center font-semibold leading-tight lg:leading-normal'>
-            {currentContent.hero.title} <br /> 
+          <motion.h1
+            className='text-4xl lg:text-7xl text-center font-semibold leading-tight lg:leading-normal'
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+          >
+            {currentContent.hero.title} <br />
             <span className='italic text-blue font-semibold'>{currentContent.hero.subtitle}</span>
-          </h1>
-          <p className='font-normal text-base lg:text-lg mt-4 text-center leading-relaxed lg:leading-normal'>
+          </motion.h1>
+          <motion.p
+            className='font-normal text-base lg:text-lg mt-4 text-center leading-relaxed lg:leading-normal'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeInOut" }}
+          >
             {currentContent.hero.description}
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 lg:gap-5 items-center mt-6 lg:mt-4">
+          </motion.p>
+          <motion.div
+            className="flex flex-col sm:flex-row justify-center gap-4 lg:gap-5 items-center mt-6 lg:mt-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6, ease: "easeInOut" }}
+          >
             <a href='#contact' className="
               relative overflow-hidden 
               py-3 lg:py-2 pl-6 pr-3 
@@ -1211,7 +1484,7 @@ const StudyCenter = () => {
                 {currentContent.hero.schoolBtn}
               </span>
             </Link>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -1219,9 +1492,15 @@ const StudyCenter = () => {
       <section className="py-12 lg:py-16 bg-gradient-to-b from-white to-blue/5 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container relative z-10 px-4 lg:px-0">
-          <h2 className="text-3xl lg:text-5xl text-center font-semibold mb-8 lg:mb-12">
+          <motion.h2
+            className="text-3xl lg:text-5xl text-center font-semibold mb-8 lg:mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            viewport={{ once: true }}
+          >
             {currentContent.features.title}
-          </h2>
+          </motion.h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {currentContent.features.items.map((item, index) => (
@@ -1229,21 +1508,22 @@ const StudyCenter = () => {
                 key={item.id}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.8, delay: index * 0.1, ease: "easeInOut" }}
                 whileHover={{
                   scale: 1.05,
                   rotate: [0, -2, 2, 0],
-                  transition: { duration: 0.4 },
+                  transition: { duration: 0.4, ease: "easeInOut" },
                 }}
                 className="relative border border-blue group p-6 lg:p-8 rounded-2xl shadow-md hover:shadow-blue/30 
                            bg-white transition-all duration-500 cursor-pointer overflow-hidden"
+                viewport={{ once: true }}
               >
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                 <motion.div
                   whileHover={{
                     y: [0, -6, 0],
-                    transition: { repeat: Infinity, duration: 1 },
+                    transition: { repeat: Infinity, duration: 1, ease: "easeInOut" },
                   }}
                   className="text-blue flex justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
                 >
@@ -1263,10 +1543,16 @@ const StudyCenter = () => {
       <section className="py-12 lg:py-20 bg-gradient-to-b from-blue/5 to-white relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10 px-4 lg:px-0">
-          <h2 className="text-3xl lg:text-5xl text-center font-bold mb-8 lg:mb-12 text-blue">
+          <motion.h2
+            className="text-3xl lg:text-5xl text-center font-bold mb-8 lg:mb-12 text-blue"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            viewport={{ once: true }}
+          >
             {currentContent.teachers.title}{" "}
             <span className="text-gray-800">{currentContent.teachers.subtitle}</span>
-          </h2>
+          </motion.h2>
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 justify-center items-start">
             {/* Teachers list */}
@@ -1276,6 +1562,8 @@ const StudyCenter = () => {
                   key={t.id}
                   onClick={() => setActiveTeacher(t)}
                   whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
                   className={`flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl cursor-pointer transition-all duration-300 min-w-[280px] lg:min-w-0
                     ${activeTeacher.id === t.id ? "bg-blue text-white" : "hover:bg-blue/10 bg-white"}`}
                 >
@@ -1304,7 +1592,7 @@ const StudyCenter = () => {
                 key={activeTeacher.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
                 className="relative rounded-2xl overflow-hidden shadow-lg w-full lg:w-auto"
               >
                 <img
@@ -1324,7 +1612,7 @@ const StudyCenter = () => {
                 key={activeTeacher.name}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
                 className="flex flex-col gap-4 lg:gap-6 w-full"
               >
                 <p className="text-gray-700 leading-relaxed text-sm lg:text-base">
@@ -1349,14 +1637,356 @@ const StudyCenter = () => {
         </div>
       </section>
 
+      {/* Teaching Team Section - YANGI */}
+      <section className="py-12 lg:py-20 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
+        <BackgroundIllustrations sectionClass="z-0" />
+        <div className="container mx-auto relative z-10 px-4 lg:px-0">
+          <motion.h2
+            className="text-3xl lg:text-5xl text-center font-bold mb-8 lg:mb-12 text-blue"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            viewport={{ once: true }}
+          >
+            {currentContent.teachingTeam.title}{" "}
+            <span className="text-gray-800 italic">{currentContent.teachingTeam.subtitle}</span>
+          </motion.h2>
+
+          {/* Swiper for Teachers */}
+          <div className="mb-12 lg:mb-16">
+            <Swiper
+              modules={[Navigation, Pagination, EffectCoverflow]}
+              effect="coverflow"
+              grabCursor={true}
+              slidesPerView={4}
+              coverflowEffect={{
+                rotate: 50,
+                stretch: 0,
+                depth: 100,
+                modifier: 1,
+                slideShadows: true,
+              }}
+              navigation
+              pagination={{ clickable: true }}
+              breakpoints={{
+                320: {
+                  slidesPerView: 1,
+                  spaceBetween: 20,
+                },
+                640: {
+                  slidesPerView: 2,
+                  spaceBetween: 20,
+                },
+                1024: {
+                  slidesPerView: 3,
+                  spaceBetween: 30,
+                },
+              }}
+              className="mySwiper"
+            >
+              {teachingStaff.map((teacher) => (
+                <SwiperSlide key={teacher.id}>
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    className="relative rounded-2xl overflow-hidden shadow-xl group cursor-pointer"
+                  >
+                    <img
+                      src={teacher.image}
+                      alt={teacher.name}
+                      className="w-full h-64 lg:h-80 object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
+                      <h3 className="text-lg lg:text-xl font-bold">{teacher.name}</h3>
+                      <p className="text-sm opacity-90">{teacher.subject}</p>
+                    </div>
+                  </motion.div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* Join Team Button */}
+          <motion.div
+            className="text-center"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            viewport={{ once: true }}
+          >
+            <motion.button
+              onClick={() => setJoinModalOpen(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-8 lg:px-12 py-3 lg:py-4 rounded-full text-lg lg:text-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 mx-auto"
+            >
+              <FaUser className="w-5 h-5 lg:w-6 lg:h-6" />
+              {currentContent.teachingTeam.joinTeam}
+              <FaArrowRight className="w-5 h-5 lg:w-6 lg:h-6" />
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Join Team Modal */}
+      <AnimatePresence>
+        {joinModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed h-full inset-0 bg-black/70 z-[100] flex items-start justify-start lg:items-center lg:justify-center p-0 lg:p-4 "
+            onClick={() => setJoinModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="
+              bg-white
+              h-screen lg:h-full
+              rounded-none lg:rounded-2xl
+              shadow-2xl
+              max-w-2xl w-full
+              overflow-y-auto
+            "
+                onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+                <h3 className="text-2xl font-bold text-blue">{currentContent.joinForm.title}</h3>
+                <button
+                  onClick={() => setJoinModalOpen(false)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <p className="text-sm text-red-500 mb-4">{currentContent.joinForm.required}</p>
+
+                {/* Name */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.name} *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
+                    placeholder={currentContent.joinForm.name}
+                  />
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.phone} *</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
+                    placeholder={currentContent.joinForm.phone}
+                  />
+                </div>
+
+                {/* Birth Date */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.birthDate} *</label>
+                  <input
+                    type="date"
+                    name="birthDate"
+                    value={formData.birthDate}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
+                  />
+                </div>
+
+                {/* Languages */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.languages} *</label>
+                  <textarea
+                    name="languages"
+                    value={formData.languages}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all h-24"
+                    placeholder={activeLanguage.code === 'UZ' ? "Masalan: Ingliz tili, Rus tili, Koreys tili" : activeLanguage.code === 'RU' ? "Например: Английский, Русский, Корейский" : "Example: English, Russian, Korean"}
+                  />
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.address} *</label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
+                    placeholder={currentContent.joinForm.address}
+                  />
+                </div>
+
+                {/* Position */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.position} *</label>
+                  <select
+                    name="position"
+                    value={formData.position}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
+                  >
+                    <option value="">{currentContent.common.select}</option>
+                    <option value="teacher">{currentContent.joinForm.positions.teacher}</option>
+                    <option value="assistant">{currentContent.joinForm.positions.assistant}</option>
+                    <option value="admin">{currentContent.joinForm.positions.admin}</option>
+                    <option value="cashier">{currentContent.joinForm.positions.cashier}</option>
+                    <option value="other">{currentContent.joinForm.positions.other}</option>
+                  </select>
+                </div>
+
+                {/* Education */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.education} *</label>
+                  <textarea
+                    name="education"
+                    value={formData.education}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all h-24"
+                    placeholder={currentContent.joinForm.education}
+                  />
+                </div>
+
+                {/* Experience */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.experience} *</label>
+                  <textarea
+                    name="experience"
+                    value={formData.experience}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all h-32"
+                    placeholder={currentContent.joinForm.experience}
+                  />
+                </div>
+
+                {/* IELTS Certificate */}
+                <div>
+                  <label className="block text-gray-700 mb-2">
+                    {currentContent.joinForm.ieltsCertificate}
+                    {isIELTSRequired && ' *'}
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <label className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => handleFileChange(e, 'ieltsCertificate')}
+                        required={isIELTSRequired}
+                        className="hidden"
+                        id="ieltsUpload"
+                      />
+                      <div className="w-full p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors text-center">
+                        <FaFileUpload className="inline-block mr-2" />
+                        {currentContent.joinForm.upload}
+                      </div>
+                    </label>
+                    {formData.ieltsCertificate && (
+                      <span className="text-sm text-green-600">
+                        {formData.ieltsCertificate.name}
+                      </span>
+                    )}
+                  </div>
+                  {isIELTSRequired && (
+                    <p className="text-sm text-blue-600 mt-1">{currentContent.joinForm.ieltsRequired}</p>
+                  )}
+                </div>
+
+                {/* CV Upload */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.cv} *</label>
+                  <div className="flex items-center gap-3">
+                    <label className="flex-1">
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => handleFileChange(e, 'cv')}
+                        required
+                        className="hidden"
+                        id="cvUpload"
+                      />
+                      <div className="w-full p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors text-center">
+                        <FaFileUpload className="inline-block mr-2" />
+                        {currentContent.joinForm.upload}
+                      </div>
+                    </label>
+                    {formData.cv && (
+                      <span className="text-sm text-green-600">
+                        {formData.cv.name}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Additional Info */}
+                <div>
+                  <label className="block text-gray-700 mb-2">{currentContent.joinForm.additionalInfo}</label>
+                  <textarea
+                    name="additionalInfo"
+                    value={formData.additionalInfo}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all h-24"
+                    placeholder={currentContent.joinForm.additionalInfo}
+                  />
+                </div>
+
+                {/* Additional Questions */}
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-sm text-blue-800">{currentContent.joinForm.additionalQuestions}</p>
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-4">
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg transition-all duration-300"
+                  >
+                    {currentContent.joinForm.submit}
+                  </motion.button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Results Section */}
       <section className="py-12 lg:py-20 bg-gradient-to-b from-white to-blue/5 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10 px-4 lg:px-0">
-          <h2 className="text-3xl lg:text-5xl text-center font-bold mb-8 lg:mb-12 text-blue">
+          <motion.h2
+            className="text-3xl lg:text-5xl text-center font-bold mb-8 lg:mb-12 text-blue"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            viewport={{ once: true }}
+          >
             {currentContent.results.title}{" "}
             <span className="text-gray-800">{currentContent.results.subtitle}</span>
-          </h2>
+          </motion.h2>
 
           {/* IELTS Results Marquee */}
           <div className="mb-12 lg:mb-16">
@@ -1375,6 +2005,7 @@ const StudyCenter = () => {
                   <motion.div
                     key={`${res.id}-${index}`}
                     whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
                     className="flex-shrink-0 w-64 lg:w-80 bg-white rounded-2xl shadow-md hover:shadow-blue/30 transition-all duration-300 overflow-hidden"
                   >
                     <div className="relative">
@@ -1414,6 +2045,7 @@ const StudyCenter = () => {
                   <motion.div
                     key={`${res.id}-${index}`}
                     whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
                     className="flex-shrink-0 w-64 lg:w-80 bg-white rounded-2xl shadow-md hover:shadow-green-300/30 transition-all duration-300 overflow-hidden"
                   >
                     <div className="relative">
@@ -1442,10 +2074,16 @@ const StudyCenter = () => {
       <section className="py-12 lg:py-20 bg-gradient-to-b from-blue/5 to-white relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10 px-4 lg:px-0">
-          <h2 className="text-3xl lg:text-5xl text-center font-bold mb-8 lg:mb-12">
+          <motion.h2
+            className="text-3xl lg:text-5xl text-center font-bold mb-8 lg:mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            viewport={{ once: true }}
+          >
             {currentContent.courses.title}{" "}
             <span className="text-blue italic">{currentContent.courses.subtitle}</span>
-          </h2>
+          </motion.h2>
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
             {/* Courses list */}
@@ -1458,22 +2096,20 @@ const StudyCenter = () => {
                       key={course.id}
                       onClick={() => setActiveCourse(course)}
                       whileHover={{ scale: 1.02 }}
-                      className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all duration-300 border-2 min-w-[200px] snap-center ${
-                        activeCourse.id === course.id 
-                          ? 'bg-blue text-white border-blue shadow-lg' 
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all duration-300 border-2 min-w-[200px] snap-center ${activeCourse.id === course.id
+                          ? 'bg-blue text-white border-blue shadow-lg'
                           : 'bg-white border-blue/20 hover:border-blue/50 hover:bg-blue/5'
-                      }`}
+                        }`}
                     >
                       <div className="text-2xl">{course.icon}</div>
                       <div className="flex-1 min-w-0">
-                        <h3 className={`font-semibold text-sm truncate ${
-                          activeCourse.id === course.id ? 'text-white' : 'text-gray-800'
-                        }`}>
+                        <h3 className={`font-semibold text-sm truncate ${activeCourse.id === course.id ? 'text-white' : 'text-gray-800'
+                          }`}>
                           {course.name}
                         </h3>
-                        <p className={`text-xs mt-1 line-clamp-1 ${
-                          activeCourse.id === course.id ? 'text-white/80' : 'text-gray-600'
-                        }`}>
+                        <p className={`text-xs mt-1 line-clamp-1 ${activeCourse.id === course.id ? 'text-white/80' : 'text-gray-600'
+                          }`}>
                           {course.desc}
                         </p>
                       </div>
@@ -1481,6 +2117,7 @@ const StudyCenter = () => {
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
                           className="w-2 h-2 bg-white rounded-full flex-shrink-0"
                         />
                       )}
@@ -1496,23 +2133,21 @@ const StudyCenter = () => {
                     key={course.id}
                     onClick={() => setActiveCourse(course)}
                     whileHover={{ scale: 1.02, x: 10 }}
-                    className={`p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 ${
-                      activeCourse.id === course.id 
-                        ? 'bg-blue text-white border-blue shadow-lg' 
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    className={`p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 ${activeCourse.id === course.id
+                        ? 'bg-blue text-white border-blue shadow-lg'
                         : 'bg-white border-blue/20 hover:border-blue/50 hover:bg-blue/5'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-4">
                       <div className="text-3xl">{course.icon}</div>
                       <div className="flex-1">
-                        <h3 className={`text-xl font-semibold ${
-                          activeCourse.id === course.id ? 'text-white' : 'text-gray-800'
-                        }`}>
+                        <h3 className={`text-xl font-semibold ${activeCourse.id === course.id ? 'text-white' : 'text-gray-800'
+                          }`}>
                           {course.name}
                         </h3>
-                        <p className={`mt-1 ${
-                          activeCourse.id === course.id ? 'text-white/80' : 'text-gray-600'
-                        }`}>
+                        <p className={`mt-1 ${activeCourse.id === course.id ? 'text-white/80' : 'text-gray-600'
+                          }`}>
                           {course.desc}
                         </p>
                       </div>
@@ -1520,6 +2155,7 @@ const StudyCenter = () => {
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
                           className="w-3 h-3 bg-white rounded-full"
                         />
                       )}
@@ -1534,7 +2170,7 @@ const StudyCenter = () => {
               key={activeCourse.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
               className="w-full lg:w-3/5 bg-white rounded-2xl p-6 lg:p-8 shadow-lg border border-blue/10"
             >
               <div className="flex items-center gap-4 mb-6">
@@ -1576,7 +2212,7 @@ const StudyCenter = () => {
                       key={index}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                      transition={{ duration: 0.4, delay: index * 0.1, ease: "easeInOut" }}
                       className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200"
                     >
                       <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
@@ -1589,6 +2225,7 @@ const StudyCenter = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="w-full bg-blue text-white py-3 lg:py-4 rounded-xl font-semibold text-base lg:text-lg hover:bg-blue/90 transition-all duration-300 shadow-lg"
               >
                 {activeCourse.name} {currentContent.courses.registerBtn}
@@ -1598,54 +2235,33 @@ const StudyCenter = () => {
         </div>
       </section>
 
-      {/* FAQ Section */}
+      {/* FAQ Section - Improved */}
       <section className="py-12 lg:py-24 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto max-w-4xl relative z-10 px-4 lg:px-0">
-          <h2 className="text-3xl lg:text-5xl font-bold mb-8 lg:mb-12 text-center">
+          <motion.h2
+            className="text-3xl lg:text-5xl font-bold mb-8 lg:mb-12 text-center"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            viewport={{ once: true }}
+          >
             {currentContent.faq.title}{" "}
             <span className="text-blue italic">{currentContent.faq.subtitle}</span>
-          </h2>
+          </motion.h2>
 
           <div className="space-y-3 lg:space-y-4">
-            {currentContent.faq.items.map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white border border-blue/10 rounded-2xl shadow-sm hover:shadow-blue/20 transition-all duration-300 overflow-hidden"
-              >
-                <button
-                  onClick={() => setActiveIndex(activeIndex === index ? null : index)}
-                  className="w-full flex justify-between items-center p-4 lg:p-6 text-left font-medium text-base lg:text-lg hover:bg-blue/5 transition-colors duration-300"
-                >
-                  <span className="text-gray-800 pr-4 text-sm lg:text-base">{faq.q}</span>
-                  <motion.div
-                    animate={{ rotate: activeIndex === index ? 180 : 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex-shrink-0"
-                  >
-                    <FaChevronDown className="text-blue w-4 h-4 lg:w-5 lg:h-5" />
-                  </motion.div>
-                </button>
-
-                <AnimatePresence>
-                  {activeIndex === index && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.4 }}
-                      className="px-4 lg:px-6 pb-4 lg:pb-6 text-gray-600 leading-relaxed border-t border-blue/10 text-sm lg:text-base"
-                    >
-                      {faq.a}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
-          </div>
+  {currentContent.faq.items.map((faq, index) => (
+    <FaqItem
+      key={index}
+      faq={faq}
+      isOpen={activeIndex === index}
+      onClick={() =>
+        setActiveIndex(activeIndex === index ? null : index)
+      }
+    />
+  ))}
+</div>
         </div>
       </section>
 
@@ -1653,10 +2269,16 @@ const StudyCenter = () => {
       <section className="py-12 lg:py-24 bg-gradient-to-b from-blue/10 to-white relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10 px-4 lg:px-0">
-          <h2 className="text-3xl lg:text-5xl font-bold mb-8 lg:mb-12 text-center">
+          <motion.h2
+            className="text-3xl lg:text-5xl font-bold mb-8 lg:mb-12 text-center"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            viewport={{ once: true }}
+          >
             {currentContent.advantages.title}{" "}
             <span className="text-blue italic">{currentContent.advantages.subtitle}</span>
-          </h2>
+          </motion.h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {currentContent.advantages.items.map((adv, index) => (
@@ -1664,14 +2286,15 @@ const StudyCenter = () => {
                 key={index}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.8, delay: index * 0.1, ease: "easeInOut" }}
                 whileHover={{
                   scale: 1.05,
                   rotate: [0, -2, 2, 0],
-                  transition: { duration: 0.4 },
+                  transition: { duration: 0.4, ease: "easeInOut" },
                 }}
                 className="p-6 lg:p-10 rounded-3xl bg-white shadow-md border border-blue/10 hover:shadow-blue/30 
                            transition-all duration-500 flex flex-col gap-3 lg:gap-4 items-start hover:bg-blue/5"
+                viewport={{ once: true }}
               >
                 <div className="text-blue">
                   {React.cloneElement(adv.icon, { size: window.innerWidth < 1024 ? 32 : 40 })}
@@ -1688,10 +2311,16 @@ const StudyCenter = () => {
       <section className="py-12 lg:py-24 bg-gradient-to-b from-blue/10 to-white overflow-hidden relative">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto text-center mb-8 lg:mb-12 relative z-10 px-4 lg:px-0">
-          <h2 className="text-3xl lg:text-5xl font-bold text-blue">
+          <motion.h2
+            className="text-3xl lg:text-5xl font-bold text-blue"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            viewport={{ once: true }}
+          >
             {currentContent.gallery.title}{" "}
             <span className="text-gray-800 italic">{currentContent.gallery.subtitle}</span>
-          </h2>
+          </motion.h2>
         </div>
 
         {/* MARQUEE ANIMATION */}
@@ -1709,6 +2338,7 @@ const StudyCenter = () => {
               <motion.div
                 key={`${image.id}-${index}`}
                 whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
                 className="flex-shrink-0 w-[280px] h-[200px] lg:w-[350px] lg:h-[250px] rounded-2xl overflow-hidden shadow-md hover:shadow-blue/40 transition-all duration-300 cursor-pointer"
                 onClick={() => openImageModal(image)}
               >
@@ -1720,7 +2350,7 @@ const StudyCenter = () => {
               </motion.div>
             ))}
           </motion.div>
-          
+
           <div className="absolute inset-y-0 left-0 w-16 lg:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none z-20"></div>
           <div className="absolute inset-y-0 right-0 w-16 lg:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none z-20"></div>
         </div>
@@ -1732,6 +2362,7 @@ const StudyCenter = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
               className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
               onClick={closeImageModal}
             >
@@ -1739,7 +2370,12 @@ const StudyCenter = () => {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ type: "spring", damping: 25 }}
+                transition={{
+                  type: "spring",
+                  damping: 25,
+                  stiffness: 300,
+                  ease: "easeInOut"
+                }}
                 className="relative max-w-4xl max-h-full w-full"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -1749,14 +2385,14 @@ const StudyCenter = () => {
                 >
                   ✕
                 </button>
-                
+
                 <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
                   <img
                     src={selectedImage.src}
                     alt={selectedImage.title}
                     className="w-full h-64 lg:h-96 object-cover"
                   />
-                  
+
                   <div className="p-4 lg:p-6">
                     <h3 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">{selectedImage.title}</h3>
                     <p className="text-gray-600 text-sm lg:text-base">{selectedImage.desc}</p>
@@ -1770,48 +2406,75 @@ const StudyCenter = () => {
 
       {/* Events Section */}
       <section id='event' className='py-12 lg:py-24 overflow-hidden relative'>
-        <div className="container text-center">
+        <motion.div
+          className="container text-center"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+          viewport={{ once: true }}
+        >
           <h2 className="text-3xl lg:text-5xl font-bold text-blue mb-8 lg:mb-12">
             {currentContent.events.title}{" "}
             <span className="text-gray-800 italic">{currentContent.events.subtitle}</span>
           </h2>
-          <div className="grid grid-cols-2 gap-12">
-            <img src={event} alt="sunday event" className='rounded-2xl'/>
-            <div className="p-5 bg-gray-100 rounded-xl">
-              <h3 className='text-2xl font-semibold mb-2 '>
-                {currentContent.events.registerBtn} <span className='text-blue'></span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <motion.img
+              src={event}
+              alt="sunday event"
+              className='rounded-2xl w-full h-64 lg:h-auto object-cover'
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              viewport={{ once: true }}
+            />
+            <motion.div
+              className="p-6 lg:p-8 bg-gray-100 rounded-xl"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              viewport={{ once: true }}
+            >
+              <h3 className='text-2xl lg:text-3xl font-semibold mb-4 lg:mb-6'>
+                {currentContent.events.registerBtn}
               </h3>
               <form action="#" className='flex flex-col gap-5 items-start'>
                 <label className='flex flex-col gap-2 items-start w-full'>
-                  <span>{currentContent.events.namePlaceholder}</span>
-                  <input type="text" placeholder={currentContent.events.namePlaceholder} className='p-3 bg-white outline-none w-full' />
+                  <span className="text-gray-700">{currentContent.events.namePlaceholder}</span>
+                  <input type="text" placeholder={currentContent.events.namePlaceholder} className='p-3 bg-white outline-none w-full rounded-lg border border-gray-300 focus:border-blue transition-colors' />
                 </label>
                 <label className='flex flex-col gap-2 items-start w-full'>
-                  <span>{currentContent.events.agePlaceholder}</span>
-                  <input type="number" placeholder={currentContent.events.agePlaceholder} className='p-3 bg-white outline-none w-full' />
+                  <span className="text-gray-700">{currentContent.events.agePlaceholder}</span>
+                  <input type="number" placeholder={currentContent.events.agePlaceholder} className='p-3 bg-white outline-none w-full rounded-lg border border-gray-300 focus:border-blue transition-colors' />
                 </label>
                 <label className='flex flex-col gap-2 items-start w-full'>
-                  <span>{currentContent.events.phonePlaceholder}</span>
-                  <input type="tel" placeholder={currentContent.events.phonePlaceholder} className='p-3 bg-white outline-none w-full' />
+                  <span className="text-gray-700">{currentContent.events.phonePlaceholder}</span>
+                  <input type="tel" placeholder={currentContent.events.phonePlaceholder} className='p-3 bg-white outline-none w-full rounded-lg border border-gray-300 focus:border-blue transition-colors' />
                 </label>
-                <input type="submit" value={currentContent.events.submitBtn} className='bg-blue text-white text-2xl px-5 py-3 w-full rounded-xl ' />
+                <motion.input
+                  type="submit"
+                  value={currentContent.events.submitBtn}
+                  className='bg-blue text-white text-lg lg:text-xl px-6 py-3 w-full rounded-xl hover:bg-blue/90 transition-colors duration-300 cursor-pointer'
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                />
               </form>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Contact Section */}
       <section id="contact" className="py-12 lg:py-24 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start relative z-10 px-4 lg:px-0">
-          
+
           {/* LEFT - MAP */}
           <motion.div
-            initial={{ opacity: 0, x: -60 }} 
+            initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="rounded-2xl overflow-hidden shadow-md border border-blue/10 h-full order-2 lg:order-1"
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className="rounded-2xl overflow-hidden shadow-md border border-blue/10 h-[400px] lg:h-full order-2 lg:order-1"
+            viewport={{ once: true }}
           >
             <iframe
               title="Our Location"
@@ -1828,8 +2491,9 @@ const StudyCenter = () => {
           <motion.form
             initial={{ opacity: 0, x: 60 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
             className="bg-white rounded-2xl shadow-md border border-blue/10 p-6 lg:p-8 space-y-4 lg:space-y-6 order-1 lg:order-2"
+            viewport={{ once: true }}
           >
             <h2 className="text-2xl lg:text-4xl font-bold text-blue mb-4 lg:mb-6">{currentContent.contact.title}</h2>
 
@@ -1893,11 +2557,10 @@ const StudyCenter = () => {
                     key={format.value}
                     type="button"
                     onClick={() => setSelectedFormat(format.value)}
-                    className={`p-2 lg:p-3 rounded-xl border transition-all duration-300 text-xs lg:text-sm ${
-                      selectedFormat === format.value
+                    className={`p-2 lg:p-3 rounded-xl border transition-all duration-300 text-xs lg:text-sm ${selectedFormat === format.value
                         ? "bg-blue text-white border-blue"
                         : "border-blue/20 hover:bg-blue/5"
-                    }`}
+                      }`}
                   >
                     {format.label}
                   </button>
@@ -1908,7 +2571,7 @@ const StudyCenter = () => {
             {/* Vaqt tanlash */}
             <div>
               <label className="block text-gray-600 mb-2 text-sm lg:text-base">{currentContent.contact.time}</label>
-              <select 
+              <select
                 className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none mb-3 transition-all duration-300 text-sm lg:text-base"
                 onChange={(e) => setSelectedTime(e.target.value)}
                 value={selectedTime}
@@ -1925,7 +2588,7 @@ const StudyCenter = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 lg:gap-3">
                 {selectedTime && [
                   "08:00 - 09:30",
-                  "09:30 - 11:00", 
+                  "09:30 - 11:00",
                   "11:00 - 12:30",
                   "13:00 - 14:30",
                   "14:30 - 16:00",
@@ -1947,6 +2610,7 @@ const StudyCenter = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
               type="submit"
               className="w-full bg-blue text-white py-3 lg:py-4 rounded-xl font-semibold hover:bg-blue/90 transition-all duration-300 shadow-lg text-sm lg:text-base"
             >
@@ -1962,7 +2626,7 @@ const StudyCenter = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {/* Logo va description */}
             <div className="lg:col-span-1">
-              <Link to="/"><img src={logo} alt="" className='w-40 lg:w-60 mb-4 lg:mb-6'/></Link>
+              <Link to="/"><img src={logo} alt="" className='w-40 lg:w-60 mb-4 lg:mb-6' /></Link>
               <p className="text-gray-400 mb-4 leading-relaxed text-sm lg:text-base">
                 {currentContent.footer.description}
               </p>
@@ -2027,6 +2691,48 @@ const StudyCenter = () => {
           </div>
         </div>
       </footer>
+    </div>
+  )
+}
+function FaqItem({ faq, isOpen, onClick }) {
+  const [ref, { height }] = useMeasure()
+
+  return (
+    <div className="bg-white border border-blue/10 rounded-2xl overflow-hidden">
+      
+      {/* QUESTION */}
+      <button
+        onClick={onClick}
+        className="w-full flex justify-between items-center p-4 lg:p-6 text-left"
+      >
+        <span className="text-gray-800 text-sm lg:text-base">
+          {faq.q}
+        </span>
+
+        <motion.span
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          ⌄
+        </motion.span>
+      </button>
+
+      {/* ANSWER — HAQIQIY ACCORDION */}
+      <motion.div
+        animate={{ height: isOpen ? height : 0 }}
+        transition={{
+          duration: 0.4,
+          ease: [0.4, 0, 0.2, 1]
+        }}
+        className="overflow-hidden"
+      >
+        <div
+          ref={ref}
+          className="px-4 lg:px-6 pb-4 pt-6 lg:pb-6 border-t border-blue/10 text-gray-600 text-sm lg:text-base"
+        >
+          {faq.a}
+        </div>
+      </motion.div>
     </div>
   )
 }

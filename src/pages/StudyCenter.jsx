@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import { BookOpen, BrainCircuit, Globe2, GraduationCapIcon, icons, LightbulbIcon, RocketIcon, School2, TargetIcon, Users2 } from 'lucide-react'
 import { FaArrowRight, FaBolt, FaCalendarCheck, FaChalkboardTeacher, FaChevronDown, FaMapMarkerAlt, FaPlay, FaRegStar, FaSchool, FaUserGraduate, FaUsers, FaPhone, FaEnvelope, FaFacebook, FaTelegram, FaInstagram, FaFileUpload, FaUser, FaBriefcase } from 'react-icons/fa'
@@ -16,1218 +16,1027 @@ import { LiaUserGraduateSolid } from 'react-icons/lia';
 import { Link } from 'react-router';
 import logo from '../assets/img/BZwhite.png'
 import useMeasure from "react-use-measure"
+import PhoneInput from '../components/PhoneInput'
+import GoogleSheetsService from '../utils/GoogleSheets'
+import TelegramBotService from '../utils/TelegramBot'
 
+const BASE_URL = 'https://bilimziyo-backend.asosit.uz';
+
+const translations = {
+  UZ: {
+    hero: {
+      title: "Yoshlar kelajagi uchun eng yaxshi yo'l",
+      subtitle: "shu yerdan boshlanadi",
+      description: `15yil ichida "Bilim Ziyo", 20 000 dan ortiq o'quvchilarga ta'lim berdi va 1000 ga yaqin natijalarni qo'lga kiritdi!`,
+      registerBtn: "Ro'xatdan o'tish",
+      schoolBtn: "Xususiy Maktab"
+    },
+    features: {
+      title: "Nima uchun bizning o'quv markaz?",
+      items: [
+        {
+          id: 1,
+          icon: <FaRegStar size={40} />,
+          title: "15 yillik tajriba",
+        },
+        {
+          id: 2,
+          icon: <FaUserGraduate size={40} />,
+          title: "20 000 ga yaqin o'quvchi bizni tanlagan",
+        },
+        {
+          id: 3,
+          icon: <FaSchool size={40} />,
+          title: "3 ta filialga ega",
+        },
+        {
+          id: 4,
+          icon: <FaUsers size={40} />,
+          title: "50 dan ortiq tajribali va malakali ustozlar biz bilan",
+        },
+      ]
+    },
+    teachers: {
+      title: "Bizning",
+      subtitle: "jamoamiz:",
+      yearsExp: "yillik tajriba",
+      students: "o'quvchi o'qitdi"
+    },
+    teachingTeam: {
+      title: "O'qituvchilarimiz",
+      subtitle: "haqida",
+      joinTeam: "Jamoamizga qo'shiling",
+      subjects: {
+        english: "Ingliz tili",
+        math: "Matematika",
+        russian: "Rus tili",
+        korean: "Koreys tili",
+        programming: "Dasturlash",
+        drawing: "Rasm chizish",
+        physics: "Fizika",
+        chemistry: "Kimyo"
+      }
+    },
+    joinForm: {
+      title: "Jamoamizga qo'shiling",
+      name: "Ism-sharifingiz",
+      phone: "Telefon raqamingiz",
+      birthDate: "Tug'ilgan sanangiz",
+      languages: "Qaysi tillarni bilasiz?",
+      address: "Yashash manzilingiz",
+      position: "Qaysi lavozimda ishlamoqchisiz?",
+      positions: {
+        teacher: "O'qituvchi",
+        assistant: "Yordamchi o'qituvchi",
+        admin: "Administrator",
+        cashier: "Kassir",
+        other: "Boshqa"
+      },
+      education: "Ma'lumotingiz (qayerda o'qigansiz?)",
+      experience: "Ish tajribangiz (qayerda va qancha vaqt ishlagansiz?)",
+      ieltsCertificate: "IELTS sertifikatingiz rasmini yuklang",
+      cv: "Rezyume/CV yuklang",
+      additionalInfo: "Qo'shimcha ma'lumot yoki taklifingiz",
+      upload: "Faylni yuklash",
+      submit: "Ariza yuborish",
+      close: "Yopish",
+      additionalQuestions: "Agar yana qo'shimcha savollar bo'lsa: @BilimZiyoHR'ga yozishingiz mumkin!",
+      required: "* Majburiy maydonlar",
+      ieltsRequired: "IELTS sertifikati faqat o'qituvchi yoki yordamchi o'qituvchi tanlaganda majburiy"
+    },
+    results: {
+      title: "Bizning",
+      subtitle: "natijalarimiz:",
+      ielts: "IELTS",
+      cefr: "CEFR"
+    },
+    courses: {
+      title: "Bizning",
+      subtitle: "kurslarimiz:",
+      details: {
+        duration: "Davomiylik:",
+        level: "Daraja:",
+        format: "Format:",
+        price: "Narx:",
+        features: "Kurs imkoniyatlari:",
+        month: "so'm/oyiga"
+      },
+      registerBtn: "kursiga yozilish"
+
+    },
+    faq: {
+      title: "Ko'p so'raladigan",
+      subtitle: "savollar:",
+      items: [
+        {
+          q: "Nimaga aynan men bu dargohda o'qishim kerak?",
+          a: "Barcha qulayliklar, sharoitlar, sifatli o'quv dasturi, tajribali ustozlar, yordamchi ustozlar, qo'shimcha dars qilish uchun 'Coworking space' zali, yakshanba kungi tadbirlar va boshqa imkoniyatlar bilan birga, siz erishmoqchi bo'lgan natijagacha siz bilan teng harakat qilamiz!"
+        },
+        {
+          q: "Qanday o'quv dasturlaridan foydalaniladi?",
+          a: "Xalqaro darajadagi Oxford University Press nashriyotining eng samarali o'quv dasturidan to'liq foydalanamiz!"
+        },
+        {
+          q: "Kursdan natija olishimga kafolat bormi?",
+          a: "Albatta bor. Agar siz o'qituvchimiz berayotgan topshiriqlarni o'z vaqtida 100% bajarib borsangiz, aniq yaxshi natija olasiz!"
+        },
+        {
+          q: "Agar o'qishga qiynalsam va natija ko'rsata olmasam pulimni qaytarib olamanmi?",
+          a: "Bizning maqsad sifatli ta'lim berish va bu hamma uchun. Agar o'qishga qiynalsangiz, biz sizga qo'shimcha yordamchi ustozlarni jalb qilamiz va bu orqali natijangizni sezilarli darajaga oshiramiz!"
+        },
+        {
+          q: "Turk, Xitoy, Nemis, Fransuz tillari mavjudmi?",
+          a: "3/2 filialimizda Turk tili, 2/2 filialimizda esa Nemis tili mavjud. Qolgan tillar hozircha yo'q. Agar qabul ochilsa ijtimoiy tarmoqlardagi kanallarimiz orqali habar beramiz!"
+        },
+        {
+          q: "Dars materiallari qanday taqdim etiladi?",
+          a: "Barcha o'quv materiallari zamonaviy darsliklar, multimedia resurslari va maxsus tayyorlangan o'quv qo'llanmalardan iborat. Onlayn platforma orqali qo'shimcha materiallar ham taqdim etiladi."
+        },
+        {
+          q: "Chegirma yoki bonus berasizlarmi?",
+          a: "Chegirma qila olmasakda, bizda o'qib eng yaxshi natija ko'rsatayotgan o'quvchilarni munosib taqdirlaymiz. Agar IELTS sertifikatidan 7.5 dan yuqori ball to'plasangiz, 1 000 000 so'mdan boshlab CashBack ham sovg'a qilamiz!"
+        },
+        {
+          q: "Universitetga kirish uchun sizlarda tayyorlansam bo'ladimi?",
+          a: "Ha albatta, bizda Ingliz, rus yoki koreys tilini to'liq o'rganib maxsus sertifikatni qo'lga kiritishingiz mumkin. IETLS, CEFR va TOPIK sertifikatlari bilan istalgan universitetga tayyor holda hujjat topshirishingiz mumkin!"
+        },
+        {
+          q: "Necha yoshdan boshlab o'qishga qabul qilinadi?",
+          a: "Asosan 2-sinfdan yuqori bo'lgan o'quvchilarni o'qishga qabul qilamiz!"
+        },
+        {
+          q: "30-40 yoshlar ham o'qisa bo'ladimi?",
+          a: "Agar sheriklaringiz bo'lsa, albatta dars tashkillashtirib berishimiz mumkin. Ammo boshqa holatda sizga boshqa takliflarimiz mavjud. Buning uchun o'quv markazimizga tashrif buyuring yoki +998 78 333 37 73 raqamiga qo'ng'iroq qiling!"
+        },
+      ]
+    },
+    advantages: {
+      title: "Bizning",
+      subtitle: "ustunliklarimiz:",
+      items: [
+        {
+          icon: <FaBolt size={40} />,
+          title: "Bepul coworking zone",
+          desc: "O'quvchilar darsdan so'ng o'qish yoki mustaqil ishlash uchun qulay joy!",
+        },
+        {
+          icon: <FaUsers size={40} />,
+          title: "Yordamchi ustozlar",
+          desc: "Har bir o'quvchiga alohida yondashuv bilan yaqindan yordam beradigan yordamchi ustozlar qo'shimcha BEPUL darslar olib boradi!",
+        },
+        {
+          icon: <FaCalendarCheck size={40} />,
+          title: "Yakshanba tadbirlari",
+          desc: "Har yakshanba - masterklasslar, viktorinalar va motivatsion uchrashuvlar bo'lib o'tadi!",
+        },
+        {
+          icon: <FaMapMarkerAlt size={40} />,
+          title: "Eng qulay lokatsiya",
+          desc: "Filiallarimiz shaharning markaziy va qulay joylarida joylashgan!",
+        },
+      ]
+    },
+    gallery: {
+      title: "Bizning",
+      subtitle: "galereya:",
+      items: [
+        {
+          id: 1,
+          src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=60",
+          title: "Sinflarimiz",
+          desc: "Zamonaviy jihozlangan sinflar"
+        },
+        {
+          id: 2,
+          src: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=60",
+          title: "Kutubxona",
+          desc: "Keng kutubxona zali"
+        },
+        {
+          id: 3,
+          src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=60",
+          title: "Laboratoriya",
+          desc: "Zamonaviy laboratoriya"
+        },
+        {
+          id: 4,
+          src: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=800&q=60",
+          title: "Sport Zali",
+          desc: "Keng sport maydoni"
+        },
+        {
+          id: 5,
+          src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=60",
+          title: "O'quv Jarayoni",
+          desc: "Samarali o'quv jarayoni"
+        },
+        {
+          id: 6,
+          src: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=800&q=60",
+          title: "Tadbir",
+          desc: "Madaniy tadbirlar"
+        },
+      ]
+    },
+    events: {
+      title: "Sunday",
+      subtitle: "eventlar:",
+      registerBtn: "Eventlarga ro'yxatdan o'ting",
+      namePlaceholder: "Ism Familiyangiz",
+      agePlaceholder: "Yoshingiz",
+      phonePlaceholder: "Telefon raqamingiz",
+      submitBtn: "Ro'yxatdan o'tish"
+    },
+    contact: {
+      title: "Biz bilan bog'laning",
+      name: "Ism sharif",
+      age: "Yoshi",
+      phone1: "Telefon raqam 1",
+      phone2: "Telefon raqam 2",
+      course: "Kursni tanlang",
+      format: "O'qish formati",
+      time: "Qulay vaqtni tanlang",
+      selectTime: "Vaqtni tanlang",
+      submit: "Yuborish",
+      formats: [
+        { value: "guruh", label: "Guruh bilan" },
+        { value: "mini", label: "Mini guruh" },
+        { value: "individual", label: "Alohida 1-1" }
+      ]
+    },
+    footer: {
+      description: "14 yillik tajribaga ega o'quv markazi. Sizning muvaffaqiyatingiz - bizning g'ururimiz.",
+      courses: "Kurslar",
+      branches: "Filiallar",
+      contact: "Bog'lanish",
+      copyright: "© 2024 Study Center. Barcha huquqlar himoyalangan."
+    },
+    common: {
+      mainNumber: "Asosiy raqam",
+      additionalNumber: "Qo'shimcha raqam",
+      email: "Email",
+      select: "Tanlang...",
+      close: "Yopish",
+      clickToView: "Ko'rish uchun bosing"
+    }
+  },
+  RU: {
+    hero: {
+      title: "Лучший путь к будущему молодежи",
+      subtitle: "начинается здесь",
+      description: `За 15 лет "Bilim Ziyo" обучил более 20 000 студентов и добился около 1000 результатов!`,
+      registerBtn: "Зарегистрироваться",
+      schoolBtn: "Частная школа"
+    },
+    features: {
+      title: "Почему именно наш учебный центр?",
+      items: [
+        {
+          id: 1,
+          icon: <FaRegStar size={40} />,
+          title: "15 лет опыта",
+        },
+        {
+          id: 2,
+          icon: <FaUserGraduate size={40} />,
+          title: "Более 20 000 студентов выбрали нас",
+        },
+        {
+          id: 3,
+          icon: <FaSchool size={40} />,
+          title: "3 филиала",
+        },
+        {
+          id: 4,
+          icon: <FaUsers size={40} />,
+          title: "Более 50 опытных и квалифицированных учителей с нами",
+        },
+      ]
+    },
+    teachers: {
+      title: "Наша",
+      subtitle: "команда:",
+      yearsExp: "лет опыта",
+      students: "студентов обучил"
+    },
+    teachingTeam: {
+      title: "Наши",
+      subtitle: "преподаватели",
+      joinTeam: "Присоединиться к команде",
+      subjects: {
+        english: "Английский язык",
+        math: "Математика",
+        russian: "Русский язык",
+        korean: "Корейский язык",
+        programming: "Программирование",
+        drawing: "Рисование",
+        physics: "Физика",
+        chemistry: "Химия"
+      }
+    },
+    joinForm: {
+      title: "Присоединиться к команде",
+      name: "Ваше ФИО",
+      phone: "Ваш номер телефона",
+      birthDate: "Дата рождения",
+      languages: "Какие языки вы знаете?",
+      address: "Адрес проживания",
+      position: "На какую должность претендуете?",
+      positions: {
+        teacher: "Преподаватель",
+        assistant: "Помощник преподавателя",
+        admin: "Администратор",
+        cashier: "Кассир",
+        other: "Другое"
+      },
+      education: "Ваше образование (где учились?)",
+      experience: "Опыт работы (где и сколько работали?)",
+      ieltsCertificate: "Загрузите фото сертификата IELTS",
+      cv: "Загрузите резюме/CV",
+      additionalInfo: "Дополнительная информация или предложения",
+      upload: "Загрузить файл",
+      submit: "Отправить заявку",
+      close: "Закрыть",
+      additionalQuestions: "Если есть дополнительные вопросы: пишите @BilimZiyoHR!",
+      required: "* Обязательные поля",
+      ieltsRequired: "Сертификат IELTS обязателен только для преподавателя или помощника преподавателя"
+    },
+    results: {
+      title: "Наши",
+      subtitle: "результаты:",
+      ielts: "IELTS",
+      cefr: "CEFR"
+    },
+    courses: {
+      title: "Наши",
+      subtitle: "курсы:",
+      details: {
+        duration: "Продолжительность:",
+        level: "Уровень:",
+        format: "Формат:",
+        price: "Стоимость:",
+        features: "Возможности курса:",
+        month: "сом/месяц"
+      },
+      registerBtn: "записаться на курс"
+    },
+    faq: {
+      title: "Часто задаваемые",
+      subtitle: "вопросы:",
+      items: [
+        {
+          q: "Почему именно я должен учиться в этом центре?",
+          a: "Все удобства, условия, качественная учебная программа, опытные учителя, помощники-учителя, коворкинг-зона для дополнительных занятий, воскресные мероприятия и другие возможности вместе с нами - мы будем работать с вами до достижения желаемого результата!"
+        },
+        {
+          q: "Какие учебные программы используются?",
+          a: "Мы полностью используем самую эффективную учебную программу от Oxford University Press международного уровня!"
+        },
+        {
+          q: "Есть ли гарантия результата от курса?",
+          a: "Конечно есть. Если вы будете выполнять 100% заданий, которые дает наш преподаватель, вовремя, вы обязательно получите хороший результат!"
+        },
+        {
+          q: "Если мне будет трудно учиться и я не смогу показать результат, могу ли я вернуть свои деньги?",
+          a: "Наша цель - давать качественное образование, и это для всех. Если вам будет трудно учиться, мы привлечем дополнительных помощников-учителей и значительно улучшим ваш результат!"
+        },
+        {
+          q: "Есть ли турецкий, китайский, немецкий, французский языки?",
+          a: "В 3/2 наших филиалах есть турецкий язык, в 2/2 - немецкий. Остальные языки пока недоступны. Если набор откроется, сообщим в наших социальных сетях!"
+        },
+        {
+          q: "Как предоставляются учебные материалы?",
+          a: "Все учебные материалы состоят из современных учебников, мультимедийных ресурсов и специально подготовленных учебных пособий. Дополнительные материалы также предоставляются через онлайн-платформу."
+        },
+        {
+          q: "Предоставляете ли вы скидки или бонусы?",
+          a: "Хотя мы не можем предоставить скидки, мы достойно награждаем студентов, которые показывают лучшие результаты. Если вы наберете более 7,5 баллов на сертификате IELTS, мы также подарим CashBack от 1 000 000 сумов!"
+        },
+        {
+          q: "Можно ли у вас подготовиться к поступлению в университет?",
+          a: "Да, конечно, у нас вы можете полностью выучить английский, русский или корейский язык и получить специальный сертификат. С сертификатами IELTS, CEFR и TOPIK вы можете подать документы в любой университет!"
+        },
+        {
+          q: "С какого возраста принимают на обучение?",
+          a: "В основном мы принимаем учащихся выше 2-го класса!"
+        },
+        {
+          q: "Могут ли учиться люди 30-40 лет?",
+          a: "Если у вас есть партнеры, мы обязательно организуем занятия. Но в других случаях у нас есть другие предложения для вас. Посетите наш учебный центр или позвоните по номеру +998 78 333 37 73!"
+        },
+      ]
+    },
+    advantages: {
+      title: "Наши",
+      subtitle: "преимущества:",
+      items: [
+        {
+          icon: <FaBolt size={40} />,
+          title: "Бесплатная коворкинг-зона",
+          desc: "Удобное место для студентов для учебы или самостоятельной работы после занятий!",
+        },
+        {
+          icon: <FaUsers size={40} />,
+          title: "Помощники-учителя",
+          desc: "Помощники-учителя, которые помогают каждому студенту с индивидуальным подходом, проводят дополнительные БЕСПЛАТНЫЕ занятия!",
+        },
+        {
+          icon: <FaCalendarCheck size={40} />,
+          title: "Воскресные мероприятия",
+          desc: "Каждое воскресенье проходят мастер-классы, викторины и мотивационные встречи!",
+        },
+        {
+          icon: <FaMapMarkerAlt size={40} />,
+          title: "Самое удобное расположение",
+          desc: "Наши филиалы расположены в центральных и удобных местах города!",
+        },
+      ]
+    },
+    gallery: {
+      title: "Наша",
+      subtitle: "галерея:",
+      items: [
+        {
+          id: 1,
+          src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=60",
+          title: "Наши классы",
+          desc: "Современные оснащенные классы"
+        },
+        {
+          id: 2,
+          src: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=60",
+          title: "Библиотека",
+          desc: "Просторный читальный зал"
+        },
+        {
+          id: 3,
+          src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=60",
+          title: "Лаборатория",
+          desc: "Современная лаборатория"
+        },
+        {
+          id: 4,
+          src: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=800&q=60",
+          title: "Спортзал",
+          desc: "Просторная спортивная площадка"
+        },
+        {
+          id: 5,
+          src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=60",
+          title: "Учебный процесс",
+          desc: "Эффективный учебный процесс"
+        },
+        {
+          id: 6,
+          src: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=800&q=60",
+          title: "Мероприятие",
+          desc: "Культурные мероприятия"
+        },
+      ]
+    },
+    events: {
+      title: "Воскресные",
+      subtitle: "мероприятия:",
+      registerBtn: "Зарегистрироваться на мероприятия",
+      namePlaceholder: "Ваше имя и фамилия",
+      agePlaceholder: "Ваш возраст",
+      phonePlaceholder: "Ваш номер телефона",
+      submitBtn: "Зарегистрироваться"
+    },
+    contact: {
+      title: "Свяжитесь с нами",
+      name: "Имя и фамилия",
+      age: "Возраст",
+      phone1: "Номер телефона 1",
+      phone2: "Номер телефона 2",
+      course: "Выберите курс",
+      format: "Формат обучения",
+      time: "Выберите удобное время",
+      selectTime: "Выберите время",
+      submit: "Отправить",
+      formats: [
+        { value: "guruh", label: "В группе" },
+        { value: "mini", label: "Мини-группа" },
+        { value: "individual", label: "Индивидуально 1-1" }
+      ]
+    },
+    footer: {
+      description: "Учебный центр с 14-летним опытом. Ваш успех - наша гордость.",
+      courses: "Курсы",
+      branches: "Филиалы",
+      contact: "Контакты",
+      copyright: "© 2024 Study Center. Все права защищены."
+    },
+    common: {
+      mainNumber: "Основной номер",
+      additionalNumber: "Дополнительный номер",
+      email: "Email",
+      select: "Выберите...",
+      close: "Закрыть",
+      clickToView: "Нажмите для просмотра"
+    }
+  },
+  EN: {
+    hero: {
+      title: "The best path for youth's future",
+      subtitle: "starts here",
+      description: `In 15 years, "Bilim Ziyo" has taught over 20,000 students and achieved about 1,000 results!`,
+      registerBtn: "Register",
+      schoolBtn: "Private School"
+    },
+    features: {
+      title: "Why our study center?",
+      items: [
+        {
+          id: 1,
+          icon: <FaRegStar size={40} />,
+          title: "15 years of experience",
+        },
+        {
+          id: 2,
+          icon: <FaUserGraduate size={40} />,
+          title: "Over 20,000 students chose us",
+        },
+        {
+          id: 3,
+          icon: <FaSchool size={40} />,
+          title: "3 branches",
+        },
+        {
+          id: 4,
+          icon: <FaUsers size={40} />,
+          title: "Over 50 experienced and qualified teachers with us",
+        },
+      ]
+    },
+    teachers: {
+      title: "Our",
+      subtitle: "team:",
+      yearsExp: "years of experience",
+      students: "students taught"
+    },
+    teachingTeam: {
+      title: "Our",
+      subtitle: "Teaching Staff",
+      joinTeam: "Join Our Team",
+      subjects: {
+        english: "English Language",
+        math: "Mathematics",
+        russian: "Russian Language",
+        korean: "Korean Language",
+        programming: "Programming",
+        drawing: "Drawing",
+        physics: "Physics",
+        chemistry: "Chemistry"
+      }
+    },
+    joinForm: {
+      title: "Join Our Team",
+      name: "Your Full Name",
+      phone: "Your Phone Number",
+      birthDate: "Date of Birth",
+      languages: "Which languages do you know?",
+      address: "Your Address",
+      position: "Which position are you interested in?",
+      positions: {
+        teacher: "Teacher",
+        assistant: "Assistant Teacher",
+        admin: "Administrator",
+        cashier: "Cashier",
+        other: "Other"
+      },
+      education: "Your Education (where did you study?)",
+      experience: "Work Experience (where and how long have you worked?)",
+      ieltsCertificate: "Upload IELTS Certificate Photo",
+      cv: "Upload Resume/CV",
+      additionalInfo: "Additional Information or Suggestions",
+      upload: "Upload File",
+      submit: "Submit Application",
+      close: "Close",
+      additionalQuestions: "If you have additional questions: write to @BilimZiyoHR!",
+      required: "* Required fields",
+      ieltsRequired: "IELTS certificate is required only for Teacher or Assistant Teacher positions"
+    },
+    results: {
+      title: "Our",
+      subtitle: "results:",
+      ielts: "IELTS",
+      cefr: "CEFR"
+    },
+    courses: {
+      title: "Our",
+      subtitle: "courses:",
+      details: {
+        duration: "Duration:",
+        level: "Level:",
+        format: "Format:",
+        price: "Price:",
+        features: "Course features:",
+        month: "sum/month"
+      },
+      registerBtn: "register for course"
+    },
+    faq: {
+      title: "Frequently asked",
+      subtitle: "questions:",
+      items: [
+        {
+          q: "Why should I study at this center?",
+          a: "All the amenities, conditions, quality curriculum, experienced teachers, assistant teachers, coworking space for additional classes, Sunday events and other opportunities together with us - we will work with you until you achieve the desired result!"
+        },
+        {
+          q: "What study programs are used?",
+          a: "We fully use the most effective study program from Oxford University Press at an international level!"
+        },
+        {
+          q: "Is there a guarantee of results from the course?",
+          a: "Of course there is. If you complete 100% of the assignments given by our teacher on time, you will definitely get good results!"
+        },
+        {
+          q: "If I have difficulty studying and cannot show results, can I get my money back?",
+          a: "Our goal is to provide quality education, and this is for everyone. If you have difficulty studying, we will involve additional assistant teachers and significantly improve your results!"
+        },
+        {
+          q: "Are Turkish, Chinese, German, French languages available?",
+          a: "Turkish language is available in 3/2 of our branches, and German language in 2/2. Other languages are not available yet. If enrollment opens, we will inform you through our social media channels!"
+        },
+        {
+          q: "How are study materials provided?",
+          a: "All study materials consist of modern textbooks, multimedia resources and specially prepared study guides. Additional materials are also provided through an online platform."
+        },
+        {
+          q: "Do you offer discounts or bonuses?",
+          a: "Although we cannot offer discounts, we adequately reward students who show the best results. If you score more than 7.5 on the IELTS certificate, we also give CashBack starting from 1,000,000 soums!"
+        },
+        {
+          q: "Can I prepare for university entrance with you?",
+          a: "Yes, of course, with us you can fully learn English, Russian or Korean and get a special certificate. With IELTS, CEFR and TOPIK certificates, you can apply to any university!"
+        },
+        {
+          q: "From what age are students accepted?",
+          a: "We mainly accept students above 2nd grade!"
+        },
+        {
+          q: "Can 30-40 year olds study?",
+          a: "If you have partners, we will definitely organize classes. But in other cases, we have other offers for you. Visit our study center or call +998 78 333 37 73!"
+        },
+      ]
+    },
+    advantages: {
+      title: "Our",
+      subtitle: "advantages:",
+      items: [
+        {
+          icon: <FaBolt size={40} />,
+          title: "Free coworking zone",
+          desc: "Convenient place for students to study or work independently after classes!",
+        },
+        {
+          icon: <FaUsers size={40} />,
+          title: "Assistant teachers",
+          desc: "Assistant teachers who help each student with an individual approach conduct additional FREE classes!",
+        },
+        {
+          icon: <FaCalendarCheck size={40} />,
+          title: "Sunday events",
+          desc: "Every Sunday - master classes, quizzes and motivational meetings are held!",
+        },
+        {
+          icon: <FaMapMarkerAlt size={40} />,
+          title: "Most convenient location",
+          desc: "Our branches are located in central and convenient locations in the city!",
+        },
+      ]
+    },
+    gallery: {
+      title: "Our",
+      subtitle: "gallery:",
+      items: [
+        {
+          id: 1,
+          src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=60",
+          title: "Our Classes",
+          desc: "Modern equipped classrooms"
+        },
+        {
+          id: 2,
+          src: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=60",
+          title: "Library",
+          desc: "Spacious library hall"
+        },
+        {
+          id: 3,
+          src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=60",
+          title: "Laboratory",
+          desc: "Modern laboratory"
+        },
+        {
+          id: 4,
+          src: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=800&q=60",
+          title: "Gym",
+          desc: "Spacious sports ground"
+        },
+        {
+          id: 5,
+          src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=60",
+          title: "Study Process",
+          desc: "Effective study process"
+        },
+        {
+          id: 6,
+          src: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=800&q=60",
+          title: "Event",
+          desc: "Cultural events"
+        },
+      ]
+    },
+    events: {
+      title: "Sunday",
+      subtitle: "events:",
+      registerBtn: "Register for events",
+      namePlaceholder: "Your full name",
+      agePlaceholder: "Your age",
+      phonePlaceholder: "Your phone number",
+      submitBtn: "Register"
+    },
+    contact: {
+      title: "Contact us",
+      name: "Full name",
+      age: "Age",
+      phone1: "Phone number 1",
+      phone2: "Phone number 2",
+      course: "Select course",
+      format: "Study format",
+      time: "Select convenient time",
+      selectTime: "Select time",
+      submit: "Submit",
+      formats: [
+        { value: "guruh", label: "In group" },
+        { value: "mini", label: "Mini group" },
+        { value: "individual", label: "Individually 1-1" }
+      ]
+    },
+    footer: {
+      description: "Study center with 14 years of experience. Your success is our pride.",
+      courses: "Courses",
+      branches: "Branches",
+      contact: "Contacts",
+      copyright: "© 2024 Study Center. All rights reserved."
+    },
+    common: {
+      mainNumber: "Main number",
+      additionalNumber: "Additional number",
+      email: "Email",
+      select: "Select...",
+      close: "Close",
+      clickToView: "Click to view"
+    }
+  }
+};
 
 const StudyCenter = () => {
   const { activeLanguage, getLanguageContent } = useLanguage();
   const [ref, { height }] = useMeasure()
-
-  // Barcha tillar uchun tarjimalar
-  const translations = {
-    UZ: {
-      hero: {
-        title: "Yoshlar kelajagi uchun eng yaxshi yo'l",
-        subtitle: "shu yerdan boshlanadi",
-        description: `15yil ichida "Bilim Ziyo", 20 000 dan ortiq o'quvchilarga ta'lim berdi va 1000 ga yaqin natijalarni qo'lga kiritdi!`,
-        registerBtn: "Ro'xatdan o'tish",
-        schoolBtn: "Xususiy Maktab"
-      },
-      features: {
-        title: "Nima uchun bizning o'quv markaz?",
-        items: [
-          {
-            id: 1,
-            icon: <FaRegStar size={40} />,
-            title: "15 yillik tajriba",
-          },
-          {
-            id: 2,
-            icon: <FaUserGraduate size={40} />,
-            title: "20 000 ga yaqin o'quvchi bizni tanlagan",
-          },
-          {
-            id: 3,
-            icon: <FaSchool size={40} />,
-            title: "3 ta filialga ega",
-          },
-          {
-            id: 4,
-            icon: <FaUsers size={40} />,
-            title: "50 dan ortiq tajribali va malakali ustozlar biz bilan",
-          },
-        ]
-      },
-      teachers: {
-        title: "Bizning",
-        subtitle: "jamoamiz:",
-        yearsExp: "yillik tajriba",
-        students: "o'quvchi o'qitdi"
-      },
-      teachingTeam: {
-        title: "O'qituvchilarimiz",
-        subtitle: "haqida",
-        joinTeam: "Jamoamizga qo'shiling",
-        subjects: {
-          english: "Ingliz tili",
-          math: "Matematika",
-          russian: "Rus tili",
-          korean: "Koreys tili",
-          programming: "Dasturlash",
-          drawing: "Rasm chizish",
-          physics: "Fizika",
-          chemistry: "Kimyo"
-        }
-      },
-      joinForm: {
-        title: "Jamoamizga qo'shiling",
-        name: "Ism-sharifingiz",
-        phone: "Telefon raqamingiz",
-        birthDate: "Tug'ilgan sanangiz",
-        languages: "Qaysi tillarni bilasiz?",
-        address: "Yashash manzilingiz",
-        position: "Qaysi lavozimda ishlamoqchisiz?",
-        positions: {
-          teacher: "O'qituvchi",
-          assistant: "Yordamchi o'qituvchi",
-          admin: "Administrator",
-          cashier: "Kassir",
-          other: "Boshqa"
-        },
-        education: "Ma'lumotingiz (qayerda o'qigansiz?)",
-        experience: "Ish tajribangiz (qayerda va qancha vaqt ishlagansiz?)",
-        ieltsCertificate: "IELTS sertifikatingiz rasmini yuklang",
-        cv: "Rezyume/CV yuklang",
-        additionalInfo: "Qo'shimcha ma'lumot yoki taklifingiz",
-        upload: "Faylni yuklash",
-        submit: "Ariza yuborish",
-        close: "Yopish",
-        additionalQuestions: "Agar yana qo'shimcha savollar bo'lsa: @BilimZiyoHR'ga yozishingiz mumkin!",
-        required: "* Majburiy maydonlar",
-        ieltsRequired: "IELTS sertifikati faqat o'qituvchi yoki yordamchi o'qituvchi tanlaganda majburiy"
-      },
-      results: {
-        title: "Bizning",
-        subtitle: "natijalarimiz:",
-        ielts: "IELTS",
-        cefr: "CEFR"
-      },
-      courses: {
-        title: "Bizning",
-        subtitle: "kurslarimiz:",
-        details: {
-          duration: "Davomiylik:",
-          level: "Daraja:",
-          format: "Format:",
-          price: "Narx:",
-          features: "Kurs imkoniyatlari:"
-        },
-        registerBtn: "kursiga yozilish"
-      },
-      faq: {
-        title: "Ko'p so'raladigan",
-        subtitle: "savollar:",
-        items: [
-          {
-            q: "Nimaga aynan men bu dargohda o'qishim kerak?",
-            a: "Barcha qulayliklar, sharoitlar, sifatli o'quv dasturi, tajribali ustozlar, yordamchi ustozlar, qo'shimcha dars qilish uchun 'Coworking space' zali, yakshanba kungi tadbirlar va boshqa imkoniyatlar bilan birga, siz erishmoqchi bo'lgan natijagacha siz bilan teng harakat qilamiz!"
-          },
-          {
-            q: "Qanday o'quv dasturlaridan foydalaniladi?",
-            a: "Xalqaro darajadagi Oxford University Press nashriyotining eng samarali o'quv dasturidan to'liq foydalanamiz!"
-          },
-          {
-            q: "Kursdan natija olishimga kafolat bormi?",
-            a: "Albatta bor. Agar siz o'qituvchimiz berayotgan topshiriqlarni o'z vaqtida 100% bajarib borsangiz, aniq yaxshi natija olasiz!"
-          },
-          {
-            q: "Agar o'qishga qiynalsam va natija ko'rsata olmasam pulimni qaytarib olamanmi?",
-            a: "Bizning maqsad sifatli ta'lim berish va bu hamma uchun. Agar o'qishga qiynalsangiz, biz sizga qo'shimcha yordamchi ustozlarni jalb qilamiz va bu orqali natijangizni sezilarli darajaga oshiramiz!"
-          },
-          {
-            q: "Turk, Xitoy, Nemis, Fransuz tillari mavjudmi?",
-            a: "3/2 filialimizda Turk tili, 2/2 filialimizda esa Nemis tili mavjud. Qolgan tillar hozircha yo'q. Agar qabul ochilsa ijtimoiy tarmoqlardagi kanallarimiz orqali habar beramiz!"
-          },
-          {
-            q: "Dars materiallari qanday taqdim etiladi?",
-            a: "Barcha o'quv materiallari zamonaviy darsliklar, multimedia resurslari va maxsus tayyorlangan o'quv qo'llanmalardan iborat. Onlayn platforma orqali qo'shimcha materiallar ham taqdim etiladi."
-          },
-          {
-            q: "Chegirma yoki bonus berasizlarmi?",
-            a: "Chegirma qila olmasakda, bizda o'qib eng yaxshi natija ko'rsatayotgan o'quvchilarni munosib taqdirlaymiz. Agar IELTS sertifikatidan 7.5 dan yuqori ball to'plasangiz, 1 000 000 so'mdan boshlab CashBack ham sovg'a qilamiz!"
-          },
-          {
-            q: "Universitetga kirish uchun sizlarda tayyorlansam bo'ladimi?",
-            a: "Ha albatta, bizda Ingliz, rus yoki koreys tilini to'liq o'rganib maxsus sertifikatni qo'lga kiritishingiz mumkin. IETLS, CEFR va TOPIK sertifikatlari bilan istalgan universitetga tayyor holda hujjat topshirishingiz mumkin!"
-          },
-          {
-            q: "Necha yoshdan boshlab o'qishga qabul qilinadi?",
-            a: "Asosan 2-sinfdan yuqori bo'lgan o'quvchilarni o'qishga qabul qilamiz!"
-          },
-          {
-            q: "30-40 yoshlar ham o'qisa bo'ladimi?",
-            a: "Agar sheriklaringiz bo'lsa, albatta dars tashkillashtirib berishimiz mumkin. Ammo boshqa holatda sizga boshqa takliflarimiz mavjud. Buning uchun o'quv markazimizga tashrif buyuring yoki +998 78 333 37 73 raqamiga qo'ng'iroq qiling!"
-          },
-        ]
-      },
-      advantages: {
-        title: "Bizning",
-        subtitle: "ustunliklarimiz:",
-        items: [
-          {
-            icon: <FaBolt size={40} />,
-            title: "Bepul coworking zone",
-            desc: "O'quvchilar darsdan so'ng o'qish yoki mustaqil ishlash uchun qulay joy!",
-          },
-          {
-            icon: <FaUsers size={40} />,
-            title: "Yordamchi ustozlar",
-            desc: "Har bir o'quvchiga alohida yondashuv bilan yaqindan yordam beradigan yordamchi ustozlar qo'shimcha BEPUL darslar olib boradi!",
-          },
-          {
-            icon: <FaCalendarCheck size={40} />,
-            title: "Yakshanba tadbirlari",
-            desc: "Har yakshanba – masterklasslar, viktorinalar va motivatsion uchrashuvlar bo'lib o'tadi!",
-          },
-          {
-            icon: <FaMapMarkerAlt size={40} />,
-            title: "Eng qulay lokatsiya",
-            desc: "Filiallarimiz shaharning markaziy va qulay joylarida joylashgan!",
-          },
-        ]
-      },
-      gallery: {
-        title: "Bizning",
-        subtitle: "galereya:",
-        items: [
-          {
-            id: 1,
-            src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=60",
-            title: "Sinflarimiz",
-            desc: "Zamonaviy jihozlangan sinflar"
-          },
-          {
-            id: 2,
-            src: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=60",
-            title: "Kutubxona",
-            desc: "Keng kutubxona zali"
-          },
-          {
-            id: 3,
-            src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=60",
-            title: "Laboratoriya",
-            desc: "Zamonaviy laboratoriya"
-          },
-          {
-            id: 4,
-            src: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=800&q=60",
-            title: "Sport Zali",
-            desc: "Keng sport maydoni"
-          },
-          {
-            id: 5,
-            src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=60",
-            title: "O'quv Jarayoni",
-            desc: "Samarali o'quv jarayoni"
-          },
-          {
-            id: 6,
-            src: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=800&q=60",
-            title: "Tadbir",
-            desc: "Madaniy tadbirlar"
-          },
-        ]
-      },
-      events: {
-        title: "Sunday",
-        subtitle: "eventlar:",
-        registerBtn: "Eventlarga ro'yxatdan o'ting",
-        namePlaceholder: "Ism Familiyangiz",
-        agePlaceholder: "Yoshingiz",
-        phonePlaceholder: "Telefon raqamingiz",
-        submitBtn: "Ro'yxatdan o'tish"
-      },
-      contact: {
-        title: "Biz bilan bog'laning",
-        name: "Ism sharif",
-        age: "Yoshi",
-        phone1: "Telefon raqam 1",
-        phone2: "Telefon raqam 2",
-        course: "Kursni tanlang",
-        format: "O'qish formati",
-        time: "Qulay vaqtni tanlang",
-        selectTime: "Vaqtni tanlang",
-        submit: "Yuborish",
-        formats: [
-          { value: "guruh", label: "Guruh bilan" },
-          { value: "mini", label: "Mini guruh" },
-          { value: "individual", label: "Alohida 1-1" }
-        ]
-      },
-      footer: {
-        description: "14 yillik tajribaga ega o'quv markazi. Sizning muvaffaqiyatingiz - bizning g'ururimiz.",
-        courses: "Kurslar",
-        branches: "Filiallar",
-        contact: "Bog'lanish",
-        copyright: "© 2024 Study Center. Barcha huquqlar himoyalangan."
-      },
-      common: {
-        mainNumber: "Asosiy raqam",
-        additionalNumber: "Qo'shimcha raqam",
-        email: "Email",
-        select: "Tanlang...",
-        close: "Yopish",
-        clickToView: "Ko'rish uchun bosing"
-      }
-    },
-    RU: {
-      hero: {
-        title: "Лучший путь к будущему молодежи",
-        subtitle: "начинается здесь",
-        description: `За 15 лет "Bilim Ziyo" обучил более 20 000 студентов и добился около 1000 результатов!`,
-        registerBtn: "Зарегистрироваться",
-        schoolBtn: "Частная школа"
-      },
-      features: {
-        title: "Почему именно наш учебный центр?",
-        items: [
-          {
-            id: 1,
-            icon: <FaRegStar size={40} />,
-            title: "15 лет опыта",
-          },
-          {
-            id: 2,
-            icon: <FaUserGraduate size={40} />,
-            title: "Более 20 000 студентов выбрали нас",
-          },
-          {
-            id: 3,
-            icon: <FaSchool size={40} />,
-            title: "3 филиала",
-          },
-          {
-            id: 4,
-            icon: <FaUsers size={40} />,
-            title: "Более 50 опытных и квалифицированных учителей с нами",
-          },
-        ]
-      },
-      teachers: {
-        title: "Наша",
-        subtitle: "команда:",
-        yearsExp: "лет опыта",
-        students: "студентов обучил"
-      },
-      teachingTeam: {
-        title: "Наши",
-        subtitle: "преподаватели",
-        joinTeam: "Присоединиться к команде",
-        subjects: {
-          english: "Английский язык",
-          math: "Математика",
-          russian: "Русский язык",
-          korean: "Корейский язык",
-          programming: "Программирование",
-          drawing: "Рисование",
-          physics: "Физика",
-          chemistry: "Химия"
-        }
-      },
-      joinForm: {
-        title: "Присоединиться к команде",
-        name: "Ваше ФИО",
-        phone: "Ваш номер телефона",
-        birthDate: "Дата рождения",
-        languages: "Какие языки вы знаете?",
-        address: "Адрес проживания",
-        position: "На какую должность претендуете?",
-        positions: {
-          teacher: "Преподаватель",
-          assistant: "Помощник преподавателя",
-          admin: "Администратор",
-          cashier: "Кассир",
-          other: "Другое"
-        },
-        education: "Ваше образование (где учились?)",
-        experience: "Опыт работы (где и сколько работали?)",
-        ieltsCertificate: "Загрузите фото сертификата IELTS",
-        cv: "Загрузите резюме/CV",
-        additionalInfo: "Дополнительная информация или предложения",
-        upload: "Загрузить файл",
-        submit: "Отправить заявку",
-        close: "Закрыть",
-        additionalQuestions: "Если есть дополнительные вопросы: пишите @BilimZiyoHR!",
-        required: "* Обязательные поля",
-        ieltsRequired: "Сертификат IELTS обязателен только для преподавателя или помощника преподавателя"
-      },
-      results: {
-        title: "Наши",
-        subtitle: "результаты:",
-        ielts: "IELTS",
-        cefr: "CEFR"
-      },
-      courses: {
-        title: "Наши",
-        subtitle: "курсы:",
-        details: {
-          duration: "Продолжительность:",
-          level: "Уровень:",
-          format: "Формат:",
-          price: "Стоимость:",
-          features: "Возможности курса:"
-        },
-        registerBtn: "записаться на курс"
-      },
-      faq: {
-        title: "Часто задаваемые",
-        subtitle: "вопросы:",
-        items: [
-          {
-            q: "Почему именно я должен учиться в этом центре?",
-            a: "Все удобства, условия, качественная учебная программа, опытные учителя, помощники-учителя, коворкинг-зона для дополнительных занятий, воскресные мероприятия и другие возможности вместе с нами - мы будем работать с вами до достижения желаемого результата!"
-          },
-          {
-            q: "Какие учебные программы используются?",
-            a: "Мы полностью используем самую эффективную учебную программу от Oxford University Press международного уровня!"
-          },
-          {
-            q: "Есть ли гарантия результата от курса?",
-            a: "Конечно есть. Если вы будете выполнять 100% заданий, которые дает наш преподаватель, вовремя, вы обязательно получите хороший результат!"
-          },
-          {
-            q: "Если мне будет трудно учиться и я не смогу показать результат, могу ли я вернуть свои деньги?",
-            a: "Наша цель - давать качественное образование, и это для всех. Если вам будет трудно учиться, мы привлечем дополнительных помощников-учителей и значительно улучшим ваш результат!"
-          },
-          {
-            q: "Есть ли турецкий, китайский, немецкий, французский языки?",
-            a: "В 3/2 наших филиалах есть турецкий язык, в 2/2 - немецкий. Остальные языки пока недоступны. Если набор откроется, сообщим в наших социальных сетях!"
-          },
-          {
-            q: "Как предоставляются учебные материалы?",
-            a: "Все учебные материалы состоят из современных учебников, мультимедийных ресурсов и специально подготовленных учебных пособий. Дополнительные материалы также предоставляются через онлайн-платформу."
-          },
-          {
-            q: "Предоставляете ли вы скидки или бонусы?",
-            a: "Хотя мы не можем предоставить скидки, мы достойно награждаем студентов, которые показывают лучшие результаты. Если вы наберете более 7,5 баллов на сертификате IELTS, мы также подарим CashBack от 1 000 000 сумов!"
-          },
-          {
-            q: "Можно ли у вас подготовиться к поступлению в университет?",
-            a: "Да, конечно, у нас вы можете полностью выучить английский, русский или корейский язык и получить специальный сертификат. С сертификатами IELTS, CEFR и TOPIK вы можете подать документы в любой университет!"
-          },
-          {
-            q: "С какого возраста принимают на обучение?",
-            a: "В основном мы принимаем учащихся выше 2-го класса!"
-          },
-          {
-            q: "Могут ли учиться люди 30-40 лет?",
-            a: "Если у вас есть партнеры, мы обязательно организуем занятия. Но в других случаях у нас есть другие предложения для вас. Посетите наш учебный центр или позвоните по номеру +998 78 333 37 73!"
-          },
-        ]
-      },
-      advantages: {
-        title: "Наши",
-        subtitle: "преимущества:",
-        items: [
-          {
-            icon: <FaBolt size={40} />,
-            title: "Бесплатная коворкинг-зона",
-            desc: "Удобное место для студентов для учебы или самостоятельной работы после занятий!",
-          },
-          {
-            icon: <FaUsers size={40} />,
-            title: "Помощники-учителя",
-            desc: "Помощники-учителя, которые помогают каждому студенту с индивидуальным подходом, проводят дополнительные БЕСПЛАТНЫЕ занятия!",
-          },
-          {
-            icon: <FaCalendarCheck size={40} />,
-            title: "Воскресные мероприятия",
-            desc: "Каждое воскресенье проходят мастер-классы, викторины и мотивационные встречи!",
-          },
-          {
-            icon: <FaMapMarkerAlt size={40} />,
-            title: "Самое удобное расположение",
-            desc: "Наши филиалы расположены в центральных и удобных местах города!",
-          },
-        ]
-      },
-      gallery: {
-        title: "Наша",
-        subtitle: "галерея:",
-        items: [
-          {
-            id: 1,
-            src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=60",
-            title: "Наши классы",
-            desc: "Современные оснащенные классы"
-          },
-          {
-            id: 2,
-            src: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=60",
-            title: "Библиотека",
-            desc: "Просторный читальный зал"
-          },
-          {
-            id: 3,
-            src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=60",
-            title: "Лаборатория",
-            desc: "Современная лаборатория"
-          },
-          {
-            id: 4,
-            src: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=800&q=60",
-            title: "Спортзал",
-            desc: "Просторная спортивная площадка"
-          },
-          {
-            id: 5,
-            src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=60",
-            title: "Учебный процесс",
-            desc: "Эффективный учебный процесс"
-          },
-          {
-            id: 6,
-            src: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=800&q=60",
-            title: "Мероприятие",
-            desc: "Культурные мероприятия"
-          },
-        ]
-      },
-      events: {
-        title: "Воскресные",
-        subtitle: "мероприятия:",
-        registerBtn: "Зарегистрироваться на мероприятия",
-        namePlaceholder: "Ваше имя и фамилия",
-        agePlaceholder: "Ваш возраст",
-        phonePlaceholder: "Ваш номер телефона",
-        submitBtn: "Зарегистрироваться"
-      },
-      contact: {
-        title: "Свяжитесь с нами",
-        name: "Имя и фамилия",
-        age: "Возраст",
-        phone1: "Номер телефона 1",
-        phone2: "Номер телефона 2",
-        course: "Выберите курс",
-        format: "Формат обучения",
-        time: "Выберите удобное время",
-        selectTime: "Выберите время",
-        submit: "Отправить",
-        formats: [
-          { value: "guruh", label: "В группе" },
-          { value: "mini", label: "Мини-группа" },
-          { value: "individual", label: "Индивидуально 1-1" }
-        ]
-      },
-      footer: {
-        description: "Учебный центр с 14-летним опытом. Ваш успех - наша гордость.",
-        courses: "Курсы",
-        branches: "Филиалы",
-        contact: "Контакты",
-        copyright: "© 2024 Study Center. Все права защищены."
-      },
-      common: {
-        mainNumber: "Основной номер",
-        additionalNumber: "Дополнительный номер",
-        email: "Email",
-        select: "Выберите...",
-        close: "Закрыть",
-        clickToView: "Нажмите для просмотра"
-      }
-    },
-    EN: {
-      hero: {
-        title: "The best path for youth's future",
-        subtitle: "starts here",
-        description: `In 15 years, "Bilim Ziyo" has taught over 20,000 students and achieved about 1,000 results!`,
-        registerBtn: "Register",
-        schoolBtn: "Private School"
-      },
-      features: {
-        title: "Why our study center?",
-        items: [
-          {
-            id: 1,
-            icon: <FaRegStar size={40} />,
-            title: "15 years of experience",
-          },
-          {
-            id: 2,
-            icon: <FaUserGraduate size={40} />,
-            title: "Over 20,000 students chose us",
-          },
-          {
-            id: 3,
-            icon: <FaSchool size={40} />,
-            title: "3 branches",
-          },
-          {
-            id: 4,
-            icon: <FaUsers size={40} />,
-            title: "Over 50 experienced and qualified teachers with us",
-          },
-        ]
-      },
-      teachers: {
-        title: "Our",
-        subtitle: "team:",
-        yearsExp: "years of experience",
-        students: "students taught"
-      },
-      teachingTeam: {
-        title: "Our",
-        subtitle: "Teaching Staff",
-        joinTeam: "Join Our Team",
-        subjects: {
-          english: "English Language",
-          math: "Mathematics",
-          russian: "Russian Language",
-          korean: "Korean Language",
-          programming: "Programming",
-          drawing: "Drawing",
-          physics: "Physics",
-          chemistry: "Chemistry"
-        }
-      },
-      joinForm: {
-        title: "Join Our Team",
-        name: "Your Full Name",
-        phone: "Your Phone Number",
-        birthDate: "Date of Birth",
-        languages: "Which languages do you know?",
-        address: "Your Address",
-        position: "Which position are you interested in?",
-        positions: {
-          teacher: "Teacher",
-          assistant: "Assistant Teacher",
-          admin: "Administrator",
-          cashier: "Cashier",
-          other: "Other"
-        },
-        education: "Your Education (where did you study?)",
-        experience: "Work Experience (where and how long have you worked?)",
-        ieltsCertificate: "Upload IELTS Certificate Photo",
-        cv: "Upload Resume/CV",
-        additionalInfo: "Additional Information or Suggestions",
-        upload: "Upload File",
-        submit: "Submit Application",
-        close: "Close",
-        additionalQuestions: "If you have additional questions: write to @BilimZiyoHR!",
-        required: "* Required fields",
-        ieltsRequired: "IELTS certificate is required only for Teacher or Assistant Teacher positions"
-      },
-      results: {
-        title: "Our",
-        subtitle: "results:",
-        ielts: "IELTS",
-        cefr: "CEFR"
-      },
-      courses: {
-        title: "Our",
-        subtitle: "courses:",
-        details: {
-          duration: "Duration:",
-          level: "Level:",
-          format: "Format:",
-          price: "Price:",
-          features: "Course features:"
-        },
-        registerBtn: "register for course"
-      },
-      faq: {
-        title: "Frequently asked",
-        subtitle: "questions:",
-        items: [
-          {
-            q: "Why should I study at this center?",
-            a: "All the amenities, conditions, quality curriculum, experienced teachers, assistant teachers, coworking space for additional classes, Sunday events and other opportunities together with us - we will work with you until you achieve the desired result!"
-          },
-          {
-            q: "What study programs are used?",
-            a: "We fully use the most effective study program from Oxford University Press at an international level!"
-          },
-          {
-            q: "Is there a guarantee of results from the course?",
-            a: "Of course there is. If you complete 100% of the assignments given by our teacher on time, you will definitely get good results!"
-          },
-          {
-            q: "If I have difficulty studying and cannot show results, can I get my money back?",
-            a: "Our goal is to provide quality education, and this is for everyone. If you have difficulty studying, we will involve additional assistant teachers and significantly improve your results!"
-          },
-          {
-            q: "Are Turkish, Chinese, German, French languages available?",
-            a: "Turkish language is available in 3/2 of our branches, and German language in 2/2. Other languages are not available yet. If enrollment opens, we will inform you through our social media channels!"
-          },
-          {
-            q: "How are study materials provided?",
-            a: "All study materials consist of modern textbooks, multimedia resources and specially prepared study guides. Additional materials are also provided through an online platform."
-          },
-          {
-            q: "Do you offer discounts or bonuses?",
-            a: "Although we cannot offer discounts, we adequately reward students who show the best results. If you score more than 7.5 on the IELTS certificate, we also give CashBack starting from 1,000,000 soums!"
-          },
-          {
-            q: "Can I prepare for university entrance with you?",
-            a: "Yes, of course, with us you can fully learn English, Russian or Korean and get a special certificate. With IELTS, CEFR and TOPIK certificates, you can apply to any university!"
-          },
-          {
-            q: "From what age are students accepted?",
-            a: "We mainly accept students above 2nd grade!"
-          },
-          {
-            q: "Can 30-40 year olds study?",
-            a: "If you have partners, we will definitely organize classes. But in other cases, we have other offers for you. Visit our study center or call +998 78 333 37 73!"
-          },
-        ]
-      },
-      advantages: {
-        title: "Our",
-        subtitle: "advantages:",
-        items: [
-          {
-            icon: <FaBolt size={40} />,
-            title: "Free coworking zone",
-            desc: "Convenient place for students to study or work independently after classes!",
-          },
-          {
-            icon: <FaUsers size={40} />,
-            title: "Assistant teachers",
-            desc: "Assistant teachers who help each student with an individual approach conduct additional FREE classes!",
-          },
-          {
-            icon: <FaCalendarCheck size={40} />,
-            title: "Sunday events",
-            desc: "Every Sunday - master classes, quizzes and motivational meetings are held!",
-          },
-          {
-            icon: <FaMapMarkerAlt size={40} />,
-            title: "Most convenient location",
-            desc: "Our branches are located in central and convenient locations in the city!",
-          },
-        ]
-      },
-      gallery: {
-        title: "Our",
-        subtitle: "gallery:",
-        items: [
-          {
-            id: 1,
-            src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=60",
-            title: "Our Classes",
-            desc: "Modern equipped classrooms"
-          },
-          {
-            id: 2,
-            src: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=60",
-            title: "Library",
-            desc: "Spacious library hall"
-          },
-          {
-            id: 3,
-            src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=60",
-            title: "Laboratory",
-            desc: "Modern laboratory"
-          },
-          {
-            id: 4,
-            src: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=800&q=60",
-            title: "Gym",
-            desc: "Spacious sports ground"
-          },
-          {
-            id: 5,
-            src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=60",
-            title: "Study Process",
-            desc: "Effective study process"
-          },
-          {
-            id: 6,
-            src: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=800&q=60",
-            title: "Event",
-            desc: "Cultural events"
-          },
-        ]
-      },
-      events: {
-        title: "Sunday",
-        subtitle: "events:",
-        registerBtn: "Register for events",
-        namePlaceholder: "Your full name",
-        agePlaceholder: "Your age",
-        phonePlaceholder: "Your phone number",
-        submitBtn: "Register"
-      },
-      contact: {
-        title: "Contact us",
-        name: "Full name",
-        age: "Age",
-        phone1: "Phone number 1",
-        phone2: "Phone number 2",
-        course: "Select course",
-        format: "Study format",
-        time: "Select convenient time",
-        selectTime: "Select time",
-        submit: "Submit",
-        formats: [
-          { value: "guruh", label: "In group" },
-          { value: "mini", label: "Mini group" },
-          { value: "individual", label: "Individually 1-1" }
-        ]
-      },
-      footer: {
-        description: "Study center with 14 years of experience. Your success is our pride.",
-        courses: "Courses",
-        branches: "Branches",
-        contact: "Contacts",
-        copyright: "© 2024 Study Center. All rights reserved."
-      },
-      common: {
-        mainNumber: "Main number",
-        additionalNumber: "Additional number",
-        email: "Email",
-        select: "Select...",
-        close: "Close",
-        clickToView: "Click to view"
-      }
-    }
-  };
+  const [teamData, setTeamData] = useState([]);
+  const [teachersData, setTeachersData] = useState([]);
+  const [coursesData, setCoursesData] = useState([]);
+  const [cefrResults, setCefrResults] = useState([]);
+  const [ieltsResults, setIeltsResults] = useState([]);
+  const [galleryData, setGalleryData] = useState([]);
+  const [loading, setLoading] = useState({
+    team: true,
+    teachers: true,
+    courses: true,
+    cefr: true,
+    ielts: true,
+    gallery: true
+  });
+  const [error, setError] = useState(null);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
 
   const currentContent = getLanguageContent(translations);
+  
+  // Helper function to get localized field
+  const getLocalizedField = useCallback((item, field) => {
+    if (!item) return '';
+  
+    const suffix =
+      activeLanguage.code === 'RU' ? '_ru' :
+      activeLanguage.code === 'EN' ? '_en' : '';
+  
+    return item[`${field}${suffix}`]?.toString().trim() || item[field] || '';
+  }, [activeLanguage.code]);
+  
+  // Helper function to get image URL
+  const getImageUrl = useCallback((imageData) => {
+    if (!imageData) return 'https://via.placeholder.com/300x300.png?text=No+Image';
+  
+    if (imageData.formats?.small?.url)
+      return `${BASE_URL}${imageData.formats.small.url}`;
+  
+    if (imageData.formats?.medium?.url)
+      return `${BASE_URL}${imageData.formats.medium.url}`;
+  
+    if (imageData.url)
+      return `${BASE_URL}${imageData.url}`;
+  
+    return 'https://via.placeholder.com/300x300.png?text=No+Image';
+  }, []);
+  
 
-  // Kurslar ma'lumotlari
-  const courses = [
-    {
-      id: 1,
-      name: activeLanguage.code === 'UZ' ? "Ingliz tili" : activeLanguage.code === 'RU' ? "Английский язык" : "English Language",
-      desc: activeLanguage.code === 'UZ' ? "Boshlang'ichdan IELTS darajasigacha" :
-        activeLanguage.code === 'RU' ? "От начального до уровня IELTS" :
-          "From beginner to IELTS level",
-      icon: "🇬🇧",
-      details: {
-        duration: activeLanguage.code === 'UZ' ? "6-9 oy" : activeLanguage.code === 'RU' ? "6-9 месяцев" : "6-9 months",
-        level: activeLanguage.code === 'UZ' ? "Boshlang'ichdan IELTS gacha" :
-          activeLanguage.code === 'RU' ? "От начального до IELTS" :
-            "From beginner to IELTS",
-        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" :
-          activeLanguage.code === 'RU' ? "Групповые и индивидуальные" :
-            "Group and individual",
-        price: activeLanguage.code === 'UZ' ? "400,000 so'm/oy" :
-          activeLanguage.code === 'RU' ? "400 000 сум/месяц" :
-            "400,000 soums/month",
-        features: activeLanguage.code === 'UZ' ? [
-          "Native speaker bilan mashg'ulotlar",
-          "IELTS imtihoniga tayyorgarlik",
-          "Speaking club har hafta",
-          "Zamonaviy o'quv materiallari"
-        ] : activeLanguage.code === 'RU' ? [
-          "Занятия с носителем языка",
-          "Подготовка к экзамену IELTS",
-          "Разговорный клуб каждую неделю",
-          "Современные учебные материалы"
-        ] : [
-          "Classes with native speaker",
-          "IELTS exam preparation",
-          "Speaking club every week",
-          "Modern study materials"
-        ]
+  // Fetch all data
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        const [
+          teamRes,
+          teachersRes,
+          coursesRes,
+          cefrRes,
+          ieltsRes,
+          galleryRes
+        ] = await Promise.all([
+          fetch(`${BASE_URL}/api/teams?populate=*`),
+          fetch(`${BASE_URL}/api/teachers?populate=*`),
+          fetch(`${BASE_URL}/api/courses?populate=*`),
+          fetch(`${BASE_URL}/api/cefrs?populate=*`),
+          fetch(`${BASE_URL}/api/ieltsses?populate=*`),
+          fetch(`${BASE_URL}/api/galleries?populate=*`)
+        ]);
+  
+        const [
+          teamData,
+          teachersData,
+          coursesData,
+          cefrData,
+          ieltsData,
+          galleryData
+        ] = await Promise.all([
+          teamRes.json(),
+          teachersRes.json(),
+          coursesRes.json(),
+          cefrRes.json(),
+          ieltsRes.json(),
+          galleryRes.json()
+        ]);
+  
+        setTeamData(teamData.data || []);
+        setTeachersData(teachersData.data || []);
+        setCoursesData(coursesData.data || []);
+        setCefrResults(cefrData.data || []);
+        setIeltsResults(ieltsData.data || []);
+        setGalleryData(galleryData.data || []);
+  
+      } catch (err) {
+        setError(err.message);
+        console.error(err);
+      } finally {
+        setLoading({
+          team: false,
+          teachers: false,
+          courses: false,
+          cefr: false,
+          ielts: false,
+          gallery: false
+        });
       }
-    },
-    {
-      id: 2,
-      name: activeLanguage.code === 'UZ' ? "Matematika" : activeLanguage.code === 'RU' ? "Математика" : "Mathematics",
-      desc: activeLanguage.code === 'UZ' ? "Maktab va oliy ta'lim uchun chuqur tayyorgarlik" :
-        activeLanguage.code === 'RU' ? "Глубокая подготовка для школы и высшего образования" :
-          "Deep preparation for school and higher education",
-      icon: "📊",
-      details: {
-        duration: activeLanguage.code === 'UZ' ? "8-10 oy" : activeLanguage.code === 'RU' ? "8-10 месяцев" : "8-10 months",
-        level: activeLanguage.code === 'UZ' ? "1-11 sinflar va abituriyentlar" :
-          activeLanguage.code === 'RU' ? "1-11 классы и абитуриенты" :
-            "Grades 1-11 and applicants",
-        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" :
-          activeLanguage.code === 'RU' ? "Групповые и индивидуальные" :
-            "Group and individual",
-        price: activeLanguage.code === 'UZ' ? "350,000 so'm/oy" :
-          activeLanguage.code === 'RU' ? "350 000 сум/месяц" :
-            "350,000 soums/month",
-        features: activeLanguage.code === 'UZ' ? [
-          "Maktab dasturi va olimpiada tayyorgarligi",
-          "DTM va imtihonlarga tayyorgarlik",
-          "Amaliy masalalar yechish",
-          "Individual yondashuv"
-        ] : activeLanguage.code === 'RU' ? [
-          "Школьная программа и подготовка к олимпиадам",
-          "Подготовка к DTM и экзаменам",
-          "Решение практических задач",
-          "Индивидуальный подход"
-        ] : [
-          "School curriculum and olympiad preparation",
-          "DTM and exam preparation",
-          "Solving practical problems",
-          "Individual approach"
-        ]
+    };
+  
+    fetchAllData();
+  }, []);
+  
+
+  // Format courses data for display
+  const formattedCourses = useMemo(() => {
+    const colors = ["bg-blue-500","bg-cyan-500","bg-green-500","bg-red-500","bg-purple-500","bg-yellow-500"];
+  
+    return coursesData.map(course => {
+      // Get localized features based on language
+      let features = [];
+      
+      if (activeLanguage.code === 'RU' && course.feature_ru) {
+        features = course.feature_ru.map(f => f.title || '');
+      } else if (activeLanguage.code === 'EN' && course.feature_en) {
+        features = course.feature_en.map(f => f.title || '');
+      } else if (course.feature) {
+        features = course.feature.map(f => f.title || '');
       }
-    },
-    {
-      id: 3,
-      name: activeLanguage.code === 'UZ' ? "Rus tili" : activeLanguage.code === 'RU' ? "Русский язык" : "Russian Language",
-      desc: activeLanguage.code === 'UZ' ? "Noldan so'zlash darajasigacha" :
-        activeLanguage.code === 'RU' ? "От нуля до уровня разговорной речи" :
-          "From zero to conversational level",
-      icon: "🇷🇺",
-      details: {
-        duration: activeLanguage.code === 'UZ' ? "4-6 oy" : activeLanguage.code === 'RU' ? "4-6 месяцев" : "4-6 months",
-        level: activeLanguage.code === 'UZ' ? "Boshlang'ich va o'rta" :
-          activeLanguage.code === 'RU' ? "Начальный и средний" :
-            "Beginner and intermediate",
-        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" :
-          activeLanguage.code === 'RU' ? "Групповые и индивидуальные" :
-            "Group and individual",
-        price: activeLanguage.code === 'UZ' ? "300,000 so'm/oy" :
-          activeLanguage.code === 'RU' ? "300 000 сум/месяц" :
-            "300,000 soums/month",
-        features: activeLanguage.code === 'UZ' ? [
-          "Grammatika va leksika",
-          "Og'zaki nutqni rivojlantirish",
-          "Real hayot vaziyatlari",
-          "Madaniyat va an'analar"
-        ] : activeLanguage.code === 'RU' ? [
-          "Грамматика и лексика",
-          "Развитие устной речи",
-          "Реальные жизненные ситуации",
-          "Культура и традиции"
-        ] : [
-          "Grammar and vocabulary",
-          "Developing oral speech",
-          "Real-life situations",
-          "Culture and traditions"
-        ]
-      }
-    },
-    {
-      id: 4,
-      name: activeLanguage.code === 'UZ' ? "Koreys tili" : activeLanguage.code === 'RU' ? "Корейский язык" : "Korean Language",
-      desc: activeLanguage.code === 'UZ' ? "TOPIK imtihoniga tayyorgarlik" :
-        activeLanguage.code === 'RU' ? "Подготовка к экзамену TOPIK" :
-          "TOPIK exam preparation",
-      icon: "🇰🇷",
-      details: {
-        duration: activeLanguage.code === 'UZ' ? "6-8 oy" : activeLanguage.code === 'RU' ? "6-8 месяцев" : "6-8 months",
-        level: activeLanguage.code === 'UZ' ? "Boshlang'ichdan TOPIK 2 gacha" :
-          activeLanguage.code === 'RU' ? "От начального до TOPIK 2" :
-            "From beginner to TOPIK 2",
-        format: activeLanguage.code === 'UZ' ? "Guruhli va individual" :
-          activeLanguage.code === 'RU' ? "Групповые и индивидуальные" :
-            "Group and individual",
-        price: activeLanguage.code === 'UZ' ? "450,000 so'm/oy" :
-          activeLanguage.code === 'RU' ? "450 000 сум/месяц" :
-            "450,000 soums/month",
-        features: activeLanguage.code === 'UZ' ? [
-          "Hangul o'qish va yozish",
-          "TOPIK imtihon strategiyalari",
-          "Koreys madaniyati",
-          "Onlayn resurslar va materiallar"
-        ] : activeLanguage.code === 'RU' ? [
-          "Чтение и письмо на хангыле",
-          "Стратегии экзамена TOPIK",
-          "Корейская культура",
-          "Онлайн ресурсы и материалы"
-        ] : [
-          "Reading and writing Hangul",
-          "TOPIK exam strategies",
-          "Korean culture",
-          "Online resources and materials"
-        ]
-      }
-    },
-    {
-      id: 5,
-      name: activeLanguage.code === 'UZ' ? "Dasturlash" : activeLanguage.code === 'RU' ? "Программирование" : "Programming",
-      desc: activeLanguage.code === 'UZ' ? "Python va JavaScript asoslari" :
-        activeLanguage.code === 'RU' ? "Основы Python и JavaScript" :
-          "Python and JavaScript basics",
-      icon: "💻",
-      details: {
-        duration: activeLanguage.code === 'UZ' ? "7-9 oy" : activeLanguage.code === 'RU' ? "7-9 месяцев" : "7-9 months",
-        level: activeLanguage.code === 'UZ' ? "Boshlang'ich" : activeLanguage.code === 'RU' ? "Начальный" : "Beginner",
-        format: activeLanguage.code === 'UZ' ? "Amaliy kurs" : activeLanguage.code === 'RU' ? "Практический курс" : "Practical course",
-        price: activeLanguage.code === 'UZ' ? "500,000 so'm/oy" :
-          activeLanguage.code === 'RU' ? "500 000 сум/месяц" :
-            "500,000 soums/month",
-        features: activeLanguage.code === 'UZ' ? [
-          "Python dasturlash asoslari",
-          "Web development (HTML, CSS, JS)",
-          "Loyihalar orqali o'rganish",
-          "Portfolio yaratish"
-        ] : activeLanguage.code === 'RU' ? [
-          "Основы программирования на Python",
-          "Веб-разработка (HTML, CSS, JS)",
-          "Обучение через проекты",
-          "Создание портфолио"
-        ] : [
-          "Python programming basics",
-          "Web development (HTML, CSS, JS)",
-          "Learning through projects",
-          "Portfolio creation"
-        ]
-      }
-    },
-    {
-      id: 6,
-      name: activeLanguage.code === 'UZ' ? "Rasm chizish" : activeLanguage.code === 'RU' ? "Рисование" : "Drawing",
-      desc: activeLanguage.code === 'UZ' ? "Asosiy texnikalar va uslublar" :
-        activeLanguage.code === 'RU' ? "Основные техники и стили" :
-          "Basic techniques and styles",
-      icon: "🎨",
-      details: {
-        duration: activeLanguage.code === 'UZ' ? "3-5 oy" : activeLanguage.code === 'RU' ? "3-5 месяцев" : "3-5 months",
-        level: activeLanguage.code === 'UZ' ? "Boshlang'ich va o'rta" :
-          activeLanguage.code === 'RU' ? "Начальный и средний" :
-            "Beginner and intermediate",
-        format: activeLanguage.code === 'UZ' ? "Amaliy kurs" : activeLanguage.code === 'RU' ? "Практический курс" : "Practical course",
-        price: activeLanguage.code === 'UZ' ? "400,000 so'm/oy" :
-          activeLanguage.code === 'RU' ? "400 000 сум/месяц" :
-            "400,000 soums/month",
-        features: activeLanguage.code === 'UZ' ? [
-          "Qalam texnikasi",
-          "Ranglar nazariyasi",
-          "Portret va manzara",
-          "Materiallar bilan ishlash"
-        ] : activeLanguage.code === 'RU' ? [
-          "Техника карандаша",
-          "Теория цвета",
-          "Портрет и пейзаж",
-          "Работа с материалами"
-        ] : [
-          "Pencil technique",
-          "Color theory",
-          "Portrait and landscape",
-          "Working with materials"
-        ]
-      }
-    }
-  ];
+  
+      return {
+        id: course.id,
+        name: getLocalizedField(course, 'kurs_name'),
+        desc: getLocalizedField(course, 'kurs_desc'),
+        icon: getImageUrl(course, 'kurs_icon'),
+        color: colors[course.id % colors.length],
+        details: {
+          duration: `${course.kurs_davomiyligi || 6} ${
+            activeLanguage.code === 'UZ' ? 'oy' :
+            activeLanguage.code === 'RU' ? 'месяцев' : 'months'
+          }`,
+          price: `${course.kurs_narx?.toLocaleString() || '300,000'}`,
+          features: features.filter(f => f.trim() !== '')
+        }
+      };
+    });
+  }, [coursesData, activeLanguage.code, getLocalizedField]);
+  
 
-  const ieltsResults = [
-    {
-      id: 1,
-      name: activeLanguage.code === 'UZ' ? "Dilnoza Karimova" : activeLanguage.code === 'RU' ? "Дилноза Каримова" : "Dilnoza Karimova",
-      score: "IELTS 8.0",
-      img: "https://via.placeholder.com/300x350.png?text=Dilnoza",
-    },
-    {
-      id: 2,
-      name: activeLanguage.code === 'UZ' ? "Bekzod Abdullayev" : activeLanguage.code === 'RU' ? "Бекзод Абдуллаев" : "Bekzod Abdullayev",
-      score: "IELTS 7.5",
-      img: "https://via.placeholder.com/300x350.png?text=Bekzod",
-    },
-    {
-      id: 3,
-      name: activeLanguage.code === 'UZ' ? "Nigora Saidova" : activeLanguage.code === 'RU' ? "Нигора Саидова" : "Nigora Saidova",
-      score: "IELTS 8.5",
-      img: "https://via.placeholder.com/300x350.png?text=Nigora",
-    },
-    {
-      id: 4,
-      name: activeLanguage.code === 'UZ' ? "Javohir Rakhmatov" : activeLanguage.code === 'RU' ? "Джавохир Рахматов" : "Javohir Rakhmatov",
-      score: "IELTS 7.0",
-      img: "https://via.placeholder.com/300x350.png?text=Javohir",
-    },
-    {
-      id: 5,
-      name: activeLanguage.code === 'UZ' ? "Umida Norqulova" : activeLanguage.code === 'RU' ? "Умида Норкулова" : "Umida Norqulova",
-      score: "IELTS 8.0",
-      img: "https://via.placeholder.com/300x350.png?text=Umida",
-    },
-  ];
+  // Format teachers data for display
+  const formattedTeachers = useMemo(() => {
+    const colors = ["bg-blue-500","bg-cyan-500","bg-green-500","bg-red-500","bg-purple-500","bg-yellow-500"];
+  
+    return teamData.map(member => ({
+      id: member.id,
+      name: getLocalizedField(member, 'ism_familiya'),
+      score: getLocalizedField(member, 'result'),
+      img: getImageUrl(member.rasm),
+      video: getImageUrl(member.video),
+      exp: member.tajriba || 0,
+      students: member.oquvchilar_soni || 0,
+      color: colors[member.id % colors.length],
+      desc: getLocalizedField(member, 'desc')
+    }));
+  }, [teamData, getLocalizedField, getImageUrl]);
+  
 
-  const cefrResults = [
-    {
-      id: 1,
-      name: activeLanguage.code === 'UZ' ? "Azizbek Sobirov" : activeLanguage.code === 'RU' ? "Азизбек Собиров" : "Azizbek Sobirov",
-      score: "CEFR C1",
-      img: "https://via.placeholder.com/300x350.png?text=Azizbek",
-    },
-    {
-      id: 2,
-      name: activeLanguage.code === 'UZ' ? "Madina Yusupova" : activeLanguage.code === 'RU' ? "Мадина Юсупова" : "Madina Yusupova",
-      score: "CEFR B2",
-      img: "https://via.placeholder.com/300x350.png?text=Madina",
-    },
-    {
-      id: 3,
-      name: activeLanguage.code === 'UZ' ? "Shahzod Tursunov" : activeLanguage.code === 'RU' ? "Шахзод Турсунов" : "Shahzod Tursunov",
-      score: "CEFR C2",
-      img: "https://via.placeholder.com/300x350.png?text=Shahzod",
-    },
-    {
-      id: 4,
-      name: activeLanguage.code === 'UZ' ? "Zarina Ismoilova" : activeLanguage.code === 'RU' ? "Зарина Исмоилова" : "Zarina Ismoilova",
-      score: "CEFR B1",
-      img: "https://via.placeholder.com/300x350.png?text=Zarina",
-    },
-    {
-      id: 5,
-      name: activeLanguage.code === 'UZ' ? "Rustam Qodirov" : activeLanguage.code === 'RU' ? "Рустам Кодиров" : "Rustam Qodirov",
-      score: "CEFR C1",
-      img: "https://via.placeholder.com/300x350.png?text=Rustam",
-    },
-  ];
+  const formattedIeltsResults = useMemo(() =>
+    ieltsResults.map(r => ({
+      id: r.id,
+      name: r.name,
+      score: `IELTS ${r.result}`,
+      img: getImageUrl(r.rasm)
+    }))
+  , [ieltsResults, getImageUrl]);
+  
+  const formattedCefrResults = useMemo(() =>
+    cefrResults.map(r => ({
+      id: r.id,
+      name: r.name,
+      score: `CEFR ${r.result}`,
+      img: getImageUrl(r.Rasm)
+    }))
+  , [cefrResults, getImageUrl]);
+  
+  const formattedGallery = useMemo(() =>
+    galleryData.map(item => ({
+      id: item.id,
+      src: getImageUrl(item.image)
+    }))
+  , [galleryData, getImageUrl]);
+  
 
-  const teachers = [
-    {
-      id: 1,
-      name: activeLanguage.code === 'UZ' ? "Gozal Fayzullayeva" : activeLanguage.code === 'RU' ? "Гозал Файзуллаева" : "Gozal Fayzullayeva",
-      score: "IELTS 8.0",
-      img: "https://via.placeholder.com/80x80.png?text=G",
-      color: "bg-blue-500",
-      exp: 6,
-      students: 1000,
-      video: "https://via.placeholder.com/400x500.png?text=Gozal",
-      desc: activeLanguage.code === 'UZ'
-        ? "Ingliz tilidan dars berishga qiziqishim maktab davridan boshlangan va shu yo'nalishni hayotimga bog'lashga qaror qilganman. Maqsadim - o'quvchilarning potensialini ochish va ularni nafaqat ingliz tiliga, balki boshqa sohalarga ham qiziqtira olish."
-        : activeLanguage.code === 'RU'
-          ? "Мой интерес к преподаванию английского языка начался со школьных лет, и я решил связать свою жизнь с этим направлением. Моя цель - раскрыть потенциал студентов и заинтересовать их не только английским языком, но и другими областями."
-          : "My interest in teaching English started from school years, and I decided to connect my life with this direction. My goal is to reveal the potential of students and interest them not only in English, but also in other areas."
-    },
-    {
-      id: 2,
-      name: activeLanguage.code === 'UZ' ? "Sardor Erkinov" : activeLanguage.code === 'RU' ? "Сардор Эркинов" : "Sardor Erkinov",
-      score: "IELTS 8.5",
-      img: "https://via.placeholder.com/80x80.png?text=S",
-      color: "bg-cyan-500",
-      exp: 7,
-      students: 1200,
-      video: "https://via.placeholder.com/400x500.png?text=Sardor",
-      desc: activeLanguage.code === 'UZ'
-        ? "Tajriba va kreativ yondashuv orqali ingliz tilini oson o'rganish yo'llarini ishlab chiqqanman. Har bir o'quvchi - alohida loyiha."
-        : activeLanguage.code === 'RU'
-          ? "Через опыт и творческий подход я разработал способы легкого изучения английского языка. Каждый студент - отдельный проект."
-          : "Through experience and creative approach, I have developed ways to easily learn English. Each student is a separate project."
-    },
-    {
-      id: 3,
-      name: activeLanguage.code === 'UZ' ? "Jakhongir Abbasov" : activeLanguage.code === 'RU' ? "Джахонгир Аббасов" : "Jakhongir Abbasov",
-      score: "IELTS 8.0",
-      img: "https://via.placeholder.com/80x80.png?text=J",
-      color: "bg-green-500",
-      exp: 5,
-      students: 900,
-      video: "https://via.placeholder.com/400x500.png?text=Jakhongir",
-      desc: activeLanguage.code === 'UZ'
-        ? "Ingliz tilini o'rgatishda zamonaviy metodlar va real hayotdagi muloqotga urg'u beraman."
-        : activeLanguage.code === 'RU'
-          ? "В преподавании английского языка делаю акцент на современных методах и реальном общении."
-          : "In teaching English, I focus on modern methods and real-life communication."
-    },
-    {
-      id: 4,
-      name: activeLanguage.code === 'UZ' ? "Alijon Rakhmatov" : activeLanguage.code === 'RU' ? "Алижон Рахматов" : "Alijon Rakhmatov",
-      score: "IELTS 8.0",
-      img: "https://via.placeholder.com/80x80.png?text=A",
-      color: "bg-red-500",
-      exp: 8,
-      students: 1500,
-      video: "https://via.placeholder.com/400x500.png?text=Alijon",
-      desc: activeLanguage.code === 'UZ'
-        ? "Har bir darsda o'quvchini ilhomlantirish - mening asosiy maqsadim. O'quv jarayoni hech qachon zerikarli bo'lmasligi kerak."
-        : activeLanguage.code === 'RU'
-          ? "Вдохновлять студента на каждом уроке - моя главная цель. Учебный процесс никогда не должен быть скучным."
-          : "Inspiring the student in every lesson is my main goal. The learning process should never be boring."
-    },
-  ];
+  // Format teaching staff from teachers data
+  const teachingStaff = teachersData.map((teacher, index) => {
+    const images = [
+      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=500&q=60",
+      "https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&w=500&q=60",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=60",
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=60"
+    ];
+    
+    return {
+      id: teacher.id,
+      name: getLocalizedField(teacher, 'ism'),
+      subject: getLocalizedField(teacher, 'fan'),
+      image: getImageUrl(teacher.img) || images[index % images.length],
+      experience: activeLanguage.code === 'UZ' ? "5 yillik tajriba" : 
+                 activeLanguage.code === 'RU' ? "5 лет опыта" : 
+                 "5 years experience",
+      degree: activeLanguage.code === 'UZ' ? "Mutaxassis" : 
+             activeLanguage.code === 'RU' ? "Специалист" : 
+             "Specialist"
+    };
+  });
 
-  // Yangi: O'qituvchilar ro'yxati (swiper uchun)
-  const teachingStaff = [
-    {
-      id: 1,
-      name: activeLanguage.code === 'UZ' ? "Dilshod Rajabov" : activeLanguage.code === 'RU' ? "Дилшод Раджабов" : "Dilshod Rajabov",
-      subject: activeLanguage.code === 'UZ' ? "Matematika" : activeLanguage.code === 'RU' ? "Математика" : "Mathematics",
-      image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=500&q=60",
-      experience: activeLanguage.code === 'UZ' ? "8 yillik tajriba" : activeLanguage.code === 'RU' ? "8 лет опыта" : "8 years experience",
-      degree: activeLanguage.code === 'UZ' ? "Fizika-matematika fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр физико-математических наук" : "Master of Physics and Mathematics"
-    },
-    {
-      id: 2,
-      name: activeLanguage.code === 'UZ' ? "Gulnoza Abdullayeva" : activeLanguage.code === 'RU' ? "Гульноза Абдуллаева" : "Gulnoza Abdullayeva",
-      subject: activeLanguage.code === 'UZ' ? "Ingliz tili" : activeLanguage.code === 'RU' ? "Английский язык" : "English Language",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&w=500&q=60",
-      experience: activeLanguage.code === 'UZ' ? "6 yillik tajriba" : activeLanguage.code === 'RU' ? "6 лет опыта" : "6 years experience",
-      degree: activeLanguage.code === 'UZ' ? "Filologiya fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр филологических наук" : "Master of Philology"
-    },
-    {
-      id: 3,
-      name: activeLanguage.code === 'UZ' ? "Farrukh Ismoilov" : activeLanguage.code === 'RU' ? "Фаррух Исмоилов" : "Farrukh Ismoilov",
-      subject: activeLanguage.code === 'UZ' ? "Dasturlash" : activeLanguage.code === 'RU' ? "Программирование" : "Programming",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=60",
-      experience: activeLanguage.code === 'UZ' ? "5 yillik tajriba" : activeLanguage.code === 'RU' ? "5 лет опыта" : "5 years experience",
-      degree: activeLanguage.code === 'UZ' ? "Kompyuter fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр компьютерных наук" : "Master of Computer Science"
-    },
-    {
-      id: 4,
-      name: activeLanguage.code === 'UZ' ? "Shahnoza Karimova" : activeLanguage.code === 'RU' ? "Шахноза Каримова" : "Shahnoza Karimova",
-      subject: activeLanguage.code === 'UZ' ? "Koreys tili" : activeLanguage.code === 'RU' ? "Корейский язык" : "Korean Language",
-      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=60",
-      experience: activeLanguage.code === 'UZ' ? "4 yillik tajriba" : activeLanguage.code === 'RU' ? "4 года опыта" : "4 years experience",
-      degree: activeLanguage.code === 'UZ' ? "Shark tillari magistri" : activeLanguage.code === 'RU' ? "Магистр восточных языков" : "Master of Eastern Languages"
-    },
-    {
-      id: 5,
-      name: activeLanguage.code === 'UZ' ? "Bekzod Yunusov" : activeLanguage.code === 'RU' ? "Бекзод Юнусов" : "Bekzod Yunusov",
-      subject: activeLanguage.code === 'UZ' ? "Rus tili" : activeLanguage.code === 'RU' ? "Русский язык" : "Russian Language",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=60",
-      experience: activeLanguage.code === 'UZ' ? "7 yillik tajriba" : activeLanguage.code === 'RU' ? "7 лет опыта" : "7 years experience",
-      degree: activeLanguage.code === 'UZ' ? "Rus filologiyasi magistri" : activeLanguage.code === 'RU' ? "Магистр русской филологии" : "Master of Russian Philology"
-    },
-    {
-      id: 6,
-      name: activeLanguage.code === 'UZ' ? "Madina Rustamova" : activeLanguage.code === 'RU' ? "Мадина Рустамова" : "Madina Rustamova",
-      subject: activeLanguage.code === 'UZ' ? "Rasm chizish" : activeLanguage.code === 'RU' ? "Рисование" : "Drawing",
-      image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=500&q=60",
-      experience: activeLanguage.code === 'UZ' ? "9 yillik tajriba" : activeLanguage.code === 'RU' ? "9 лет опыта" : "9 years experience",
-      degree: activeLanguage.code === 'UZ' ? "San'atshunoslik magistri" : activeLanguage.code === 'RU' ? "Магистр искусствоведения" : "Master of Art History"
-    },
-    {
-      id: 7,
-      name: activeLanguage.code === 'UZ' ? "Azizbek Sobirov" : activeLanguage.code === 'RU' ? "Азизбек Собиров" : "Azizbek Sobirov",
-      subject: activeLanguage.code === 'UZ' ? "Fizika" : activeLanguage.code === 'RU' ? "Физика" : "Physics",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=500&q=60",
-      experience: activeLanguage.code === 'UZ' ? "10 yillik tajriba" : activeLanguage.code === 'RU' ? "10 лет опыта" : "10 years experience",
-      degree: activeLanguage.code === 'UZ' ? "Fizika fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр физических наук" : "Master of Physics"
-    },
-    {
-      id: 8,
-      name: activeLanguage.code === 'UZ' ? "Zarina Usmonova" : activeLanguage.code === 'RU' ? "Зарина Усманова" : "Zarina Usmonova",
-      subject: activeLanguage.code === 'UZ' ? "Kimyo" : activeLanguage.code === 'RU' ? "Химия" : "Chemistry",
-      image: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=500&q=60",
-      experience: activeLanguage.code === 'UZ' ? "6 yillik tajriba" : activeLanguage.code === 'RU' ? "6 лет опыта" : "6 years experience",
-      degree: activeLanguage.code === 'UZ' ? "Kimyo fanlari magistri" : activeLanguage.code === 'RU' ? "Магистр химических наук" : "Master of Chemistry"
-    },
-  ];
-
-  // Footer ma'lumotlari
-  const footerLinks = {
-    courses: courses.map(course => course.name),
-    branches: activeLanguage.code === 'UZ'
-      ? ["Yunusobod filiali", "Chilonzor filiali", "Mirzo Ulug'bek filiali"]
-      : activeLanguage.code === 'RU'
-        ? ["Юнусабадский филиал", "Чиланзарский филиал", "Мирзо Улугбекский филиал"]
-        : ["Yunusabad Branch", "Chilanzar Branch", "Mirzo Ulugbek Branch"],
-    contacts: [
-      "+998 78 333 3773",
-      "+998 94 731 3773",
-      "Bilimziyo1@gmail.com"
-    ]
-  };
-
-  const [activeTeacher, setActiveTeacher] = useState(teachers[0]);
-  const [activeCourse, setActiveCourse] = useState(courses[0]);
+  // State variables
+  const [activeTeacher, setActiveTeacher] = useState(null);
+  const [activeCourse, setActiveCourse] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [contactOpen, setContactOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
-  const [selectedTime, setSelectedTime] = useState("");
-  const [selectedFormat, setSelectedFormat] = useState("guruh");
   const [joinModalOpen, setJoinModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  
+  // Contact form state
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    age: '',
+    phone1: '',
+    phone2: '',
+    course: '',
+    format: 'guruh',
+    time: ''
+  });
+  
+  // Event form state
+  const [eventForm, setEventForm] = useState({
+    name: '',
+    age: '',
+    phone: ''
+  });
+  
+  // Join form state
+  const [joinForm, setJoinForm] = useState({
     name: '',
     phone: '',
     birthDate: '',
@@ -1241,9 +1050,29 @@ const StudyCenter = () => {
     additionalInfo: ''
   });
 
-  const loopImages = [...currentContent.gallery.items, ...currentContent.gallery.items];
-  const loopIeltsResults = [...ieltsResults, ...ieltsResults];
-  const loopCefrResults = [...cefrResults, ...cefrResults];
+  useEffect(() => {
+    if (formattedTeachers.length) {
+      setActiveTeacher(formattedTeachers[0]);
+    }
+  }, [formattedTeachers]);
+  
+  useEffect(() => {
+    if (formattedCourses.length) {
+      setActiveCourse(formattedCourses[0]);
+    }
+  }, [formattedCourses]);
+  
+  const loopImages = formattedGallery.length > 0 
+    ? [...formattedGallery, ...formattedGallery]
+    : [...currentContent.gallery.items, ...currentContent.gallery.items];
+  
+  const loopIeltsResults = formattedIeltsResults.length > 0
+    ? [...formattedIeltsResults, ...formattedIeltsResults]
+    : [{ id: 1, name: "Abdukarimov Oyatbek", score: "IELTS 9.0", img: "https://via.placeholder.com/300x350.png?text=Abdukarimov" }];
+  
+  const loopCefrResults = formattedCefrResults.length > 0
+    ? [...formattedCefrResults, ...formattedCefrResults]
+    : [{ id: 1, name: "Abdukarimov Oyatbek", score: "CEFR B2", img: "https://via.placeholder.com/300x350.png?text=Abdukarimov" }];
 
   // Background illustrations array
   const backgroundIcons = [
@@ -1288,6 +1117,224 @@ const StudyCenter = () => {
     </div>
   );
 
+  // Form handlers
+  const handleContactChange = (e) => {
+    const { name, value } = e.target;
+    setContactForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleEventChange = (e) => {
+    const { name, value } = e.target;
+    setEventForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleJoinChange = (e) => {
+    const { name, value } = e.target;
+    setJoinForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleJoinFileChange = (e, field) => {
+    const file = e.target.files[0];
+    if (file) {
+      setJoinForm(prev => ({ ...prev, [field]: file }));
+    }
+  };
+
+  const handlePhoneChange = (value, field) => {
+    if (field === 'phone1') {
+      setContactForm(prev => ({ ...prev, phone1: value }));
+    } else if (field === 'phone2') {
+      setContactForm(prev => ({ ...prev, phone2: value }));
+    } else if (field === 'phone') {
+      setEventForm(prev => ({ ...prev, phone: value }));
+      setJoinForm(prev => ({ ...prev, phone: value }));
+    }
+  };
+
+  // Form submission handlers
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    setFormSubmitting(true);
+    
+    try {
+      const formData = {
+        ...contactForm,
+        language: activeLanguage.code
+      };
+      
+      await GoogleSheetsService.submitContactForm(formData);
+      
+      setSubmitStatus({
+        type: 'success',
+        message: activeLanguage.code === 'UZ' 
+          ? "Muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz." 
+          : activeLanguage.code === 'RU'
+          ? "Успешно отправлено! Мы свяжемся с вами в ближайшее время."
+          : "Successfully submitted! We'll contact you soon."
+      });
+      
+      // Reset form
+      setContactForm({
+        name: '',
+        age: '',
+        phone1: '',
+        phone2: '',
+        course: '',
+        format: 'guruh',
+        time: ''
+      });
+      
+      setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
+      
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: activeLanguage.code === 'UZ'
+          ? "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+          : activeLanguage.code === 'RU'
+          ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
+          : "An error occurred. Please try again."
+      });
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
+
+  const handleEventSubmit = async (e) => {
+    e.preventDefault();
+    setFormSubmitting(true);
+    
+    try {
+      const formData = {
+        ...eventForm,
+        language: activeLanguage.code
+      };
+      
+      await GoogleSheetsService.submitEventForm(formData);
+      
+      setSubmitStatus({
+        type: 'success',
+        message: activeLanguage.code === 'UZ'
+          ? "Eventga muvaffaqiyatli ro'yxatdan o'tdingiz!"
+          : activeLanguage.code === 'RU'
+          ? "Вы успешно зарегистрировались на мероприятие!"
+          : "Successfully registered for the event!"
+      });
+      
+      // Reset form
+      setEventForm({
+        name: '',
+        age: '',
+        phone: ''
+      });
+      
+      setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
+      
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: activeLanguage.code === 'UZ'
+          ? "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+          : activeLanguage.code === 'RU'
+          ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
+          : "An error occurred. Please try again."
+      });
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
+
+  const handleJoinSubmit = async (e) => {
+    e.preventDefault();
+    setFormSubmitting(true);
+    
+    try {
+      // Send to Telegram
+      await TelegramBotService.sendVacancyApplication({
+        ...joinForm,
+        language: activeLanguage.code
+      });
+      
+      setSubmitStatus({
+        type: 'success',
+        message: activeLanguage.code === 'UZ'
+          ? "Arizangiz muvaffaqiyatli yuborildi! Tez orada HR xodim siz bilan bog'lanadi."
+          : activeLanguage.code === 'RU'
+          ? "Ваша заявка успешно отправлена! Сотрудник HR свяжется с вами в ближайшее время."
+          : "Your application has been successfully submitted! An HR representative will contact you soon."
+      });
+      
+      // Reset form
+      setJoinForm({
+        name: '',
+        phone: '',
+        birthDate: '',
+        languages: '',
+        address: '',
+        position: '',
+        education: '',
+        experience: '',
+        ieltsCertificate: null,
+        cv: null,
+        additionalInfo: ''
+      });
+      
+      setJoinModalOpen(false);
+      
+      setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
+      
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: activeLanguage.code === 'UZ'
+          ? "Xatolik yuz berdi. Iltimos, @BilimZiyoHR'ga to'g'ridan-to'g'ri yozing."
+          : activeLanguage.code === 'RU'
+          ? "Произошла ошибка. Пожалуйста, напишите напрямую @BilimZiyoHR."
+          : "An error occurred. Please write directly to @BilimZiyoHR."
+      });
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
+
+  const handleCourseRegister = async (course) => {
+    setFormSubmitting(true);
+    
+    try {
+      await GoogleSheetsService.submitCourseForm({
+        name: 'Kurs ro\'yxatdan o\'tish',
+        phone: '',
+        courseName: course.name,
+        price: course.details.price,
+        duration: course.details.duration,
+        language: activeLanguage.code
+      });
+      
+      setSubmitStatus({
+        type: 'success',
+        message: activeLanguage.code === 'UZ'
+          ? `${course.name} kursiga muvaffaqiyatli ro'yxatdan o'tdingiz!`
+          : activeLanguage.code === 'RU'
+          ? `Вы успешно зарегистрировались на курс ${course.name}!`
+          : `Successfully registered for ${course.name} course!`
+      });
+      
+      setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
+      
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: activeLanguage.code === 'UZ'
+          ? "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+          : activeLanguage.code === 'RU'
+          ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
+          : "An error occurred. Please try again."
+      });
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
+
   const openImageModal = (image) => {
     setSelectedImage(image);
   };
@@ -1296,50 +1343,40 @@ const StudyCenter = () => {
     setSelectedImage(null);
   };
 
-  const handleFileChange = (e, field) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData(prev => ({
-        ...prev,
-        [field]: file
-      }));
-    }
-  };
+  const isIELTSRequired = joinForm.position === 'teacher' || joinForm.position === 'assistant';
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Bu yerda form ma'lumotlarini backendga yuborish logikasi
-    console.log('Form data:', formData);
-    // Fayllarni yuklash logikasi
-    alert(currentContent.joinForm.submit + ' - ' + activeLanguage.code === 'UZ' ? 'Muvaffaqiyatli yuborildi!' : 'Successfully submitted!');
-    setJoinModalOpen(false);
-    setFormData({
-      name: '',
-      phone: '',
-      birthDate: '',
-      languages: '',
-      address: '',
-      position: '',
-      education: '',
-      experience: '',
-      ieltsCertificate: null,
-      cv: null,
-      additionalInfo: ''
-    });
-  };
+  // Loading component
+  const LoadingSpinner = ({ text = "Yuklanmoqda..." }) => (
+    <div className="flex flex-col items-center justify-center py-12">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue mb-4"></div>
+      <span className="text-gray-600">{text}</span>
+    </div>
+  );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  // Status Message Component
+  const StatusMessage = () => {
+    if (!submitStatus.message) return null;
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg ${
+          submitStatus.type === 'success' 
+            ? 'bg-green-500 text-white' 
+            : 'bg-red-500 text-white'
+        }`}
+      >
+        {submitStatus.message}
+      </motion.div>
+    );
   };
-
-  const isIELTSRequired = formData.position === 'teacher' || formData.position === 'assistant';
 
   return (
     <div className='font-Main relative'>
+      <StatusMessage />
+      
       {/* Background illustrations for entire site */}
       <BackgroundIllustrations />
 
@@ -1374,7 +1411,7 @@ const StudyCenter = () => {
                     <FaPhone className="text-green-600 w-4 h-4 lg:w-5 lg:h-5" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800 text-sm lg:text-base">+998 90 123 45 67</p>
+                    <p className="font-semibold text-gray-800 text-sm lg:text-base">+998 78 333 37 73</p>
                     <p className="text-xs lg:text-sm text-gray-600">{currentContent.common.mainNumber}</p>
                   </div>
                 </div>
@@ -1383,7 +1420,7 @@ const StudyCenter = () => {
                     <FaPhone className="text-blue-600 w-4 h-4 lg:w-5 lg:h-5" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800 text-sm lg:text-base">+998 91 234 56 78</p>
+                    <p className="font-semibold text-gray-800 text-sm lg:text-base">+998 94 731 37 73</p>
                     <p className="text-xs lg:text-sm text-gray-600">{currentContent.common.additionalNumber}</p>
                   </div>
                 </div>
@@ -1392,7 +1429,7 @@ const StudyCenter = () => {
                     <FaEnvelope className="text-purple-600 w-4 h-4 lg:w-5 lg:h-5" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800 text-sm lg:text-base">info@studycenter.uz</p>
+                    <p className="font-semibold text-gray-800 text-sm lg:text-base">Bilimziyo1@gmail.com</p>
                     <p className="text-xs lg:text-sm text-gray-600">{currentContent.common.email}</p>
                   </div>
                 </div>
@@ -1403,7 +1440,7 @@ const StudyCenter = () => {
       </motion.div>
 
       {/* Hero Section */}
-      <section className='h-auto min-h-[87vh] py-10 lg:py-0 flex flex-col justify-center items-center relative overflow-hidden'>
+      <section id='hero' className='h-auto min-h-[87vh] py-10 lg:py-0 flex flex-col justify-center items-center relative overflow-hidden'>
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-white z-0"></div>
         <BackgroundIllustrations sectionClass="z-0" />
 
@@ -1489,7 +1526,7 @@ const StudyCenter = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-12 lg:py-16 bg-gradient-to-b from-white to-blue/5 relative overflow-hidden">
+      <section id='features' className="py-12 lg:py-16 bg-gradient-to-b from-white to-blue/5 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container relative z-10 px-4 lg:px-0">
           <motion.h2
@@ -1499,11 +1536,11 @@ const StudyCenter = () => {
             transition={{ duration: 0.8, ease: "easeInOut" }}
             viewport={{ once: true }}
           >
-            {currentContent.features.title}
+            {currentContent?.features?.title}
           </motion.h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {currentContent.features.items.map((item, index) => (
+            {currentContent?.features?.items.map((item, index) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 50 }}
@@ -1540,7 +1577,7 @@ const StudyCenter = () => {
       </section>
 
       {/* Teachers Section */}
-      <section className="py-12 lg:py-20 bg-gradient-to-b from-blue/5 to-white relative overflow-hidden">
+      <section id='teachers' className="py-12 lg:py-20 bg-gradient-to-b from-blue/5 to-white relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10 px-4 lg:px-0">
           <motion.h2
@@ -1550,95 +1587,111 @@ const StudyCenter = () => {
             transition={{ duration: 0.8, ease: "easeInOut" }}
             viewport={{ once: true }}
           >
-            {currentContent.teachers.title}{" "}
-            <span className="text-gray-800">{currentContent.teachers.subtitle}</span>
+            {currentContent?.teachers?.title}{" "}
+            <span className="text-gray-800">{currentContent?.teachers?.subtitle}</span>
           </motion.h2>
 
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 justify-center items-start">
-            {/* Teachers list */}
-            <div className="flex flex-row lg:flex-col gap-4 w-full lg:w-1/4 overflow-x-auto pb-4 lg:pb-0">
-              {teachers.map((t) => (
-                <motion.div
-                  key={t.id}
-                  onClick={() => setActiveTeacher(t)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className={`flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl cursor-pointer transition-all duration-300 min-w-[280px] lg:min-w-0
-                    ${activeTeacher.id === t.id ? "bg-blue text-white" : "hover:bg-blue/10 bg-white"}`}
-                >
-                  <div className={`w-3 h-3 lg:w-4 lg:h-4 rounded-full ${t.color}`} />
-                  <img
-                    src={t.img}
-                    alt={t.name}
-                    className="w-10 h-10 lg:w-12 lg:h-12 rounded-full object-cover border border-gray-200"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-semibold text-sm lg:text-base truncate ${activeTeacher.id === t.id ? "text-white" : "text-gray-800"}`}>
-                      {t.name}
-                    </p>
-                    <p className={`text-xs lg:text-sm ${activeTeacher.id === t.id ? "text-white/80" : "text-gray-500"}`}>
-                      {t.score}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+          {loading.team ? (
+            <LoadingSpinner text={activeLanguage.code === 'UZ' ? "O'qituvchilar yuklanmoqda..." : "Loading teachers..."} />
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-red-500 mb-4">{activeLanguage.code === 'UZ' ? "Xatolik yuz berdi:" : "Error:"} {error}</p>
             </div>
-
-            {/* Selected teacher details */}
-            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-center w-full lg:w-3/4">
-              {/* Video section */}
-              <motion.div
-                key={activeTeacher.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeInOut" }}
-                className="relative rounded-2xl overflow-hidden shadow-lg w-full lg:w-auto"
-              >
-                <img
-                  src={activeTeacher.video}
-                  alt={activeTeacher.name}
-                  className="w-full lg:w-[320px] xl:w-[400px] 2xl:w-[420px] h-64 lg:h-auto object-cover rounded-2xl"
-                />
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white text-blue flex items-center justify-center rounded-full shadow-md hover:scale-110 transition-transform">
-                    <FaPlay size={18} className="lg:w-5 lg:h-5" />
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Description section */}
-              <motion.div
-                key={activeTeacher.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeInOut" }}
-                className="flex flex-col gap-4 lg:gap-6 w-full"
-              >
-                <p className="text-gray-700 leading-relaxed text-sm lg:text-base">
-                  {activeTeacher.desc}
-                </p>
-
-                <div className="flex gap-4 lg:gap-6">
-                  <div className="bg-blue text-white rounded-xl px-4 lg:px-6 py-3 lg:py-4 flex flex-col items-center flex-1">
-                    <span className="text-xl lg:text-3xl font-bold">{activeTeacher.exp}</span>
-                    <span className="text-xs lg:text-sm opacity-80 text-center">{currentContent.teachers.yearsExp}</span>
-                  </div>
-                  <div className="bg-gray-100 text-blue rounded-xl px-4 lg:px-6 py-3 lg:py-4 flex flex-col items-center flex-1">
-                    <span className="text-xl lg:text-3xl font-bold">
-                      {activeTeacher.students}
-                    </span>
-                    <span className="text-xs lg:text-sm opacity-80 text-center">{currentContent.teachers.students}</span>
-                  </div>
-                </div>
-              </motion.div>
+          ) : formattedTeachers.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">
+                {activeLanguage.code === 'UZ' ? "Hozircha jamoa a'zolari mavjud emas" : "No team members available yet"}
+              </p>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 justify-center items-start">
+              {/* Teachers list */}
+              <div className="flex flex-row lg:flex-col gap-4 w-full lg:w-1/4 overflow-x-auto pb-4 lg:pb-0">
+                {formattedTeachers.map((t) => (
+                  <motion.div
+                    key={t.id}
+                    onClick={() => setActiveTeacher(t)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className={`flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl cursor-pointer transition-all duration-300 min-w-[280px] lg:min-w-0
+                      ${activeTeacher?.id === t.id ? "bg-blue text-white" : "hover:bg-blue/10 bg-white"}`}
+                  >
+                    <div className={`w-3 h-3 lg:w-4 lg:h-4 rounded-full ${t.color}`} />
+                    <img
+                      src={t.img}
+                      alt={t.name}
+                      className="w-10 h-10 lg:w-12 lg:h-12 rounded-full object-cover border border-gray-200"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-semibold text-sm lg:text-base truncate ${activeTeacher?.id === t.id ? "text-white" : "text-gray-800"}`}>
+                        {t.name}
+                      </p>
+                      <p className={`text-xs lg:text-sm ${activeTeacher?.id === t.id ? "text-white/80" : "text-gray-500"}`}>
+                        {t.score}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Selected teacher details */}
+              {activeTeacher && (
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-center w-full lg:w-3/4">
+                  {/* Video section */}
+                  <motion.div
+                    key={activeTeacher?.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    className="relative rounded-2xl overflow-hidden shadow-lg w-full lg:w-auto"
+                  >
+                    <img
+                      src={activeTeacher.video}
+                      alt={activeTeacher.name}
+                      className="w-full lg:w-[320px] xl:w-[400px] 2xl:w-[420px] h-64 lg:h-auto object-cover rounded-2xl"
+                    />
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white text-blue flex items-center justify-center rounded-full shadow-md hover:scale-110 transition-transform">
+                        <FaPlay size={18} className="lg:w-5 lg:h-5" />
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Description section */}
+                  <motion.div
+                    key={activeTeacher.name}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    className="flex flex-col gap-4 lg:gap-6 w-full"
+                  >
+                    <p className="text-gray-700 leading-relaxed text-sm lg:text-base">
+                      {activeTeacher.desc}
+                    </p>
+
+                    <div className="flex gap-4 lg:gap-6">
+                      <div className="bg-blue text-white rounded-xl px-4 lg:px-6 py-3 lg:py-4 flex flex-col items-center flex-1">
+                        <span className="text-xl lg:text-3xl font-bold">{activeTeacher.exp}</span>
+                        <span className="text-xs lg:text-sm opacity-80 text-center">{currentContent?.teachers?.yearsExp}</span>
+                      </div>
+                      <div className="bg-gray-100 text-blue rounded-xl px-4 lg:px-6 py-3 lg:py-4 flex flex-col items-center flex-1">
+                        <span className="text-xl lg:text-3xl font-bold">
+                          {activeTeacher.students.toLocaleString()}
+                        </span>
+                        <span className="text-xs lg:text-sm opacity-80 text-center">{currentContent?.teachers?.students}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Teaching Team Section - YANGI */}
-      <section className="py-12 lg:py-20 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
+      {/* Teaching Team Section */}
+      <section id='team' className="py-12 lg:py-20 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10 px-4 lg:px-0">
           <motion.h2
@@ -1654,57 +1707,65 @@ const StudyCenter = () => {
 
           {/* Swiper for Teachers */}
           <div className="mb-12 lg:mb-16">
-            <Swiper
-              modules={[Navigation, Pagination, EffectCoverflow]}
-              effect="coverflow"
-              grabCursor={true}
-              slidesPerView={4}
-              coverflowEffect={{
-                rotate: 50,
-                stretch: 0,
-                depth: 100,
-                modifier: 1,
-                slideShadows: true,
-              }}
-              navigation
-              pagination={{ clickable: true }}
-              breakpoints={{
-                320: {
-                  slidesPerView: 1,
-                  spaceBetween: 20,
-                },
-                640: {
-                  slidesPerView: 2,
-                  spaceBetween: 20,
-                },
-                1024: {
-                  slidesPerView: 3,
-                  spaceBetween: 30,
-                },
-              }}
-              className="mySwiper"
-            >
-              {teachingStaff.map((teacher) => (
-                <SwiperSlide key={teacher.id}>
-                  <motion.div
-                    whileHover={{ scale: 1.05, y: -10 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="relative rounded-2xl overflow-hidden shadow-xl group cursor-pointer"
-                  >
-                    <img
-                      src={teacher.image}
-                      alt={teacher.name}
-                      className="w-full h-64 lg:h-80 object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
+            {loading.teachers ? (
+              <LoadingSpinner text={activeLanguage.code === 'UZ' ? "O'qituvchilar yuklanmoqda..." : "Loading teaching staff..."} />
+            ) : teachingStaff.length === 0 ? (
+              <p className="text-center text-gray-600 py-12">
+                {activeLanguage.code === 'UZ' ? "O'qituvchilar ma'lumotlari mavjud emas" : "No teaching staff information available"}
+              </p>
+            ) : (
+              <Swiper
+                modules={[Navigation, Pagination, EffectCoverflow]}
+                effect="coverflow"
+                grabCursor={true}
+                slidesPerView={4}
+                coverflowEffect={{
+                  rotate: 50,
+                  stretch: 0,
+                  depth: 100,
+                  modifier: 1,
+                  slideShadows: true,
+                }}
+                navigation
+                pagination={{ clickable: true }}
+                breakpoints={{
+                  320: {
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                  },
+                  640: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                  },
+                  1024: {
+                    slidesPerView: 3,
+                    spaceBetween: 30,
+                  },
+                }}
+                className="mySwiper"
+              >
+                {teachingStaff.map((teacher) => (
+                  <SwiperSlide key={teacher.id}>
+                    <motion.div
+                      whileHover={{ scale: 1.05, y: -10 }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                      className="relative rounded-2xl overflow-hidden shadow-xl group cursor-pointer"
+                    >
+                      <img
+                        src={teacher.image}
+                        alt={teacher.name}
+                        className="w-full h-64 lg:h-80 object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
 
-                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
-                      <h3 className="text-lg lg:text-xl font-bold">{teacher.name}</h3>
-                      <p className="text-sm opacity-90">{teacher.subject}</p>
-                    </div>
-                  </motion.div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
+                        <h3 className="text-lg lg:text-xl font-bold">{teacher.name}</h3>
+                        <p className="text-sm opacity-90">{teacher.subject}</p>
+                      </div>
+                    </motion.div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
           </div>
 
           {/* Join Team Button */}
@@ -1765,7 +1826,7 @@ const StudyCenter = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleJoinSubmit} className="p-6 space-y-4">
                 <p className="text-sm text-red-500 mb-4">{currentContent.joinForm.required}</p>
 
                 {/* Name */}
@@ -1774,8 +1835,8 @@ const StudyCenter = () => {
                   <input
                     type="text"
                     name="name"
-                    value={formData.name}
-                    onChange={handleChange}
+                    value={joinForm.name}
+                    onChange={handleJoinChange}
                     required
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
                     placeholder={currentContent.joinForm.name}
@@ -1785,13 +1846,10 @@ const StudyCenter = () => {
                 {/* Phone */}
                 <div>
                   <label className="block text-gray-700 mb-2">{currentContent.joinForm.phone} *</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
+                  <PhoneInput
+                    value={joinForm.phone}
+                    onChange={(value) => handlePhoneChange(value, 'phone')}
+                    required={true}
                     placeholder={currentContent.joinForm.phone}
                   />
                 </div>
@@ -1802,8 +1860,8 @@ const StudyCenter = () => {
                   <input
                     type="date"
                     name="birthDate"
-                    value={formData.birthDate}
-                    onChange={handleChange}
+                    value={joinForm.birthDate}
+                    onChange={handleJoinChange}
                     required
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
                   />
@@ -1814,8 +1872,8 @@ const StudyCenter = () => {
                   <label className="block text-gray-700 mb-2">{currentContent.joinForm.languages} *</label>
                   <textarea
                     name="languages"
-                    value={formData.languages}
-                    onChange={handleChange}
+                    value={joinForm.languages}
+                    onChange={handleJoinChange}
                     required
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all h-24"
                     placeholder={activeLanguage.code === 'UZ' ? "Masalan: Ingliz tili, Rus tili, Koreys tili" : activeLanguage.code === 'RU' ? "Например: Английский, Русский, Корейский" : "Example: English, Russian, Korean"}
@@ -1828,8 +1886,8 @@ const StudyCenter = () => {
                   <input
                     type="text"
                     name="address"
-                    value={formData.address}
-                    onChange={handleChange}
+                    value={joinForm.address}
+                    onChange={handleJoinChange}
                     required
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
                     placeholder={currentContent.joinForm.address}
@@ -1841,8 +1899,8 @@ const StudyCenter = () => {
                   <label className="block text-gray-700 mb-2">{currentContent.joinForm.position} *</label>
                   <select
                     name="position"
-                    value={formData.position}
-                    onChange={handleChange}
+                    value={joinForm.position}
+                    onChange={handleJoinChange}
                     required
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all"
                   >
@@ -1860,8 +1918,8 @@ const StudyCenter = () => {
                   <label className="block text-gray-700 mb-2">{currentContent.joinForm.education} *</label>
                   <textarea
                     name="education"
-                    value={formData.education}
-                    onChange={handleChange}
+                    value={joinForm.education}
+                    onChange={handleJoinChange}
                     required
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all h-24"
                     placeholder={currentContent.joinForm.education}
@@ -1873,8 +1931,8 @@ const StudyCenter = () => {
                   <label className="block text-gray-700 mb-2">{currentContent.joinForm.experience} *</label>
                   <textarea
                     name="experience"
-                    value={formData.experience}
-                    onChange={handleChange}
+                    value={joinForm.experience}
+                    onChange={handleJoinChange}
                     required
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all h-32"
                     placeholder={currentContent.joinForm.experience}
@@ -1892,7 +1950,7 @@ const StudyCenter = () => {
                       <input
                         type="file"
                         accept="image/*,.pdf"
-                        onChange={(e) => handleFileChange(e, 'ieltsCertificate')}
+                        onChange={(e) => handleJoinFileChange(e, 'ieltsCertificate')}
                         required={isIELTSRequired}
                         className="hidden"
                         id="ieltsUpload"
@@ -1902,9 +1960,9 @@ const StudyCenter = () => {
                         {currentContent.joinForm.upload}
                       </div>
                     </label>
-                    {formData.ieltsCertificate && (
+                    {joinForm.ieltsCertificate && (
                       <span className="text-sm text-green-600">
-                        {formData.ieltsCertificate.name}
+                        {joinForm.ieltsCertificate.name}
                       </span>
                     )}
                   </div>
@@ -1921,7 +1979,7 @@ const StudyCenter = () => {
                       <input
                         type="file"
                         accept=".pdf,.doc,.docx"
-                        onChange={(e) => handleFileChange(e, 'cv')}
+                        onChange={(e) => handleJoinFileChange(e, 'cv')}
                         required
                         className="hidden"
                         id="cvUpload"
@@ -1931,9 +1989,9 @@ const StudyCenter = () => {
                         {currentContent.joinForm.upload}
                       </div>
                     </label>
-                    {formData.cv && (
+                    {joinForm.cv && (
                       <span className="text-sm text-green-600">
-                        {formData.cv.name}
+                        {joinForm.cv.name}
                       </span>
                     )}
                   </div>
@@ -1944,8 +2002,8 @@ const StudyCenter = () => {
                   <label className="block text-gray-700 mb-2">{currentContent.joinForm.additionalInfo}</label>
                   <textarea
                     name="additionalInfo"
-                    value={formData.additionalInfo}
-                    onChange={handleChange}
+                    value={joinForm.additionalInfo}
+                    onChange={handleJoinChange}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-all h-24"
                     placeholder={currentContent.joinForm.additionalInfo}
                   />
@@ -1962,9 +2020,20 @@ const StudyCenter = () => {
                     type="submit"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg transition-all duration-300"
+                    disabled={formSubmitting}
+                    className={`w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg transition-all duration-300 ${formSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    {currentContent.joinForm.submit}
+                    {formSubmitting ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {currentContent.joinForm.submit}...
+                      </span>
+                    ) : (
+                      currentContent.joinForm.submit
+                    )}
                   </motion.button>
                 </div>
               </form>
@@ -1974,7 +2043,7 @@ const StudyCenter = () => {
       </AnimatePresence>
 
       {/* Results Section */}
-      <section className="py-12 lg:py-20 bg-gradient-to-b from-white to-blue/5 relative overflow-hidden">
+      <section id='result' className="py-12 lg:py-20 bg-gradient-to-b from-white to-blue/5 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10 px-4 lg:px-0">
           <motion.h2
@@ -1991,87 +2060,103 @@ const StudyCenter = () => {
           {/* IELTS Results Marquee */}
           <div className="mb-12 lg:mb-16">
             <h3 className="text-2xl lg:text-3xl font-bold text-center mb-6 lg:mb-8 text-blue">{currentContent.results.ielts}</h3>
-            <div className="relative overflow-hidden">
-              <motion.div
-                className="flex gap-4 lg:gap-6"
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 20,
-                  ease: "linear",
-                }}
-              >
-                {loopIeltsResults.map((res, index) => (
-                  <motion.div
-                    key={`${res.id}-${index}`}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="flex-shrink-0 w-64 lg:w-80 bg-white rounded-2xl shadow-md hover:shadow-blue/30 transition-all duration-300 overflow-hidden"
-                  >
-                    <div className="relative">
-                      <img
-                        src={res.img}
-                        alt={res.name}
-                        className="w-full h-48 lg:h-64 object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                      <div className="absolute bottom-3 lg:bottom-4 left-3 lg:left-4 text-white">
-                        <p className="text-base lg:text-lg font-semibold">{res.name}</p>
-                        <p className="text-xs lg:text-sm opacity-80">{res.score}</p>
+            {loading.ielts ? (
+              <LoadingSpinner text={activeLanguage.code === 'UZ' ? "IELTS natijalari yuklanmoqda..." : "Loading IELTS results..."} />
+            ) : formattedIeltsResults.length === 0 ? (
+              <p className="text-center text-gray-600 py-12">
+                {activeLanguage.code === 'UZ' ? "IELTS natijalari mavjud emas" : "No IELTS results available"}
+              </p>
+            ) : (
+              <div className="relative overflow-hidden">
+                <motion.div
+                  className="flex gap-4 lg:gap-6"
+                  animate={{ x: ["0%", "-50%"] }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 20,
+                    ease: "linear",
+                  }}
+                >
+                  {loopIeltsResults.map((res, index) => (
+                    <motion.div
+                      key={`${res.id}-${index}`}
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                      className="flex-shrink-0 w-64 lg:w-80 bg-white rounded-2xl shadow-md hover:shadow-blue/30 transition-all duration-300 overflow-hidden"
+                    >
+                      <div className="relative">
+                        <img
+                          src={res.img}
+                          alt={res.name}
+                          className="w-full h-48 lg:h-64 object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div className="absolute bottom-3 lg:bottom-4 left-3 lg:left-4 text-white">
+                          <p className="text-base lg:text-lg font-semibold">{res.name}</p>
+                          <p className="text-xs lg:text-sm opacity-80">{res.score}</p>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-              <div className="absolute inset-y-0 left-0 w-16 lg:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none z-20"></div>
-              <div className="absolute inset-y-0 right-0 w-16 lg:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none z-20"></div>
-            </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+                <div className="absolute inset-y-0 left-0 w-16 lg:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none z-20"></div>
+                <div className="absolute inset-y-0 right-0 w-16 lg:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none z-20"></div>
+              </div>
+            )}
           </div>
 
           {/* CEFR Results Marquee */}
           <div>
             <h3 className="text-2xl lg:text-3xl font-bold text-center mb-6 lg:mb-8 text-green-600">{currentContent.results.cefr}</h3>
-            <div className="relative overflow-hidden">
-              <motion.div
-                className="flex gap-4 lg:gap-6"
-                animate={{ x: ["-50%", "0%"] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 18,
-                  ease: "linear",
-                }}
-              >
-                {loopCefrResults.map((res, index) => (
-                  <motion.div
-                    key={`${res.id}-${index}`}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="flex-shrink-0 w-64 lg:w-80 bg-white rounded-2xl shadow-md hover:shadow-green-300/30 transition-all duration-300 overflow-hidden"
-                  >
-                    <div className="relative">
-                      <img
-                        src={res.img}
-                        alt={res.name}
-                        className="w-full h-48 lg:h-64 object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                      <div className="absolute bottom-3 lg:bottom-4 left-3 lg:left-4 text-white">
-                        <p className="text-base lg:text-lg font-semibold">{res.name}</p>
-                        <p className="text-xs lg:text-sm opacity-80">{res.score}</p>
+            {loading.cefr ? (
+              <LoadingSpinner text={activeLanguage.code === 'UZ' ? "CEFR natijalari yuklanmoqda..." : "Loading CEFR results..."} />
+            ) : formattedCefrResults.length === 0 ? (
+              <p className="text-center text-gray-600 py-12">
+                {activeLanguage.code === 'UZ' ? "CEFR natijalari mavjud emas" : "No CEFR results available"}
+              </p>
+            ) : (
+              <div className="relative overflow-hidden">
+                <motion.div
+                  className="flex gap-4 lg:gap-6"
+                  animate={{ x: ["-50%", "0%"] }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 18,
+                    ease: "linear",
+                  }}
+                >
+                  {loopCefrResults.map((res, index) => (
+                    <motion.div
+                      key={`${res.id}-${index}`}
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                      className="flex-shrink-0 w-64 lg:w-80 bg-white rounded-2xl shadow-md hover:shadow-green-300/30 transition-all duration-300 overflow-hidden"
+                    >
+                      <div className="relative">
+                        <img
+                          src={res.img}
+                          alt={res.name}
+                          className="w-full h-48 lg:h-64 object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div className="absolute bottom-3 lg:bottom-4 left-3 lg:left-4 text-white">
+                          <p className="text-base lg:text-lg font-semibold">{res.name}</p>
+                          <p className="text-xs lg:text-sm opacity-80">{res.score}</p>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-              <div className="absolute inset-y-0 left-0 w-16 lg:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none z-20"></div>
-              <div className="absolute inset-y-0 right-0 w-16 lg:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none z-20"></div>
-            </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+                <div className="absolute inset-y-0 left-0 w-16 lg:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none z-20"></div>
+                <div className="absolute inset-y-0 right-0 w-16 lg:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none z-20"></div>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* Courses Section */}
-      <section className="py-12 lg:py-20 bg-gradient-to-b from-blue/5 to-white relative overflow-hidden">
+      <section id='courses' className="py-12 lg:py-20 bg-gradient-to-b from-blue/5 to-white relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10 px-4 lg:px-0">
           <motion.h2
@@ -2085,158 +2170,184 @@ const StudyCenter = () => {
             <span className="text-blue italic">{currentContent.courses.subtitle}</span>
           </motion.h2>
 
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-            {/* Courses list */}
-            <div className="w-full lg:w-2/5">
-              {/* Mobile & Tablet - Horizontal Scroll */}
-              <div className="block lg:hidden">
-                <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                  {courses.map((course) => (
+          {loading.courses ? (
+            <LoadingSpinner text={activeLanguage.code === 'UZ' ? "Kurslar yuklanmoqda..." : "Loading courses..."} />
+          ) : formattedCourses.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">
+                {activeLanguage.code === 'UZ' ? "Hozircha kurslar mavjud emas" : "No courses available yet"}
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+              {/* Courses list */}
+              <div className="w-full lg:w-2/5">
+                {/* Mobile & Tablet - Horizontal Scroll */}
+                <div className="block lg:hidden">
+                  <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+                    {formattedCourses.map((course) => (
+                      <motion.div
+                        key={course.id}
+                        onClick={() => setActiveCourse(course)}
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all duration-300 border-2 min-w-[200px] snap-center ${activeCourse?.id === course.id
+                            ? 'bg-blue text-white border-blue shadow-lg'
+                            : 'bg-white border-blue/20 hover:border-blue/50 hover:bg-blue/5'
+                          }`}
+                      >
+                        <div className="text-2xl"><img src={course.icon} alt="" /></div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`font-semibold text-sm truncate ${activeCourse?.id === course.id ? 'text-white' : 'text-gray-800'
+                            }`}>
+                            {course.name}
+                          </h3>
+                          <p className={`text-xs mt-1 line-clamp-1 ${activeCourse?.id === course.id ? 'text-white/80' : 'text-gray-600'
+                            }`}>
+                            {course.desc}
+                          </p>
+                        </div>
+                        {activeCourse?.id === course.id && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="w-2 h-2 bg-white rounded-full flex-shrink-0"
+                          />
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Desktop - Vertical List */}
+                <div className="hidden lg:block space-y-4">
+                  {formattedCourses.map((course) => (
                     <motion.div
                       key={course.id}
                       onClick={() => setActiveCourse(course)}
-                      whileHover={{ scale: 1.02 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                      className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all duration-300 border-2 min-w-[200px] snap-center ${activeCourse.id === course.id
+                      whileHover={{ scale: 1.02, x: 10 }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                      className={`p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 ${activeCourse?.id === course.id
                           ? 'bg-blue text-white border-blue shadow-lg'
                           : 'bg-white border-blue/20 hover:border-blue/50 hover:bg-blue/5'
                         }`}
                     >
-                      <div className="text-2xl">{course.icon}</div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className={`font-semibold text-sm truncate ${activeCourse.id === course.id ? 'text-white' : 'text-gray-800'
-                          }`}>
-                          {course.name}
-                        </h3>
-                        <p className={`text-xs mt-1 line-clamp-1 ${activeCourse.id === course.id ? 'text-white/80' : 'text-gray-600'
-                          }`}>
-                          {course.desc}
-                        </p>
+                      <div className="flex items-center gap-4">
+                        <div className="text-3xl"><img src={course.icon} alt="" /></div>
+                        <div className="flex-1">
+                          <h3 className={`text-xl font-semibold ${activeCourse?.id === course.id ? 'text-white' : 'text-gray-800'
+                            }`}>
+                            {course.name}
+                          </h3>
+                          <p className={`mt-1 ${activeCourse?.id === course.id ? 'text-white/80' : 'text-gray-600'
+                            }`}>
+                            {course.desc}
+                          </p>
+                        </div>
+                        {activeCourse?.id === course.id && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="w-3 h-3 bg-white rounded-full"
+                          />
+                        )}
                       </div>
-                      {activeCourse.id === course.id && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="w-2 h-2 bg-white rounded-full flex-shrink-0"
-                        />
-                      )}
                     </motion.div>
                   ))}
                 </div>
               </div>
 
-              {/* Desktop - Vertical List */}
-              <div className="hidden lg:block space-y-4">
-                {courses.map((course) => (
-                  <motion.div
-                    key={course.id}
-                    onClick={() => setActiveCourse(course)}
-                    whileHover={{ scale: 1.02, x: 10 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className={`p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 ${activeCourse.id === course.id
-                        ? 'bg-blue text-white border-blue shadow-lg'
-                        : 'bg-white border-blue/20 hover:border-blue/50 hover:bg-blue/5'
-                      }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="text-3xl">{course.icon}</div>
-                      <div className="flex-1">
-                        <h3 className={`text-xl font-semibold ${activeCourse.id === course.id ? 'text-white' : 'text-gray-800'
-                          }`}>
-                          {course.name}
-                        </h3>
-                        <p className={`mt-1 ${activeCourse.id === course.id ? 'text-white/80' : 'text-gray-600'
-                          }`}>
-                          {course.desc}
-                        </p>
+              {/* Selected course details */}
+              {activeCourse && (
+                <motion.div
+                  key={activeCourse?.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                  className="w-full lg:w-3/5 bg-white rounded-2xl p-6 lg:p-8 shadow-lg border border-blue/10"
+                >
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="text-3xl lg:text-4xl"><img src={activeCourse.icon} alt="" /></div>
+                    <div>
+                      <h3 className="text-2xl lg:text-3xl font-bold text-gray-800">{activeCourse.name}</h3>
+                      <p className="text-gray-600 text-base lg:text-lg mt-1">{activeCourse.desc}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 lg:p-4 bg-blue/5 rounded-xl">
+                        <span className="font-semibold text-gray-700 text-sm lg:text-base">{currentContent.courses.details.duration}</span>
+                        <span className="text-blue font-bold text-sm lg:text-base">{activeCourse.details.duration}</span>
                       </div>
-                      {activeCourse.id === course.id && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="w-3 h-3 bg-white rounded-full"
-                        />
+                  
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 lg:p-4 bg-blue/5 rounded-xl">
+                        <span className="font-semibold text-gray-700 text-sm lg:text-base">{currentContent.courses.details.price}</span>
+                        <span className="text-blue font-bold text-sm lg:text-base">{activeCourse.details.price} {currentContent.courses.details.month}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-6 lg:mb-8">
+                    <h4 className="text-lg lg:text-xl font-semibold text-gray-800 mb-3 lg:mb-4">{currentContent.courses.details.features}</h4>
+                    <div className="grid grid-cols-1 gap-2 lg:gap-3">
+                      {activeCourse?.details.features && activeCourse.details.features.length > 0 ? (
+                        activeCourse.details.features.map((feature, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.4, delay: index * 0.1, ease: "easeInOut" }}
+                            className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200"
+                          >
+                            <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                            <span className="text-gray-700 text-sm lg:text-base">{feature}</span>
+                          </motion.div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 italic">
+                          {activeLanguage.code === 'UZ' 
+                            ? "Kurs imkoniyatlari mavjud emas" 
+                            : activeLanguage.code === 'RU'
+                            ? "Возможности курса не указаны"
+                            : "Course features not available"}
+                        </p>
                       )}
                     </div>
-                  </motion.div>
-                ))}
-              </div>
+                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleCourseRegister(activeCourse)}
+                    disabled={formSubmitting}
+                    className={`w-full bg-blue text-white py-3 lg:py-4 rounded-xl font-semibold text-base lg:text-lg hover:bg-blue/90 transition-all duration-300 shadow-lg ${formSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {formSubmitting ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {activeCourse.name} {currentContent.courses.registerBtn}...
+                      </span>
+                    ) : (
+                      `${currentContent.courses.registerBtn}`
+                    )}
+                  </motion.button>
+                </motion.div>
+              )}
             </div>
-
-            {/* Selected course details */}
-            <motion.div
-              key={activeCourse.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-              className="w-full lg:w-3/5 bg-white rounded-2xl p-6 lg:p-8 shadow-lg border border-blue/10"
-            >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="text-3xl lg:text-4xl">{activeCourse.icon}</div>
-                <div>
-                  <h3 className="text-2xl lg:text-3xl font-bold text-gray-800">{activeCourse.name}</h3>
-                  <p className="text-gray-600 text-base lg:text-lg mt-1">{activeCourse.desc}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 lg:p-4 bg-blue/5 rounded-xl">
-                    <span className="font-semibold text-gray-700 text-sm lg:text-base">{currentContent.courses.details.duration}</span>
-                    <span className="text-blue font-bold text-sm lg:text-base">{activeCourse.details.duration}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 lg:p-4 bg-blue/5 rounded-xl">
-                    <span className="font-semibold text-gray-700 text-sm lg:text-base">{currentContent.courses.details.level}</span>
-                    <span className="text-blue font-bold text-sm lg:text-base">{activeCourse.details.level}</span>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 lg:p-4 bg-blue/5 rounded-xl">
-                    <span className="font-semibold text-gray-700 text-sm lg:text-base">{currentContent.courses.details.format}</span>
-                    <span className="text-blue font-bold text-sm lg:text-base">{activeCourse.details.format}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 lg:p-4 bg-blue/5 rounded-xl">
-                    <span className="font-semibold text-gray-700 text-sm lg:text-base">{currentContent.courses.details.price}</span>
-                    <span className="text-blue font-bold text-sm lg:text-base">{activeCourse.details.price}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-6 lg:mb-8">
-                <h4 className="text-lg lg:text-xl font-semibold text-gray-800 mb-3 lg:mb-4">{currentContent.courses.details.features}</h4>
-                <div className="grid grid-cols-1 gap-2 lg:gap-3">
-                  {activeCourse.details.features.map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1, ease: "easeInOut" }}
-                      className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200"
-                    >
-                      <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
-                      <span className="text-gray-700 text-sm lg:text-base">{feature}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="w-full bg-blue text-white py-3 lg:py-4 rounded-xl font-semibold text-base lg:text-lg hover:bg-blue/90 transition-all duration-300 shadow-lg"
-              >
-                {activeCourse.name} {currentContent.courses.registerBtn}
-              </motion.button>
-            </motion.div>
-          </div>
+          )}
         </div>
       </section>
 
       {/* FAQ Section - Improved */}
-      <section className="py-12 lg:py-24 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
+      <section id="FAQ" className="py-12 lg:py-24 bg-gradient-to-b from-white to-blue/10 relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto max-w-4xl relative z-10 px-4 lg:px-0">
           <motion.h2
@@ -2251,22 +2362,22 @@ const StudyCenter = () => {
           </motion.h2>
 
           <div className="space-y-3 lg:space-y-4">
-  {currentContent.faq.items.map((faq, index) => (
-    <FaqItem
-      key={index}
-      faq={faq}
-      isOpen={activeIndex === index}
-      onClick={() =>
-        setActiveIndex(activeIndex === index ? null : index)
-      }
-    />
-  ))}
-</div>
+            {currentContent.faq.items.map((faq, index) => (
+              <FaqItem
+                key={index}
+                faq={faq}
+                isOpen={activeIndex === index}
+                onClick={() =>
+                  setActiveIndex(activeIndex === index ? null : index)
+                }
+              />
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Advantages Section */}
-      <section className="py-12 lg:py-24 bg-gradient-to-b from-blue/10 to-white relative overflow-hidden">
+      <section id='Advantages' className="py-12 lg:py-24 bg-gradient-to-b from-blue/10 to-white relative overflow-hidden">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto relative z-10 px-4 lg:px-0">
           <motion.h2
@@ -2308,7 +2419,7 @@ const StudyCenter = () => {
       </section>
 
       {/* Gallery Section */}
-      <section className="py-12 lg:py-24 bg-gradient-to-b from-blue/10 to-white overflow-hidden relative">
+      <section id='Gallery' className="py-12 lg:py-24 bg-gradient-to-b from-blue/10 to-white overflow-hidden relative">
         <BackgroundIllustrations sectionClass="z-0" />
         <div className="container mx-auto text-center mb-8 lg:mb-12 relative z-10 px-4 lg:px-0">
           <motion.h2
@@ -2323,85 +2434,95 @@ const StudyCenter = () => {
           </motion.h2>
         </div>
 
-        {/* MARQUEE ANIMATION */}
-        <div className="relative overflow-hidden">
-          <motion.div
-            className="flex gap-4 lg:gap-6"
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{
-              repeat: Infinity,
-              duration: 25,
-              ease: "linear",
-            }}
-          >
-            {loopImages.map((image, index) => (
+        {loading.gallery ? (
+          <LoadingSpinner text={activeLanguage.code === 'UZ' ? "Galereya yuklanmoqda..." : "Loading gallery..."} />
+        ) : formattedGallery.length === 0 ? (
+          <p className="text-center text-gray-600 py-12">
+            {activeLanguage.code === 'UZ' ? "Galereya rasmlari mavjud emas" : "No gallery images available"}
+          </p>
+        ) : (
+          <>
+            {/* MARQUEE ANIMATION */}
+            <div className="relative overflow-hidden">
               <motion.div
-                key={`${image.id}-${index}`}
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="flex-shrink-0 w-[280px] h-[200px] lg:w-[350px] lg:h-[250px] rounded-2xl overflow-hidden shadow-md hover:shadow-blue/40 transition-all duration-300 cursor-pointer"
-                onClick={() => openImageModal(image)}
-              >
-                <img
-                  src={image.src}
-                  alt={image.title}
-                  className="w-full h-full object-cover"
-                />
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <div className="absolute inset-y-0 left-0 w-16 lg:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none z-20"></div>
-          <div className="absolute inset-y-0 right-0 w-16 lg:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none z-20"></div>
-        </div>
-
-        {/* Image Modal */}
-        <AnimatePresence>
-          {selectedImage && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-              onClick={closeImageModal}
-            >
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
+                className="flex gap-4 lg:gap-6"
+                animate={{ x: ["0%", "-50%"] }}
                 transition={{
-                  type: "spring",
-                  damping: 25,
-                  stiffness: 300,
-                  ease: "easeInOut"
+                  repeat: Infinity,
+                  duration: 25,
+                  ease: "linear",
                 }}
-                className="relative max-w-4xl max-h-full w-full"
-                onClick={(e) => e.stopPropagation()}
               >
-                <button
-                  onClick={closeImageModal}
-                  className="absolute -top-12 lg:-top-16 right-0 text-white hover:text-orange-500 transition-colors z-10 text-2xl lg:text-3xl"
-                >
-                  ✕
-                </button>
-
-                <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
-                  <img
-                    src={selectedImage.src}
-                    alt={selectedImage.title}
-                    className="w-full h-64 lg:h-96 object-cover"
-                  />
-
-                  <div className="p-4 lg:p-6">
-                    <h3 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">{selectedImage.title}</h3>
-                    <p className="text-gray-600 text-sm lg:text-base">{selectedImage.desc}</p>
-                  </div>
-                </div>
+                {loopImages.map((image, index) => (
+                  <motion.div
+                    key={`${image.id}-${index}`}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    className="flex-shrink-0 w-[280px] h-[200px] lg:w-[350px] lg:h-[250px] rounded-2xl overflow-hidden shadow-md hover:shadow-blue/40 transition-all duration-300 cursor-pointer"
+                    onClick={() => openImageModal(image)}
+                  >
+                    <img
+                      src={image.src}
+                      alt={image.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
+                ))}
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+              <div className="absolute inset-y-0 left-0 w-16 lg:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none z-20"></div>
+              <div className="absolute inset-y-0 right-0 w-16 lg:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none z-20"></div>
+            </div>
+
+            {/* Image Modal */}
+            <AnimatePresence>
+              {selectedImage && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+                  onClick={closeImageModal}
+                >
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{
+                      type: "spring",
+                      damping: 25,
+                      stiffness: 300,
+                      ease: "easeInOut"
+                    }}
+                    className="relative max-w-4xl max-h-full w-full"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={closeImageModal}
+                      className="absolute -top-12 lg:-top-16 right-0 text-white hover:text-orange-500 transition-colors z-10 text-2xl lg:text-3xl"
+                    >
+                      ✕
+                    </button>
+
+                    <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
+                      <img
+                        src={selectedImage.src}
+                        alt={selectedImage.title}
+                        className="w-full h-64 lg:h-96 object-cover"
+                      />
+
+                      <div className="p-4 lg:p-6">
+                        <h3 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">{selectedImage.title}</h3>
+                        <p className="text-gray-600 text-sm lg:text-base">{selectedImage.desc}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        )}
       </section>
 
       {/* Events Section */}
@@ -2437,25 +2558,47 @@ const StudyCenter = () => {
               <h3 className='text-2xl lg:text-3xl font-semibold mb-4 lg:mb-6'>
                 {currentContent.events.registerBtn}
               </h3>
-              <form action="#" className='flex flex-col gap-5 items-start'>
+              <form onSubmit={handleEventSubmit} className='flex flex-col gap-5 items-start'>
                 <label className='flex flex-col gap-2 items-start w-full'>
                   <span className="text-gray-700">{currentContent.events.namePlaceholder}</span>
-                  <input type="text" placeholder={currentContent.events.namePlaceholder} className='p-3 bg-white outline-none w-full rounded-lg border border-gray-300 focus:border-blue transition-colors' />
+                  <input 
+                    type="text" 
+                    name="name"
+                    value={eventForm.name}
+                    onChange={handleEventChange}
+                    placeholder={currentContent.events.namePlaceholder} 
+                    className='p-3 bg-white outline-none w-full rounded-lg border border-gray-300 focus:border-blue transition-colors' 
+                    required
+                  />
                 </label>
                 <label className='flex flex-col gap-2 items-start w-full'>
                   <span className="text-gray-700">{currentContent.events.agePlaceholder}</span>
-                  <input type="number" placeholder={currentContent.events.agePlaceholder} className='p-3 bg-white outline-none w-full rounded-lg border border-gray-300 focus:border-blue transition-colors' />
+                  <input 
+                    type="number" 
+                    name="age"
+                    value={eventForm.age}
+                    onChange={handleEventChange}
+                    placeholder={currentContent.events.agePlaceholder} 
+                    className='p-3 bg-white outline-none w-full rounded-lg border border-gray-300 focus:border-blue transition-colors' 
+                    required
+                  />
                 </label>
                 <label className='flex flex-col gap-2 items-start w-full'>
                   <span className="text-gray-700">{currentContent.events.phonePlaceholder}</span>
-                  <input type="tel" placeholder={currentContent.events.phonePlaceholder} className='p-3 bg-white outline-none w-full rounded-lg border border-gray-300 focus:border-blue transition-colors' />
+                  <PhoneInput
+                    value={eventForm.phone}
+                    onChange={(value) => handlePhoneChange(value, 'phone')}
+                    placeholder={currentContent.events.phonePlaceholder}
+                    required={true}
+                  />
                 </label>
                 <motion.input
                   type="submit"
-                  value={currentContent.events.submitBtn}
-                  className='bg-blue text-white text-lg lg:text-xl px-6 py-3 w-full rounded-xl hover:bg-blue/90 transition-colors duration-300 cursor-pointer'
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  value={formSubmitting ? `${currentContent.events.submitBtn}...` : currentContent.events.submitBtn}
+                  disabled={formSubmitting}
+                  className={`bg-blue text-white text-lg lg:text-xl px-6 py-3 w-full rounded-xl hover:bg-blue/90 transition-colors duration-300 cursor-pointer ${formSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  whileHover={formSubmitting ? {} : { scale: 1.02 }}
+                  whileTap={formSubmitting ? {} : { scale: 0.98 }}
                 />
               </form>
             </motion.div>
@@ -2489,6 +2632,7 @@ const StudyCenter = () => {
 
           {/* RIGHT - FORM */}
           <motion.form
+            onSubmit={handleContactSubmit}
             initial={{ opacity: 0, x: 60 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
@@ -2503,16 +2647,24 @@ const StudyCenter = () => {
                 <label className="block text-gray-600 mb-2 text-sm lg:text-base">{currentContent.contact.name}</label>
                 <input
                   type="text"
+                  name="name"
+                  value={contactForm.name}
+                  onChange={handleContactChange}
                   placeholder={currentContent.contact.name}
                   className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300 text-sm lg:text-base"
+                  required
                 />
               </div>
               <div>
                 <label className="block text-gray-600 mb-2 text-sm lg:text-base">{currentContent.contact.age}</label>
                 <input
                   type="number"
+                  name="age"
+                  value={contactForm.age}
+                  onChange={handleContactChange}
                   placeholder={currentContent.contact.age}
                   className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300 text-sm lg:text-base"
+                  required
                 />
               </div>
             </div>
@@ -2521,18 +2673,20 @@ const StudyCenter = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
               <div>
                 <label className="block text-gray-600 mb-2 text-sm lg:text-base">{currentContent.contact.phone1}</label>
-                <input
-                  type="tel"
+                <PhoneInput
+                  value={contactForm.phone1}
+                  onChange={(value) => handlePhoneChange(value, 'phone1')}
                   placeholder={currentContent.contact.phone1}
-                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300 text-sm lg:text-base"
+                  required={true}
                 />
               </div>
               <div>
                 <label className="block text-gray-600 mb-2 text-sm lg:text-base">{currentContent.contact.phone2}</label>
-                <input
-                  type="tel"
+                <PhoneInput
+                  value={contactForm.phone2}
+                  onChange={(value) => handlePhoneChange(value, 'phone2')}
                   placeholder={currentContent.contact.phone2}
-                  className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300 text-sm lg:text-base"
+                  required={false}
                 />
               </div>
             </div>
@@ -2540,10 +2694,16 @@ const StudyCenter = () => {
             {/* Kurs tanlash */}
             <div>
               <label className="block text-gray-600 mb-2 text-sm lg:text-base">{currentContent.contact.course}</label>
-              <select className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300 text-sm lg:text-base">
+              <select 
+                name="course"
+                value={contactForm.course}
+                onChange={handleContactChange}
+                className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300 text-sm lg:text-base"
+                required
+              >
                 <option value="">{currentContent.common.select}</option>
-                {courses.map(course => (
-                  <option key={course.id}>{course.name}</option>
+                {formattedCourses.map(course => (
+                  <option key={course.id} value={course.name}>{course.name}</option>
                 ))}
               </select>
             </div>
@@ -2556,8 +2716,8 @@ const StudyCenter = () => {
                   <button
                     key={format.value}
                     type="button"
-                    onClick={() => setSelectedFormat(format.value)}
-                    className={`p-2 lg:p-3 rounded-xl border transition-all duration-300 text-xs lg:text-sm ${selectedFormat === format.value
+                    onClick={() => setContactForm(prev => ({ ...prev, format: format.value }))}
+                    className={`p-2 lg:p-3 rounded-xl border transition-all duration-300 text-xs lg:text-sm ${contactForm.format === format.value
                         ? "bg-blue text-white border-blue"
                         : "border-blue/20 hover:bg-blue/5"
                       }`}
@@ -2572,38 +2732,19 @@ const StudyCenter = () => {
             <div>
               <label className="block text-gray-600 mb-2 text-sm lg:text-base">{currentContent.contact.time}</label>
               <select
+                name="time"
+                value={contactForm.time}
+                onChange={handleContactChange}
                 className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none mb-3 transition-all duration-300 text-sm lg:text-base"
-                onChange={(e) => setSelectedTime(e.target.value)}
-                value={selectedTime}
+                required
               >
                 <option value="">{currentContent.contact.selectTime}</option>
-                <option value="morning">9:00 - 10:30</option>
-                <option value="morning">10:30 - 12:00</option>
-                <option value="morning">12:00 - 14:00</option>
-                <option value="morning">10:30 - 12:00</option>
-                <option value="morning">15:30 - 17:00</option>
-                <option value="morning">17:00 - 18:30</option>
+                <option value="09:00 - 10:30">09:00 - 10:30</option>
+                <option value="10:30 - 12:00">10:30 - 12:00</option>
+                <option value="12:00 - 14:00">12:00 - 14:00</option>
+                <option value="15:30 - 17:00">15:30 - 17:00</option>
+                <option value="17:00 - 18:30">17:00 - 18:30</option>
               </select>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 lg:gap-3">
-                {selectedTime && [
-                  "08:00 - 09:30",
-                  "09:30 - 11:00",
-                  "11:00 - 12:30",
-                  "13:00 - 14:30",
-                  "14:30 - 16:00",
-                  "16:00 - 17:30",
-                  "17:00 - 18:30"
-                ].map((time) => (
-                  <button
-                    key={time}
-                    type="button"
-                    className="p-2 text-xs lg:text-sm rounded-xl border border-blue/20 hover:bg-blue hover:text-white transition-all duration-300"
-                  >
-                    {time}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Submit */}
@@ -2612,9 +2753,10 @@ const StudyCenter = () => {
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               type="submit"
-              className="w-full bg-blue text-white py-3 lg:py-4 rounded-xl font-semibold hover:bg-blue/90 transition-all duration-300 shadow-lg text-sm lg:text-base"
+              disabled={formSubmitting}
+              className={`w-full bg-blue text-white py-3 lg:py-4 rounded-xl font-semibold hover:bg-blue/90 transition-all duration-300 shadow-lg text-sm lg:text-base ${formSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {currentContent.contact.submit}
+              {formSubmitting ? `${currentContent.contact.submit}...` : currentContent.contact.submit}
             </motion.button>
           </motion.form>
         </div>
@@ -2647,10 +2789,10 @@ const StudyCenter = () => {
             <div>
               <h4 className="text-base lg:text-lg font-semibold mb-3 lg:mb-4">{currentContent.footer.courses}</h4>
               <ul className="space-y-1 lg:space-y-2">
-                {footerLinks.courses.map((course, index) => (
+                {formattedCourses.map((course, index) => (
                   <li key={index}>
                     <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-                      {course}
+                      {course.name}
                     </a>
                   </li>
                 ))}
@@ -2661,13 +2803,29 @@ const StudyCenter = () => {
             <div>
               <h4 className="text-base lg:text-lg font-semibold mb-3 lg:mb-4">{currentContent.footer.branches}</h4>
               <ul className="space-y-1 lg:space-y-2">
-                {footerLinks.branches.map((branch, index) => (
-                  <li key={index}>
-                    <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-                      {branch}
-                    </a>
-                  </li>
-                ))}
+                {activeLanguage.code === 'UZ'
+                  ? ["Yunusobod filiali", "Chilonzor filiali", "Mirzo Ulug'bek filiali"].map((branch, index) => (
+                      <li key={index}>
+                        <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                          {branch}
+                        </a>
+                      </li>
+                    ))
+                  : activeLanguage.code === 'RU'
+                  ? ["Юнусабадский филиал", "Чиланзарский филиал", "Мирзо Улугбекский филиал"].map((branch, index) => (
+                      <li key={index}>
+                        <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                          {branch}
+                        </a>
+                      </li>
+                    ))
+                  : ["Yunusabad Branch", "Chilanzar Branch", "Mirzo Ulugbek Branch"].map((branch, index) => (
+                      <li key={index}>
+                        <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                          {branch}
+                        </a>
+                      </li>
+                    ))}
               </ul>
             </div>
 
@@ -2675,7 +2833,7 @@ const StudyCenter = () => {
             <div>
               <h4 className="text-base lg:text-lg font-semibold mb-3 lg:mb-4">{currentContent.footer.contact}</h4>
               <ul className="space-y-2 lg:space-y-3">
-                {footerLinks.contacts.map((contact, index) => (
+                {["+998 78 333 37 73", "+998 94 731 37 73", "Bilimziyo1@gmail.com"].map((contact, index) => (
                   <li key={index} className="flex items-center gap-2 text-gray-400 text-sm lg:text-base">
                     {index < 2 ? <FaPhone size={12} className="lg:w-3 lg:h-3" /> : <FaEnvelope size={12} className="lg:w-3 lg:h-3" />}
                     {contact}
@@ -2694,6 +2852,7 @@ const StudyCenter = () => {
     </div>
   )
 }
+
 function FaqItem({ faq, isOpen, onClick }) {
   const [ref, { height }] = useMeasure()
 

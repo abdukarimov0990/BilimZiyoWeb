@@ -15,28 +15,32 @@ const Header = () => {
   const translations = {
     UZ: {
       navs: [
-        { nav: "Asosiy", link: "/" },
-        { nav: "Kurslarimiz", link: "/courses" },
-        { nav: "Jamoa", link: "/team" },
-        { nav: "FAQ", link: "/faq" },
+        { nav: "Asosiy", link: "#hero" },
+        { nav: "Kurslarimiz", link: "#courses" },
+        { nav: "Jamoa", link: "#teachers" },
+        { nav: "FAQ", link: "#FAQ" },
+        { nav: "Vakansiya", link: "#Vacancy" },
+
       ],
       register: "Ro'yxatdan o'tish",
     },
     RU: {
       navs: [
-        { nav: "Главная", link: "/" },
-        { nav: "Курсы", link: "/courses" },
-        { nav: "Команда", link: "/team" },
-        { nav: "FAQ", link: "/faq" },
+        { nav: "Главная", link: "#hero" },
+        { nav: "Курсы", link: "#courses" },
+        { nav: "Команда", link: "#teachers" },
+        { nav: "FAQ", link: "#FAQ" },
+        { nav: "Vakansiya", link: "#Vacancy" },
+
       ],
       register: "Регистрация",
     },
     EN: {
       navs: [
-        { nav: "Home", link: "/" },
-        { nav: "Courses", link: "/courses" },
-        { nav: "Team", link: "/team" },
-        { nav: "FAQ", link: "/faq" },
+        { nav: "Home", link: "#hero" },
+        { nav: "Courses", link: "#courses" },
+        {nav: "Teachers", link: "#teachers"  },
+        { nav: "FAQ", link: "#FAQ" },
       ],
       register: "Register",
     },
@@ -129,9 +133,9 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             {currentTranslations.navs.map((nav, i) => (
-              <Link
+              <a
                 key={i}
-                to={nav.link}
+                href={nav.link}
                 className="relative text-black font-medium tracking-wide transition-all duration-300 group"
               >
                 <span className="relative z-10 group-hover:text-blue-100 drop-shadow-sm">
@@ -140,7 +144,7 @@ const Header = () => {
                 <span 
                   className="absolute bottom-[-2px] left-0 w-0 h-[2px] bg-gradient-to-r from-blue-300 to-blue-100 transition-all duration-300 group-hover:w-full shadow-lg shadow-blue-300/50"
                 />
-              </Link>
+              </a>
             ))}
           </nav>
 

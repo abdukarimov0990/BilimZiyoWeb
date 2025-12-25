@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import logo from '../assets/img/logo.png'
 import { motion, AnimatePresence } from "framer-motion";
@@ -46,6 +46,71 @@ const School = () => {
   const [faqOpen, setFaqOpen] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [contactOpen, setContactOpen] = useState(false);
+  
+  // Gallery uchun state
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // API'dan gallery rasmlarini olish
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('https://bilimziyo-backend.asosit.uz/api/gallery-schools?populate=*');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('API Response:', data); // Debug uchun
+        
+        if (data.data && Array.isArray(data.data)) {
+          const images = data.data.map(item => {
+            const attributes = item.attributes || item;
+            const imgData = attributes.img?.data;
+            
+            if (!imgData) {
+              console.warn('No image data for item:', item);
+              return null;
+            }
+            
+            // imgData: { id: 1, attributes: { url: '/uploads/...', ... } }
+            const imgAttributes = imgData.attributes || imgData;
+            
+            if (!imgAttributes.url) {
+              console.warn('No URL in image attributes:', imgAttributes);
+              return null;
+            }
+            
+            return {
+              id: item.id || Math.random(),
+              url: `http://localhost:1337${imgAttributes.url}`,
+              alt: imgAttributes.alternativeText || 'School image',
+              caption: imgAttributes.caption || '',
+              formats: imgAttributes.formats || {},
+              name: imgAttributes.name || 'School Image'
+            };
+          }).filter(img => img !== null);
+          
+          console.log('Processed Images:', images);
+          setGalleryImages(images);
+        } else {
+          throw new Error('Invalid data structure from API');
+        }
+      } catch (err) {
+        console.error('Gallery images fetch error:', err);
+        setError(err.message || 'Rasmlar yuklanmadi');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGalleryImages();
+  }, []);
 
   // Barcha tillar uchun tarjimalar
   const translations = {
@@ -174,14 +239,7 @@ const School = () => {
       gallery: {
         title: "Maktab hayoti",
         subtitle: "Maktabimizda kun qanday o'tadi?",
-        items: [
-          { id: 1, title: "Sinflarimiz", emoji: "🏫" },
-          { id: 2, title: "Laboratoriya", emoji: "🔬" },
-          { id: 3, title: "Sport Zali", emoji: "⚽" },
-          { id: 4, title: "Kutubxona", emoji: "📚" },
-          { id: 5, title: "Oshxona", emoji: "🍽️" },
-          { id: 6, title: "Hovli", emoji: "🌳" }
-        ]
+        items: [] // API'dan keladi
       },
       faq: {
         title: "Ko'p So'raladigan Savollar",
@@ -384,14 +442,7 @@ const School = () => {
       gallery: {
         title: "Школьная жизнь",
         subtitle: "Как проходит день в нашей школе?",
-        items: [
-          { id: 1, title: "Наши классы", emoji: "🏫" },
-          { id: 2, title: "Лаборатория", emoji: "🔬" },
-          { id: 3, title: "Спортзал", emoji: "⚽" },
-          { id: 4, title: "Библиотека", emoji: "📚" },
-          { id: 5, title: "Столовая", emoji: "🍽️" },
-          { id: 6, title: "Двор", emoji: "🌳" }
-        ]
+        items: [] // API'dan keladi
       },
       faq: {
         title: "Часто задаваемые вопросы",
@@ -594,14 +645,7 @@ const School = () => {
       gallery: {
         title: "School Life",
         subtitle: "How does a day go in our school?",
-        items: [
-          { id: 1, title: "Our Classes", emoji: "🏫" },
-          { id: 2, title: "Laboratory", emoji: "🔬" },
-          { id: 3, title: "Gym", emoji: "⚽" },
-          { id: 4, title: "Library", emoji: "📚" },
-          { id: 5, title: "Dining Hall", emoji: "🍽️" },
-          { id: 6, title: "Yard", emoji: "🌳" }
-        ]
+        items: [] // API'dan keladi
       },
       faq: {
         title: "Frequently Asked Questions",
@@ -683,8 +727,13 @@ const School = () => {
 
   const currentContent = getLanguageContent(translations);
 
-  // 2 marta takrorlash marquee uchun
-  const loopImages = [...currentContent.gallery.items, ...currentContent.gallery.items];
+  // Gallery items uchun
+  const galleryItems = galleryImages;
+
+  // Marquee uchun loop qilish
+  const loopImages = galleryItems.length > 0 
+    ? [...galleryItems, ...galleryItems, ...galleryItems, ...galleryItems]
+    : [];
 
   const toggleFaq = (index) => {
     setFaqOpen(faqOpen === index ? null : index);
@@ -712,7 +761,6 @@ const School = () => {
   // Footer komponenti
   const Footer = () => (
     <footer className="bg-gradient-to-br from-gray-900 to-gray-800 text-white relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 left-0 w-72 h-72 bg-orange-500 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500 rounded-full translate-x-1/2 translate-y-1/2"></div>
@@ -908,33 +956,6 @@ const School = () => {
           </div>
         </motion.div>
       </div>
-
-      {/* Floating elements */}
-      <motion.div 
-        className="absolute bottom-10 right-10 w-8 h-8 bg-orange-500 rounded-full"
-        animate={{ 
-          y: [0, -20, 0],
-          scale: [1, 1.2, 1]
-        }}
-        transition={{ 
-          duration: 3, 
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-      <motion.div 
-        className="absolute top-10 left-10 w-6 h-6 bg-blue-500 rounded-full"
-        animate={{ 
-          y: [0, 15, 0],
-          scale: [1, 1.1, 1]
-        }}
-        transition={{ 
-          duration: 4, 
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-      />
     </footer>
   );
 
@@ -1067,7 +1088,6 @@ const School = () => {
               </motion.button>
               
               <motion.button
-              
                 className="border-2 border-orange-500 text-orange-500 bg-white/80 backdrop-blur-md px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-orange-500 hover:text-white transition-all duration-300 shadow-lg flex items-center gap-3 group"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
@@ -1274,7 +1294,7 @@ const School = () => {
         </div>
       </section>
 
-      {/* Gallery Section with Double Marquee */}
+      {/* Gallery Section - YANGILANGAN */}
       <section id="gallery" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
         <div className="container mx-auto px-6 relative z-10">
           <motion.div 
@@ -1292,144 +1312,194 @@ const School = () => {
             </p>
           </motion.div>
 
-          {/* First Marquee - Right to Left */}
-          <div className="mb-8">
-            <div className="relative overflow-hidden">
-              <motion.div
-                className="flex gap-6"
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 20,
-                  ease: "linear",
-                }}
-              >
-                {loopImages.map((image, index) => (
-                  <motion.div
-                    key={`${image.id}-${index}`}
-                    className="flex-shrink-0 w-80 group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border border-gray-200"
-                    whileHover={{ scale: 1.05 }}
-                    onClick={() => openImageModal(image)}
-                  >
-                    <div className="aspect-video bg-gradient-to-br from-orange-100 to-blue-100 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="text-5xl mb-4">{image.emoji}</div>
-                        <div className="text-lg font-bold text-gray-800">{image.title}</div>
-                      </div>
-                    </div>
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0 }}
-                        whileHover={{ opacity: 1, scale: 1 }}
-                        className="bg-white/90 rounded-full p-3"
-                      >
-                        <BsPlayCircle className="text-2xl text-orange-500" />
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-              <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-20"></div>
-              <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-20"></div>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+              <span className="ml-4 text-gray-600">Rasmlar yuklanmoqda...</span>
             </div>
-          </div>
-
-          {/* Second Marquee - Left to Right */}
-          <div>
-            <div className="relative overflow-hidden">
-              <motion.div
-                className="flex gap-6"
-                animate={{ x: ["-50%", "0%"] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 18,
-                  ease: "linear",
-                }}
-              >
-                {loopImages.map((image, index) => (
-                  <motion.div
-                    key={`${image.id}-${index}-reverse`}
-                    className="flex-shrink-0 w-80 group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border border-gray-200"
-                    whileHover={{ scale: 1.05 }}
-                    onClick={() => openImageModal(image)}
-                  >
-                    <div className="aspect-video bg-gradient-to-br from-blue-100 to-orange-100 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="text-5xl mb-4">{image.emoji}</div>
-                        <div className="text-lg font-bold text-gray-800">{image.title}</div>
-                      </div>
-                    </div>
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0 }}
-                        whileHover={{ opacity: 1, scale: 1 }}
-                        className="bg-white/90 rounded-full p-3"
-                      >
-                        <BsPlayCircle className="text-2xl text-orange-500" />
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-              <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-20"></div>
-              <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-20"></div>
+          ) : error ? (
+            <div className="text-center text-red-500 py-8">
+              {error}
+              <p className="text-gray-500 mt-2">Xatolik yuz berdi, iltimos keyinroq urinib ko'ring</p>
             </div>
-          </div>
+          ) : galleryImages.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">
+              Hech qanday rasm topilmadi
+            </div>
+          ) : (
+            <>
+              {/* First Marquee - Right to Left */}
+              <div className="mb-8">
+                <div className="relative overflow-hidden">
+                  <motion.div
+                    className="flex gap-6"
+                    animate={{ x: ["0%", "-50%"] }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 40,
+                      ease: "linear",
+                    }}
+                  >
+                    {loopImages.map((image, index) => (
+                      <motion.div
+                        key={`${image.id}-${index}`}
+                        className="flex-shrink-0 w-80 group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border border-gray-200"
+                        whileHover={{ scale: 1.05 }}
+                        onClick={() => openImageModal(image)}
+                      >
+                        <div className="aspect-square overflow-hidden bg-gray-100">
+                          <img 
+                            src={image.url} 
+                            alt={image.alt}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                            }}
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end">
+                          <div className="p-4 text-white w-full">
+                            <p className="text-sm font-medium truncate">{image.caption}</p>
+                            <p className="text-xs opacity-80">{image.name}</p>
+                          </div>
+                        </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0 }}
+                            whileHover={{ opacity: 1, scale: 1 }}
+                            className="bg-white/90 rounded-full p-3 shadow-lg"
+                          >
+                            <BsPlayCircle className="text-2xl text-orange-500" />
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                  <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-20"></div>
+                  <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-20"></div>
+                </div>
+              </div>
 
-          {/* Image Modal */}
+              {/* Second Marquee - Left to Right */}
+              <div>
+                <div className="relative overflow-hidden">
+                  <motion.div
+                    className="flex gap-6"
+                    animate={{ x: ["-50%", "0%"] }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 35,
+                      ease: "linear",
+                    }}
+                  >
+                    {loopImages.map((image, index) => (
+                      <motion.div
+                        key={`${image.id}-${index}-reverse`}
+                        className="flex-shrink-0 w-80 group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border border-gray-200"
+                        whileHover={{ scale: 1.05 }}
+                        onClick={() => openImageModal(image)}
+                      >
+                        <div className="aspect-square overflow-hidden bg-gray-100">
+                          <img 
+                            src={image.url} 
+                            alt={image.alt}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                            }}
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end">
+                          <div className="p-4 text-white w-full">
+                            <p className="text-sm font-medium truncate">{image.caption}</p>
+                            <p className="text-xs opacity-80">{image.name}</p>
+                          </div>
+                        </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0 }}
+                            whileHover={{ opacity: 1, scale: 1 }}
+                            className="bg-white/90 rounded-full p-3 shadow-lg"
+                          >
+                            <BsPlayCircle className="text-2xl text-orange-500" />
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                  <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-20"></div>
+                  <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-20"></div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Image Modal - YANGILANGAN */}
           <AnimatePresence>
             {selectedImage && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
                 onClick={closeImageModal}
               >
+                {/* Close Button */}
+                <motion.button
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  onClick={closeImageModal}
+                  className="absolute top-4 right-4 md:top-6 md:right-6 z-50 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full p-2 md:p-3 transition-all duration-300 group"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <PiX className="text-xl md:text-2xl text-white group-hover:text-orange-500 transition-colors" />
+                </motion.button>
+
+                {/* Asosiy rasm */}
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.8, opacity: 0 }}
                   transition={{ type: "spring", damping: 25 }}
-                  className="relative max-w-4xl max-h-full"
+                  className="relative w-full max-w-6xl max-h-[90vh]"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <button
-                    onClick={closeImageModal}
-                    className="absolute -top-16 right-0 text-white hover:text-orange-500 transition-colors z-10"
-                  >
-                    <PiX className="text-3xl" />
-                  </button>
-                  
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
-                    <div className="aspect-video bg-gradient-to-br from-orange-100 to-blue-100 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="text-8xl mb-6">{selectedImage.emoji}</div>
-                        <h3 className="text-3xl font-bold text-gray-800 mb-2">{selectedImage.title}</h3>
-                        <p className="text-gray-600 text-lg">
-                          {activeLanguage.code === 'UZ' ? 'Maktabimizning' : 
-                           activeLanguage.code === 'RU' ? 'О нашей' : 
-                           'About our'} {selectedImage.title.toLowerCase()}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="p-6">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h4 className="text-xl font-bold text-gray-800">{selectedImage.title}</h4>
-                          <p className="text-gray-600">{currentContent.common.aboutSchool}</p>
-                        </div>
-                        <button
-                          onClick={closeImageModal}
-                          className="bg-orange-500 text-white px-6 py-2 rounded-xl hover:bg-orange-600 transition-colors"
-                        >
-                          {currentContent.common.close}
-                        </button>
-                      </div>
-                    </div>
+                  <div className="relative rounded-lg overflow-hidden bg-black">
+                    <img 
+                      src={selectedImage.url} 
+                      alt={selectedImage.alt}
+                      className="w-full h-auto max-h-[80vh] object-contain mx-auto"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+                      }}
+                    />
                   </div>
+                  
+                  {/* Caption (pastda markazda) */}
+                  {selectedImage.caption && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white text-sm px-4 py-2 rounded-lg max-w-2xl text-center"
+                    >
+                      {selectedImage.caption}
+                    </motion.div>
+                  )}
                 </motion.div>
+
+                {/* Rasm soni ko'rsatgichi */}
+                {galleryImages.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm">
+                    {galleryImages.findIndex(img => img.id === selectedImage.id) + 1} / {galleryImages.length}
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

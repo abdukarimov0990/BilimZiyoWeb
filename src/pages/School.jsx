@@ -47,12 +47,26 @@ const School = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [contactOpen, setContactOpen] = useState(false);
   
-  // Gallery uchun state
+  // Form va gallery state'lari
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    studentAge: '',
+    class: '',
+    message: ''
+  });
+
+  const [submitStatus, setSubmitStatus] = useState({
+    loading: false,
+    success: false,
+    error: null
+  });
+
   const [galleryImages, setGalleryImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // API'dan gallery rasmlarini olish
+  // API'dan gallery rasmlarini olish - TO'GIRLANGAN
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
@@ -66,37 +80,87 @@ const School = () => {
         }
         
         const data = await response.json();
-        console.log('API Response:', data); // Debug uchun
+        console.log('API Response:', data);
         
         if (data.data && Array.isArray(data.data)) {
           const images = data.data.map(item => {
+            // Agar img to'g'ridan-to'g'ri attributes ichida bo'lsa
             const attributes = item.attributes || item;
-            const imgData = attributes.img?.data;
+            console.log('Item attributes:', attributes);
+            
+            // img ma'lumotlarini olish (Strapi v4 format)
+            let imgData = attributes.img?.data;
+            
+            // Agar img to'g'ridan-to'g'ri bo'lsa (Strapi v3 format)
+            if (!imgData && attributes.img) {
+              imgData = attributes.img;
+            }
+            
+            console.log('Image data:', imgData);
             
             if (!imgData) {
               console.warn('No image data for item:', item);
               return null;
             }
             
-            // imgData: { id: 1, attributes: { url: '/uploads/...', ... } }
+            // imgData strukturasini aniqlash
             const imgAttributes = imgData.attributes || imgData;
+            console.log('Image attributes:', imgAttributes);
             
             if (!imgAttributes.url) {
               console.warn('No URL in image attributes:', imgAttributes);
               return null;
             }
             
+            const baseUrl = 'https://bilimziyo-backend.asosit.uz';
+            
+            // URL manzilini to'g'ri formatlash
+            const imageUrl = imgAttributes.url.startsWith('http') 
+              ? imgAttributes.url 
+              : imgAttributes.url.startsWith('/')
+                ? `${baseUrl}${imgAttributes.url}`
+                : `${baseUrl}/${imgAttributes.url}`;
+            
             return {
               id: item.id || Math.random(),
-              url: `http://localhost:1337${imgAttributes.url}`,
-              alt: imgAttributes.alternativeText || 'School image',
-              caption: imgAttributes.caption || '',
+              url: imageUrl,
+              alt: imgAttributes.alternativeText || imgAttributes.name || 'School image',
+              caption: imgAttributes.caption || imgAttributes.name || 'School Image',
               formats: imgAttributes.formats || {},
-              name: imgAttributes.name || 'School Image'
+              name: imgAttributes.name || 'School Image',
+              description: imgAttributes.description || '',
+              // Thumbnail URL ni olish
+              thumbnail: imgAttributes.formats?.small?.url 
+                ? (imgAttributes.formats.small.url.startsWith('http') 
+                    ? imgAttributes.formats.small.url 
+                    : imgAttributes.formats.small.url.startsWith('/')
+                      ? `${baseUrl}${imgAttributes.formats.small.url}`
+                      : `${baseUrl}/${imgAttributes.formats.small.url}`)
+                : null
             };
           }).filter(img => img !== null);
           
           console.log('Processed Images:', images);
+          setGalleryImages(images);
+        } else if (Array.isArray(data)) {
+          // Agar data to'g'ridan-to'g'ri array bo'lsa (eski format)
+          const images = data.map(item => {
+            if (item.img) {
+              const img = item.img;
+              return {
+                id: item.id || Math.random(),
+                url: img.url.startsWith('http') 
+                  ? img.url 
+                  : `https://bilimziyo-backend.asosit.uz${img.url}`,
+                alt: img.alternativeText || img.name || 'School image',
+                caption: img.caption || img.name || 'School Image',
+                formats: img.formats || {},
+                name: img.name || 'School Image'
+              };
+            }
+            return null;
+          }).filter(img => img !== null);
+          
           setGalleryImages(images);
         } else {
           throw new Error('Invalid data structure from API');
@@ -111,6 +175,113 @@ const School = () => {
 
     fetchGalleryImages();
   }, []);
+
+  // O'zbekiston vaqti formatlash
+  const formatUzbekistanTime = () => {
+    const now = new Date();
+    
+    // O'zbekiston vaqti (UTC+5)
+    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const uzbekistanTime = new Date(utcTime + (5 * 3600000));
+    
+    // Sanani formatlash
+    const day = String(uzbekistanTime.getDate()).padStart(2, '0');
+    const month = String(uzbekistanTime.getMonth() + 1).padStart(2, '0');
+    const year = uzbekistanTime.getFullYear();
+    const hours = String(uzbekistanTime.getHours()).padStart(2, '0');
+    const minutes = String(uzbekistanTime.getMinutes()).padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  };
+
+  // Form inputlarini boshqarish
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Google Sheets ga yuborish
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!formData.name.trim() || !formData.phone.trim()) {
+      setSubmitStatus({
+        loading: false,
+        success: false,
+        error: activeLanguage.code === 'UZ' 
+          ? 'Ism va telefon raqami kiritilishi shart' 
+          : activeLanguage.code === 'RU' 
+          ? 'Имя и телефон обязательны'
+          : 'Name and phone are required'
+      });
+      return;
+    }
+    
+    setSubmitStatus({ loading: true, success: false, error: null });
+    
+    try {
+      // O'zbekiston vaqtini olish
+      const uzbekistanTimestamp = formatUzbekistanTime();
+      
+      // Google Apps Script URL - to'g'ri URL bilan almashtiring
+      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzilAraA7B31HTssAX5Bo3QXEwXua7ZbTF5U6L0NEl1GGBeVBUt4zUIQwsYTFruYqN8FA/exec';
+      
+      // Fetch so'rovini to'g'ri qilish
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', // CORS muammolari uchun
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          studentAge: formData.studentAge,
+          class: formData.class,
+          message: formData.message,
+          timestamp: uzbekistanTimestamp, // Format: 25/12/2024 14:30
+          language: activeLanguage.code,
+          source: 'School Website'
+        }),
+      });
+      
+      setSubmitStatus({
+        loading: false,
+        success: true,
+        error: null
+      });
+      
+      // Formani tozalash
+      setFormData({
+        name: '',
+        phone: '',
+        studentAge: '',
+        class: '',
+        message: ''
+      });
+      
+      // 3 soniyadan keyin statusni reset qilish
+      setTimeout(() => {
+        setSubmitStatus({ loading: false, success: false, error: null });
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitStatus({
+        loading: false,
+        success: false,
+        error: activeLanguage.code === 'UZ' 
+          ? 'Formani yuborishda xatolik. Iltimos, qayta urinib ko\'ring.' 
+          : activeLanguage.code === 'RU' 
+          ? 'Ошибка отправки формы. Пожалуйста, попробуйте снова.'
+          : 'Failed to submit form. Please try again.'
+      });
+    }
+  };
 
   // Barcha tillar uchun tarjimalar
   const translations = {
@@ -314,7 +485,10 @@ const School = () => {
           "3-sinf",
           "4-sinf",
           "Yuqori sinflarga qabul yaqin yillarda ochiladi"
-        ]
+        ],
+        formSuccess: "Arizangiz muvaffaqiyatli yuborildi!",
+        formError: "Xatolik yuz berdi",
+        formRequired: "Maydonni to'ldirish majburiy"
       }
     },
     RU: {
@@ -453,7 +627,7 @@ const School = () => {
           },
           {
             question: "Как организовано питание в школе?",
-            answer: "Мы обеспечиваем два полноценных горячих приема пищи в день. На нашей кухне готовят качественную и полезную еду. Меню меняется каждую неделю и составляется диетологом."
+            answer: "Мы обеспечиваем два полноценных горячих приема пищи в день. На нашей кухне готовят качественную и полезную еду. Меню меняется каждую неделю и составляет диетолог."
           },
           {
             question: "Как осуществляется оплата?",
@@ -517,7 +691,10 @@ const School = () => {
           "3 класс",
           "4 класс",
           "Прием в старшие классы откроется в ближайшие годы"
-        ]
+        ],
+        formSuccess: "Ваша заявка успешно отправлена!",
+        formError: "Произошла ошибка",
+        formRequired: "Обязательное поле"
       }
     },
     EN: {
@@ -720,7 +897,10 @@ const School = () => {
           "3rd grade",
           "4th grade",
           "Admission to higher grades will open in coming years"
-        ]
+        ],
+        formSuccess: "Your application has been submitted successfully!",
+        formError: "An error occurred",
+        formRequired: "Required field"
       }
     }
   };
@@ -1020,7 +1200,7 @@ const School = () => {
       </motion.div>
 
       {/* Hero Section */}
-      <section className="min-h-[80vh] flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-orange-50">
+      <section id="school" className="min-h-[80vh] flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-orange-50">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-5"></div>
         
         <div className="container mx-auto px-6 relative z-10">
@@ -1082,6 +1262,10 @@ const School = () => {
                 className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-2xl transition-all duration-300 shadow-lg flex items-center gap-3 group"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  // Scroll to contact form
+                  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
                 <span>{currentContent.hero.button}</span>
                 <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
@@ -1096,62 +1280,6 @@ const School = () => {
               </motion.button>
             </motion.div>
           </div>
-        </div>
-      </section>
-
-      <section className="py-16 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-        <div className="container mx-auto px-6">
-          <motion.div 
-            className="text-center mb-8"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{currentContent.stats.title}</h2>
-          </motion.div>
-          
-          <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 gap-8"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            {currentContent.stats.items.map((stat, index) => (
-              <motion.div
-                key={index}
-                className="text-center group"
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <motion.div
-                  className={`inline-flex items-center justify-center p-6 rounded-2xl mb-4 ${stat.bgColor} backdrop-blur-sm border border-white/10`}
-                  whileHover={{ 
-                    scale: 1.1,
-                    rotate: [0, -5, 5, 0],
-                    transition: { duration: 0.5 }
-                  }}
-                >
-                  <div className={`text-transparent bg-clip-text bg-gradient-to-r ${stat.gradient}`}>
-                    <span className="text-white">{stat.icon}</span>
-                  </div>
-                </motion.div>
-                
-                <motion.div
-                  className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent"
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: index * 0.5 }}
-                >
-                  {stat.number}<span className="text-orange-300">{stat.suffix}</span>
-                </motion.div>
-                <p className="text-gray-300 text-base font-medium">{stat.label}</p>
-              </motion.div>
-            ))}
-          </motion.div>
         </div>
       </section>
 
@@ -1294,7 +1422,7 @@ const School = () => {
         </div>
       </section>
 
-      {/* Gallery Section - YANGILANGAN */}
+      {/* Gallery Section - TO'GIRLANGAN */}
       <section id="gallery" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
         <div className="container mx-auto px-6 relative z-10">
           <motion.div 
@@ -1315,16 +1443,26 @@ const School = () => {
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-              <span className="ml-4 text-gray-600">Rasmlar yuklanmoqda...</span>
+              <span className="ml-4 text-gray-600">
+                {activeLanguage.code === 'UZ' ? 'Rasmlar yuklanmoqda...' : 
+                 activeLanguage.code === 'RU' ? 'Загрузка изображений...' : 
+                 'Loading images...'}
+              </span>
             </div>
           ) : error ? (
             <div className="text-center text-red-500 py-8">
               {error}
-              <p className="text-gray-500 mt-2">Xatolik yuz berdi, iltimos keyinroq urinib ko'ring</p>
+              <p className="text-gray-500 mt-2">
+                {activeLanguage.code === 'UZ' ? 'Xatolik yuz berdi, iltimos keyinroq urinib ko\'ring' : 
+                 activeLanguage.code === 'RU' ? 'Произошла ошибка, пожалуйста, попробуйте позже' : 
+                 'An error occurred, please try again later'}
+              </p>
             </div>
           ) : galleryImages.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
-              Hech qanday rasm topilmadi
+              {activeLanguage.code === 'UZ' ? 'Hech qanday rasm topilmadi' : 
+               activeLanguage.code === 'RU' ? 'Изображения не найдены' : 
+               'No images found'}
             </div>
           ) : (
             <>
@@ -1354,6 +1492,7 @@ const School = () => {
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             loading="lazy"
                             onError={(e) => {
+                              console.error('Error loading image:', image.url);
                               e.target.onerror = null;
                               e.target.src = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
                             }}
@@ -1408,6 +1547,7 @@ const School = () => {
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             loading="lazy"
                             onError={(e) => {
+                              console.error('Error loading image:', image.url);
                               e.target.onerror = null;
                               e.target.src = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
                             }}
@@ -1438,7 +1578,7 @@ const School = () => {
             </>
           )}
 
-          {/* Image Modal - YANGILANGAN */}
+          {/* Image Modal */}
           <AnimatePresence>
             {selectedImage && (
               <motion.div
@@ -1448,7 +1588,6 @@ const School = () => {
                 className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
                 onClick={closeImageModal}
               >
-                {/* Close Button */}
                 <motion.button
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -1461,7 +1600,6 @@ const School = () => {
                   <PiX className="text-xl md:text-2xl text-white group-hover:text-orange-500 transition-colors" />
                 </motion.button>
 
-                {/* Asosiy rasm */}
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -1482,7 +1620,6 @@ const School = () => {
                     />
                   </div>
                   
-                  {/* Caption (pastda markazda) */}
                   {selectedImage.caption && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
@@ -1494,7 +1631,6 @@ const School = () => {
                   )}
                 </motion.div>
 
-                {/* Rasm soni ko'rsatgichi */}
                 {galleryImages.length > 1 && (
                   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm">
                     {galleryImages.findIndex(img => img.id === selectedImage.id) + 1} / {galleryImages.length}
@@ -1571,7 +1707,7 @@ const School = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
+      {/* Contact Section - TO'GIRLANGAN FORM */}
       <section id="contact" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50 relative">
         <div className="container mx-auto px-6 relative z-10">
           <motion.div 
@@ -1599,40 +1735,93 @@ const School = () => {
               viewport={{ once: true }}
             >
               <div className="bg-white rounded-3xl p-8 shadow-2xl border border-gray-200 backdrop-blur-sm">
-                <form className="space-y-6 h-full">
+                {/* Form Status Messages */}
+                {submitStatus.success && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 p-4 bg-green-100 text-green-700 rounded-xl border border-green-300"
+                  >
+                    <div className="flex items-center gap-2">
+                      <PiCheckCircle className="text-xl" />
+                      <span className="font-medium">{currentContent.common.formSuccess}</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {submitStatus.error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 p-4 bg-red-100 text-red-700 rounded-xl border border-red-300"
+                  >
+                    <div className="flex items-center gap-2">
+                      <PiX className="text-xl" />
+                      <span className="font-medium">{currentContent.common.formError}: {submitStatus.error}</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                <form className="space-y-6 h-full" onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-gray-700 mb-3 font-medium">{currentContent.contact.form.name}</label>
+                      <label className="block text-gray-700 mb-3 font-medium">
+                        {currentContent.contact.form.name} *
+                      </label>
                       <input 
                         type="text" 
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
                         placeholder={currentContent.contact.form.name} 
                         className="w-full border border-gray-300 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
+                        required
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-gray-700 mb-3 font-medium">{currentContent.contact.form.phone}</label>
+                      <label className="block text-gray-700 mb-3 font-medium">
+                        {currentContent.contact.form.phone} *
+                      </label>
                       <input 
                         type="tel" 
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
                         placeholder={currentContent.contact.form.phone} 
                         className="w-full border border-gray-300 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
+                        required
                       />
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-gray-700 mb-3 font-medium">{currentContent.contact.form.studentAge}</label>
+                      <label className="block text-gray-700 mb-3 font-medium">
+                        {currentContent.contact.form.studentAge}
+                      </label>
                       <input 
                         type="number" 
+                        name="studentAge"
+                        value={formData.studentAge}
+                        onChange={handleInputChange}
                         placeholder={currentContent.contact.form.studentAge} 
                         className="w-full border border-gray-300 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
+                        min="5"
+                        max="18"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-gray-700 mb-3 font-medium">{currentContent.contact.form.class}</label>
-                      <select className="w-full border border-gray-300 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300">
+                      <label className="block text-gray-700 mb-3 font-medium">
+                        {currentContent.contact.form.class}
+                      </label>
+                      <select 
+                        name="class"
+                        value={formData.class}
+                        onChange={handleInputChange}
+                        className="w-full border border-gray-300 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
+                      >
                         <option value="">{currentContent.common.select}</option>
                         {currentContent.common.grades.slice(0, 4).map((grade, index) => (
                           <option key={index} value={grade}>{grade}</option>
@@ -1645,8 +1834,13 @@ const School = () => {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 mb-3 font-medium">{currentContent.contact.form.message}</label>
+                    <label className="block text-gray-700 mb-3 font-medium">
+                      {currentContent.contact.form.message}
+                    </label>
                     <textarea 
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
                       placeholder={currentContent.contact.form.message}
                       rows="4"
                       className="w-full border border-gray-300 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300 resize-none"
@@ -1654,13 +1848,36 @@ const School = () => {
                   </div>
                   
                   <motion.button 
-                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-4 rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-3"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={submitStatus.loading}
+                    className={`w-full ${
+                      submitStatus.loading 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-orange-500 to-red-500 hover:shadow-xl'
+                    } text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-3 disabled:opacity-70`}
+                    whileHover={{ scale: submitStatus.loading ? 1 : 1.02 }}
+                    whileTap={{ scale: submitStatus.loading ? 1 : 0.98 }}
                   >
-                    <span>{currentContent.contact.form.button}</span>
-                    <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
+                    {submitStatus.loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                        <span>
+                          {activeLanguage.code === 'UZ' ? 'Yuborilmoqda...' : 
+                           activeLanguage.code === 'RU' ? 'Отправляется...' : 
+                           'Submitting...'}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{currentContent.contact.form.button}</span>
+                        <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
                   </motion.button>
+
+                  <p className="text-sm text-gray-500 mt-4 text-center">
+                    * {currentContent.common.formRequired}
+                  </p>
                 </form>
                 
                 <div className="space-y-6 mt-8 pt-8 border-t border-gray-200">
@@ -1732,16 +1949,9 @@ const School = () => {
                 
                 <h3 className="text-2xl font-bold mb-8 relative z-10">{currentContent.contact.info.title}</h3>
                 
-                <div className="mt-8 bg-white/20 rounded-2xl p-6 h-48 flex items-center justify-center backdrop-blur-sm relative z-10">
-                  <div className="text-center">
-                    <Icon3D>
-                      <GiTeacher className="text-5xl mb-4" />
-                    </Icon3D>
-                    <p className="font-semibold text-lg">{currentContent.common.maktabimiz}</p>
-                    <p className="text-white/80">{currentContent.common.welcome}</p>
-                  </div>
-                </div>
-                
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d745.2993607094286!2d70.08296490438173!3d41.01004364538023!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38afe9c7e23ec66b%3A0x6c27ce13e14811c6!2sBilim%20Ziyo%20xususiy%20maktabi!5e0!3m2!1sen!2s!4v1766689371980!5m2!1sen!2s" 
+                height="450" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" className="w-full rounded-2xl">
+                </iframe>                
                 <div className="mt-6 text-white/90 text-center relative z-10">
                   <p className="text-lg font-semibold">{currentContent.common.admissionStarted}</p>
                   <p className="mt-2">{currentContent.common.limitedSpots}</p>
@@ -1751,12 +1961,24 @@ const School = () => {
                   <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
                     <h4 className="font-semibold text-lg mb-4">{currentContent.common.quickContact}</h4>
                     <div className="space-y-3">
-                      <button className="w-full bg-white text-orange-500 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+                      <a 
+                        href="https://t.me/bilimziyo" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-full bg-white text-orange-500 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <PiTelegramLogo className="text-xl" />
                         {currentContent.common.telegram}
-                      </button>
-                      <button className="w-full bg-white text-orange-500 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+                      </a>
+                      <a 
+                        href="https://wa.me/9987875557373" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-full bg-white text-orange-500 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <PiPhone className="text-xl" />
                         {currentContent.common.whatsapp}
-                      </button>
+                      </a>
                     </div>
                   </div>
                 </div>

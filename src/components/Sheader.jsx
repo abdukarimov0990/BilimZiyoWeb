@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import logo from '../assets/img/BZ.png';
+import logo from '../assets/img/logo.png';
 import { Link } from 'react-router';
 import { BiUser, BiMenu, BiX, BiChevronDown } from 'react-icons/bi';
 import { useLanguage } from '../context/LanguageContext';
@@ -15,28 +15,28 @@ const Sheader = () => {
   const translations = {
     UZ: {
       navs: [
-        { nav: "Asosiy", link: "/school" },
-        { nav: "Kurslarimiz", link: "/courses" },
-        { nav: "Jamoa", link: "/team" },
-        { nav: "FAQ", link: "/faq" },
+        { nav: "Asosiy", link: "#school" },
+        { nav: "Kurslarimiz", link: "#advantages" },
+        { nav: "Jamoa", link: "#gallery" },
+        { nav: "FAQ", link: "#faq" },
       ],
       register: "Ro'yxatdan o'tish",
     },
     RU: {
       navs: [
-        { nav: "Главная", link: "/school" },
-        { nav: "Курсы", link: "/courses" },
-        { nav: "Команда", link: "/team" },
-        { nav: "FAQ", link: "/faq" },
+        { nav: "Главная", link: "#school" },
+        { nav: "Курсы", link: "#advantages" },
+        { nav: "Команда", link: "#gallery" },
+        { nav: "FAQ", link: "#faq" },
       ],
       register: "Регистрация",
     },
     EN: {
       navs: [
-        { nav: "Home", link: "/school" },
-        { nav: "Courses", link: "/courses" },
-        { nav: "Team", link: "/team" },
-        { nav: "FAQ", link: "/faq" },
+        { nav: "Home", link: "#school" },
+        { nav: "Advantages", link: "#advantages" },
+        { nav: "gallery", link: "#gallery" },
+        { nav: "FAQ", link: "#faq" },
       ],
       register: "Register",
     },
@@ -116,7 +116,7 @@ const Sheader = () => {
         <div className="relative z-10 px-6 py-4 flex justify-between items-center">
           {/* Logo */}
           <Link 
-            to="/" 
+            to="/school" 
             className="transition-all duration-300 hover:scale-105 flex items-center gap-2 group"
           >
             <img src={logo} alt="logo" className="w-36 md:w-44 transition-all duration-300 group-hover:brightness-110 group-hover:drop-shadow-lg" />
@@ -125,9 +125,9 @@ const Sheader = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             {currentTranslations.navs.map((nav, i) => (
-              <Link
+              <a
                 key={i}
-                to={nav.link}
+                href={nav.link}
                 className="relative text-black font-medium tracking-wide transition-all duration-300 group"
               >
                 <span className="relative z-10 group-hover:text-orange-100 drop-shadow-sm">
@@ -136,7 +136,7 @@ const Sheader = () => {
                 <span 
                   className="absolute bottom-[-2px] left-0 w-0 h-[2px] bg-gradient-to-r from-orange-300 to-orange-100 transition-all duration-300 group-hover:w-full shadow-lg shadow-orange-300/50"
                 />
-              </Link>
+              </a>
             ))}
           </nav>
 
@@ -222,7 +222,8 @@ const Sheader = () => {
             </div>
 
             {/* Register Button */}
-            <button 
+            <a
+            href='#contact' 
               className="hidden md:flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500/25 to-orange-400/20 backdrop-blur-lg text-black font-medium shadow-2xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all duration-300 group border border-orange-300/40"
               style={{
                 background: `
@@ -237,7 +238,7 @@ const Sheader = () => {
             >
               <BiUser size={18} className="transition-transform duration-300 group-hover:scale-110 drop-shadow" />
               <span className="font-semibold drop-shadow-sm">{currentTranslations.register}</span>
-            </button>
+            </a>
 
             {/* Mobile Menu Button */}
             <button
@@ -305,18 +306,19 @@ const Sheader = () => {
 
             {/* Navigation Links */}
             {currentTranslations.navs.map((nav, i) => (
-              <Link
+              <a
                 key={i}
-                to={nav.link}
+                href={nav.link}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-xl font-medium text-orange-100 hover:text-black transition-all duration-300 py-3 px-6 rounded-xl hover:bg-orange-500/15 w-full text-center border border-transparent hover:border-orange-300/20 shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
+                className="text-xl font-medium text-black hover:text-black transition-all duration-300 py-3 px-6 rounded-xl hover:bg-orange-500/15 w-full text-center border border-transparent hover:border-orange-300/20 shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20"
               >
                 {nav.nav}
-              </Link>
+              </a>
             ))}
 
             {/* Mobile Register Button */}
-            <button
+            <a
+            href='#contact'
               onClick={() => setMobileMenuOpen(false)}
               className="px-8 py-4 rounded-xl bg-gradient-to-r from-orange-500/25 to-orange-400/20 text-black font-semibold shadow-2xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 transition-all duration-300 border border-orange-300/40 w-full mt-4"
               style={{
@@ -331,7 +333,7 @@ const Sheader = () => {
               }}
             >
               <BiUser className="inline-block mr-2" /> {currentTranslations.register}
-            </button>
+            </a>
           </div>
         </div>
       </div>

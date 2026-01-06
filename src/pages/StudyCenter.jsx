@@ -17,8 +17,144 @@ import { Link } from 'react-router';
 import logo from '../assets/img/BZwhite.png'
 import useMeasure from "react-use-measure"
 import PhoneInput from '../components/PhoneInput'
-import GoogleSheetsService from '../utils/GoogleSheets'
-import TelegramBotService from '../utils/TelegramBot'
+
+// Services implementation
+const GoogleSheetsService = {
+  // Google Sheets API Configuration
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxZ0Q8_4TJ70WYgSfvS9w3P8o_fhVOHs_Hc_YG6SwsJxLCf8WxJ4DfzZcVH6iKd-WMQ/exec', // Replace with your Google Apps Script URL
+  
+  async submitForm(data, formType) {
+    try {
+      const formData = new FormData();
+      
+      // Add all form data
+      Object.keys(data).forEach(key => {
+        if (key === 'ieltsCertificate' || key === 'cv') {
+          if (data[key]) {
+            formData.append(key, data[key]);
+          }
+        } else {
+          formData.append(key, data[key] || '');
+        }
+      });
+      
+      // Add form type
+      formData.append('formType', formType);
+      formData.append('timestamp', new Date().toISOString());
+      
+      const response = await fetch(this.SCRIPT_URL, {
+        method: 'POST',
+        body: formData,
+        mode: 'no-cors' // Important for Google Apps Script
+      });
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Google Sheets submission error:', error);
+      throw error;
+    }
+  },
+
+  submitEventForm(formData) {
+    return this.submitForm(formData, 'event_registration');
+  },
+
+  submitContactForm(formData) {
+    return this.submitForm(formData, 'contact_form');
+  },
+
+  submitCourseForm(formData) {
+    return this.submitForm(formData, 'course_registration');
+  }
+};
+
+const TelegramBotService = {
+  // Telegram Bot Configuration
+  BOT_TOKEN: '7443187309:AAE-f5hqjqgci0vCqkn8EEkPpl6cRdzfV5I', // Replace with your bot token
+  CHAT_ID: '6801452774', // Replace with your chat ID
+  
+  async sendMessage(text) {
+    try {
+      const response = await fetch(`https://api.telegram.org/bot${this.BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: this.CHAT_ID,
+          text: text,
+          parse_mode: 'HTML'
+        })
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Telegram message error:', error);
+      throw error;
+    }
+  },
+
+  async sendDocument(formData, caption) {
+    try {
+      const response = await fetch(`https://api.telegram.org/bot${this.BOT_TOKEN}/sendDocument`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Telegram document error:', error);
+      throw error;
+    }
+  },
+
+  async sendVacancyApplication(data) {
+    try {
+      // Format message for Telegram
+      const message = `
+<b>📋 YANGI VAKANSIYA ARIZASI</b>
+
+<b>👤 Ism-sharif:</b> ${data.name}
+<b>📞 Telefon:</b> ${data.phone}
+<b>🎂 Tug'ilgan sana:</b> ${data.birthDate}
+<b>🌐 Tillari:</b> ${data.languages}
+<b>📍 Manzil:</b> ${data.address}
+<b>💼 Lavozim:</b> ${data.position}
+<b>🎓 Ma'lumoti:</b> ${data.education}
+<b>💼 Tajriba:</b> ${data.experience}
+<b>📝 Qo'shimcha ma'lumot:</b> ${data.additionalInfo}
+<b>🗣️ Til:</b> ${data.language || 'UZ'}
+
+<b>⏰ Yuborilgan vaqt:</b> ${new Date().toLocaleString()}
+      `;
+      
+      // Send message
+      await this.sendMessage(message);
+      
+      // Send files if they exist
+      if (data.ieltsCertificate) {
+        const ieltsFormData = new FormData();
+        ieltsFormData.append('chat_id', this.CHAT_ID);
+        ieltsFormData.append('document', data.ieltsCertificate);
+        ieltsFormData.append('caption', 'IELTS sertifikati');
+        await this.sendDocument(ieltsFormData);
+      }
+      
+      if (data.cv) {
+        const cvFormData = new FormData();
+        cvFormData.append('chat_id', this.CHAT_ID);
+        cvFormData.append('document', data.cv);
+        cvFormData.append('caption', 'CV/Rezyume');
+        await this.sendDocument(cvFormData);
+      }
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Vacancy application error:', error);
+      throw error;
+    }
+  }
+};
 
 const BASE_URL = 'https://bilimziyo-backend.asosit.uz';
 
@@ -1151,7 +1287,7 @@ const StudyCenter = () => {
     }
   };
 
-  // Form submission handlers
+  // Form submission handlers - UPDATED WITH REAL SERVICES
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     setFormSubmitting(true);
@@ -1159,9 +1295,11 @@ const StudyCenter = () => {
     try {
       const formData = {
         ...contactForm,
-        language: activeLanguage.code
+        language: activeLanguage.code,
+        timestamp: new Date().toISOString()
       };
       
+      // Send to Google Sheets
       await GoogleSheetsService.submitContactForm(formData);
       
       setSubmitStatus({
@@ -1195,6 +1333,7 @@ const StudyCenter = () => {
           ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
           : "An error occurred. Please try again."
       });
+      console.error('Contact form error:', error);
     } finally {
       setFormSubmitting(false);
     }
@@ -1207,7 +1346,8 @@ const StudyCenter = () => {
     try {
       const formData = {
         ...eventForm,
-        language: activeLanguage.code
+        language: activeLanguage.code,
+        timestamp: new Date().toISOString()
       };
       
       await GoogleSheetsService.submitEventForm(formData);
@@ -1239,6 +1379,7 @@ const StudyCenter = () => {
           ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
           : "An error occurred. Please try again."
       });
+      console.error('Event form error:', error);
     } finally {
       setFormSubmitting(false);
     }
@@ -1263,6 +1404,28 @@ const StudyCenter = () => {
           ? "Ваша заявка успешно отправлена! Сотрудник HR свяжется с вами в ближайшее время."
           : "Your application has been successfully submitted! An HR representative will contact you soon."
       });
+      
+      // Also send to Google Sheets for backup
+      try {
+        const formData = {
+          name: joinForm.name,
+          phone: joinForm.phone,
+          position: joinForm.position,
+          languages: joinForm.languages,
+          language: activeLanguage.code,
+          timestamp: new Date().toISOString()
+        };
+        
+        const formDataForSheets = new FormData();
+        Object.keys(formData).forEach(key => {
+          formDataForSheets.append(key, formData[key]);
+        });
+        formDataForSheets.append('formType', 'vacancy_application');
+        
+        await GoogleSheetsService.submitForm(formDataForSheets, 'vacancy_application');
+      } catch (sheetsError) {
+        console.log('Google Sheets backup failed, continuing...', sheetsError);
+      }
       
       // Reset form
       setJoinForm({
@@ -1292,6 +1455,7 @@ const StudyCenter = () => {
           ? "Произошла ошибка. Пожалуйста, напишите напрямую @BilimZiyoHR."
           : "An error occurred. Please write directly to @BilimZiyoHR."
       });
+      console.error('Join form error:', error);
     } finally {
       setFormSubmitting(false);
     }
@@ -1302,12 +1466,11 @@ const StudyCenter = () => {
     
     try {
       await GoogleSheetsService.submitCourseForm({
-        name: 'Kurs ro\'yxatdan o\'tish',
-        phone: '',
         courseName: course.name,
         price: course.details.price,
         duration: course.details.duration,
-        language: activeLanguage.code
+        language: activeLanguage.code,
+        timestamp: new Date().toISOString()
       });
       
       setSubmitStatus({
@@ -1330,6 +1493,7 @@ const StudyCenter = () => {
           ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
           : "An error occurred. Please try again."
       });
+      console.error('Course registration error:', error);
     } finally {
       setFormSubmitting(false);
     }
@@ -1770,6 +1934,7 @@ const StudyCenter = () => {
 
           {/* Join Team Button */}
           <motion.div
+            id="Vacancy"
             className="text-center"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -2619,9 +2784,10 @@ const StudyCenter = () => {
             className="rounded-2xl overflow-hidden shadow-md border border-blue/10 h-[400px] lg:h-full order-2 lg:order-1"
             viewport={{ once: true }}
           >
+            
             <iframe
               title="Our Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2994.004795453528!2d69.281!3d41.3111!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDEuMzExMSwgNjkuMjgx!5e0!3m2!1sen!2s!4v1691234567890"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d279.2699073245026!2d70.05031610333636!3d40.9820938351202!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38afe9000bb010c7%3A0xd95b29c619085fb1!2sBilim%20ziyo!5e0!3m2!1sen!2s!4v1766689489228!5m2!1sen!2s"
               width="100%"
               height="100%"
               allowFullScreen=""

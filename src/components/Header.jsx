@@ -93,26 +93,7 @@ const Header = () => {
       >
         {/* Blue Light Effect */}
         <div
-          className="absolute inset-0 rounded-2xl pointer-events-none"
-          style={{
-            background: `
-              radial-gradient(
-                circle at 20% 80%,
-                rgba(59, 130, 246, 0.25) 0%,
-                transparent 50%
-              ),
-              radial-gradient(
-                circle at 80% 20%,
-                rgba(96, 165, 250, 0.2) 0%,
-                transparent 50%
-              ),
-              radial-gradient(
-                circle at 40% 40%,
-                rgba(147, 197, 253, 0.15) 0%,
-                transparent 70%
-              )
-            `,
-          }}
+          className=""
         />
 
         {/* Top Light Reflection */}
@@ -230,7 +211,8 @@ const Header = () => {
             </div>
 
             {/* Register Button */}
-            <button 
+            <a
+            href='#contact' 
               className="hidden md:flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500/25 to-blue-400/20 backdrop-blur-lg text-black font-medium shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 active:scale-95 transition-all duration-300 group border border-blue-300/40"
               style={{
                 background: `
@@ -245,7 +227,7 @@ const Header = () => {
             >
               <BiUser size={18} className="transition-transform duration-300 group-hover:scale-110 drop-shadow" />
               <span className="font-semibold drop-shadow-sm">{currentTranslations.register}</span>
-            </button>
+            </a>
 
             {/* Mobile Menu Button */}
             <button
@@ -313,18 +295,19 @@ const Header = () => {
 
             {/* Navigation Links */}
             {currentTranslations.navs.map((nav, i) => (
-              <Link
-                key={i}
+              <a
+                href={i}
                 to={nav.link}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-xl font-medium text-blue-100 hover:text-black transition-all duration-300 py-3 px-6 rounded-xl hover:bg-blue-500/15 w-full text-center border border-transparent hover:border-blue-300/20 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
+                className="text-xl font-medium text-black hover:text-black transition-all duration-300 py-3 px-6 rounded-xl hover:bg-blue-500/15 w-full text-center border border-transparent hover:border-blue-300/20 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
               >
                 {nav.nav}
-              </Link>
+              </a>
             ))}
 
             {/* Mobile Register Button */}
-            <button
+            <a
+            href='#contact'
               onClick={() => setMobileMenuOpen(false)}
               className="px-8 py-4 rounded-xl bg-gradient-to-r from-blue-500/25 to-blue-400/20 text-black font-semibold shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 transition-all duration-300 border border-blue-300/40 w-full mt-4"
               style={{
@@ -339,7 +322,7 @@ const Header = () => {
               }}
             >
               <BiUser className="inline-block mr-2" /> {currentTranslations.register}
-            </button>
+            </a>
           </div>
         </div>
       </div>

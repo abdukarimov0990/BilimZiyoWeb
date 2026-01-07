@@ -151,11 +151,11 @@ const Header = () => {
                   alt={activeLanguage.name} 
                   className="w-5 h-5 rounded-full transition-transform duration-300 group-hover:scale-110 drop-shadow" 
                 />
-                <span className="text-sm font-medium drop-shadow-sm">
+                <span className="text-sm font-medium drop-shadow-sm text-black">
                   {activeLanguage.code}
                 </span>
                 <BiChevronDown
-                  className={`transition-all duration-300 ${languageOpen ? 'rotate-180 text-blue-200' : 'text-blue-100'}`}
+                  className={`transition-all duration-300 ${languageOpen ? 'rotate-180 text-black' : 'text-text-black'}`}
                 />
               </button>
 
@@ -189,7 +189,7 @@ const Header = () => {
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-all duration-200 group relative z-10 ${
                         activeLanguage.code === lang.code
                           ? 'bg-blue-500/25 text-black shadow-inner shadow-blue-500/20'
-                          : 'text-blue-100 hover:bg-blue-500/15 hover:text-black'
+                          : 'text-black hover:bg-blue-500/15 hover:text-black'
                       }`}
                     >
                       <img 
@@ -199,7 +199,7 @@ const Header = () => {
                       />
                       <div className="flex flex-col items-start">
                         <span className="font-medium drop-shadow-sm">{lang.code}</span>
-                        <span className="text-xs text-blue-200/80">{lang.name}</span>
+                        <span className="text-xs text-blue-black">{lang.name}</span>
                       </div>
                       {activeLanguage.code === lang.code && (
                         <div className="ml-auto w-2 h-2 rounded-full bg-blue-300 shadow-sm" />
@@ -213,7 +213,7 @@ const Header = () => {
             {/* Register Button */}
             <a
             href='#contact' 
-              className="hidden md:flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500/25 to-blue-400/20 backdrop-blur-lg text-black font-medium shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 active:scale-95 transition-all duration-300 group border border-blue-300/40"
+              className="hidden md:flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500/25 to-blue-400/20 backdrop-blur-lg text-black font-medium shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 active:scale-95 transition-all duration-300 group border border-blue-300/40"
               style={{
                 background: `
                   linear-gradient(

@@ -980,7 +980,10 @@ const StudyCenter = () => {
     return 'https://via.placeholder.com/300x300.png?text=No+Image';
   }, []);
   
-
+const branches = [
+  {name:"Karvon 3/2", link:"https://www.google.com/maps/place/23GF%2B6X2,+Angren,+Toshkent+Viloyati,+Oʻzbekiston/@41.0257195,70.0748662,146m/data=!3m1!1e3!4m6!3m5!1s0x38afe98ad77c9f73:0x34fcfef85a0ffa85!8m2!3d41.0257247!4d70.0748298!16s%2Fg%2F11lmntrs9v?entry=tts&g_ep=EgoyMDI1MTIwOS4wIPu8ASoASAFQAw%3D%3D&skid=1df2538d-1fb8-4165-b342-d4fdf125210e"},
+  {name:"Angren 2/2",link:"https://www.google.com/maps/search/41.019491,+70.087877?entry=tts&g_ep=EgoyMDI1MTIwOS4wIPu8ASoASAFQAw%3D%3D&skid=04b2b2ed-f16d-48cd-95b4-ecc1a549a4dd"}
+]
   // Fetch all data
   useEffect(() => {
     const fetchAllData = async () => {
@@ -2785,16 +2788,7 @@ const StudyCenter = () => {
             viewport={{ once: true }}
           >
             
-            <iframe
-              title="Our Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d279.2699073245026!2d70.05031610333636!3d40.9820938351202!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38afe9000bb010c7%3A0xd95b29c619085fb1!2sBilim%20ziyo!5e0!3m2!1sen!2s!4v1766689489228!5m2!1sen!2s"
-              width="100%"
-              height="100%"
-              allowFullScreen=""
-              loading="lazy"
-              className="border-0"
-            ></iframe>
-          </motion.div>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d767.2987854251852!2d70.0830324!3d41.0165412!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38afe9b89fe40131%3A0x52b7789ffb115067!2sBILIM%20ZIYO!5e1!3m2!1sen!2s!4v1767764585715!5m2!1sen!2s" width="100%" height="100%" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>          </motion.div>
 
           {/* RIGHT - FORM */}
           <motion.form
@@ -2970,25 +2964,25 @@ const StudyCenter = () => {
               <h4 className="text-base lg:text-lg font-semibold mb-3 lg:mb-4">{currentContent.footer.branches}</h4>
               <ul className="space-y-1 lg:space-y-2">
                 {activeLanguage.code === 'UZ'
-                  ? ["Yunusobod filiali", "Chilonzor filiali", "Mirzo Ulug'bek filiali"].map((branch, index) => (
+                  ? branches.map((branch, index) => (
                       <li key={index}>
-                        <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-                          {branch}
+                        <a href={branch.link} className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                          {branch.name}
                         </a>
                       </li>
                     ))
                   : activeLanguage.code === 'RU'
-                  ? ["Юнусабадский филиал", "Чиланзарский филиал", "Мирзо Улугбекский филиал"].map((branch, index) => (
+                  ? branches.map((branch, index) => (
                       <li key={index}>
-                        <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-                          {branch}
+                        <a href={branch.link} className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                          {branch.name}
                         </a>
                       </li>
                     ))
-                  : ["Yunusabad Branch", "Chilanzar Branch", "Mirzo Ulugbek Branch"].map((branch, index) => (
+                  : branches.map((branch, index) => (
                       <li key={index}>
-                        <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-                          {branch}
+                        <a href={branch.link} className="text-gray-400 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                          {branch.name}
                         </a>
                       </li>
                     ))}

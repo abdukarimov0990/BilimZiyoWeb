@@ -1676,7 +1676,7 @@ const branches = [
                 <FaArrowRight className="text-blue rotate-[-45deg] transition-colors duration-500 group-hover:text-white w-4 h-4 lg:w-6 lg:h-6" />
               </div>
             </a>
-            <Link to='/school' className="
+            <a href='https://school.bilimziyo.uz/' className="
               relative overflow-hidden 
               px-6 lg:px-8 py-3 lg:py-5 border rounded-full border-blue text-blue
               group transition-all duration-500
@@ -1687,7 +1687,7 @@ const branches = [
               <span className="relative z-10 transition-colors duration-500 group-hover:text-white text-sm lg:text-base">
                 {currentContent.hero.schoolBtn}
               </span>
-            </Link>
+            </a>
           </motion.div>
         </div>
       </section>

@@ -135,7 +135,7 @@ const Header = () => {
             <div className="relative">
               <button
                 onClick={() => setLanguageOpen(!languageOpen)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-300/30 text-black backdrop-blur-lg hover:bg-blue-500/20 transition-all duration-300 group shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black backdrop-blur-lg hover:bg-blue-500/20 transition-all duration-300 group shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
                 style={{
                   background: `
                     linear-gradient(
@@ -162,7 +162,7 @@ const Header = () => {
               {/* Language Dropdown */}
               {languageOpen && (
                 <div 
-                  className="absolute right-0 mt-2 w-48 bg-gradient-to-b from-blue-500/15 to-blue-600/10 backdrop-blur-3xl rounded-xl border border-blue-300/40 shadow-2xl shadow-blue-500/25 overflow-hidden z-50"
+                  className="absolute right-0 mt-2 w-48 bg-white backdrop-blur-3xl rounded-xl border border-blue-300/40 shadow-2xl shadow-blue-500/25 overflow-hidden z-50"
                   style={{
                     WebkitBackdropFilter: 'blur(50px) saturate(200%)',
                     backdropFilter: 'blur(50px) saturate(200%)',

@@ -24,7 +24,25 @@ const GoogleSheetsService = {
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw7jU03iOeiCL7wYWLW2xBUIkZ7rr4TWk2nBo4C1onxpx7K14lHHs14bgFGLLj6ReQl2A/exec', // Replace with your Google Apps Script URL
   
   async submitForm(data, formType) {
-    try {
+    try {await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify({
+        formType: 'school',            // << shu qo‘shildi
+        name: formData.name,
+        phone: formData.phone,
+        studentAge: formData.studentAge,
+        class: formData.class,
+        message: formData.message,
+        timestamp: uzbekistanTimestamp,
+        language: activeLanguage.code,
+        source: 'School Website'
+      }),
+    });
+    
       const formData = new FormData();
       
       // Add all form data

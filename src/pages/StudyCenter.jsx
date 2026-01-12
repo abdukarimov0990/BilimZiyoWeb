@@ -21,7 +21,7 @@ import PhoneInput from '../components/PhoneInput'
 // Services implementation
 const GoogleSheetsService = {
   // Google Sheets API Configuration
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxZ0Q8_4TJ70WYgSfvS9w3P8o_fhVOHs_Hc_YG6SwsJxLCf8WxJ4DfzZcVH6iKd-WMQ/exec', // Replace with your Google Apps Script URL
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw7jU03iOeiCL7wYWLW2xBUIkZ7rr4TWk2nBo4C1onxpx7K14lHHs14bgFGLLj6ReQl2A/exec', // Replace with your Google Apps Script URL
   
   async submitForm(data, formType) {
     try {
@@ -69,24 +69,28 @@ const GoogleSheetsService = {
 };
 
 const TelegramBotService = {
-  // Telegram Bot Configuration
-  BOT_TOKEN: '7443187309:AAE-f5hqjqgci0vCqkn8EEkPpl6cRdzfV5I', // Replace with your bot token
-  CHAT_ID: '6801452774', // Replace with your chat ID
-  
+  // ⚠️ BOT_TOKEN frontendda ochiq – faqat test yoki yopiq loyiha uchun!
+  BOT_TOKEN: '8329831078:AAEhId7V7E1WENj8kldRevxyH2ABNb4goaE',
+
+  // ✅ Public kanal bo‘lsa:
+  CHAT_ID: '-1003290075200',
+
+
   async sendMessage(text) {
     try {
-      const response = await fetch(`https://api.telegram.org/bot${this.BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          chat_id: this.CHAT_ID,
-          text: text,
-          parse_mode: 'HTML'
-        })
-      });
-      
+      const response = await fetch(
+        `https://api.telegram.org/bot${this.BOT_TOKEN}/sendMessage`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: this.CHAT_ID,
+            text: text,
+            parse_mode: 'HTML'
+          })
+        }
+      );
+
       return await response.json();
     } catch (error) {
       console.error('Telegram message error:', error);
@@ -94,13 +98,16 @@ const TelegramBotService = {
     }
   },
 
-  async sendDocument(formData, caption) {
+  async sendDocument(formData) {
     try {
-      const response = await fetch(`https://api.telegram.org/bot${this.BOT_TOKEN}/sendDocument`, {
-        method: 'POST',
-        body: formData
-      });
-      
+      const response = await fetch(
+        `https://api.telegram.org/bot${this.BOT_TOKEN}/sendDocument`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+
       return await response.json();
     } catch (error) {
       console.error('Telegram document error:', error);
@@ -110,7 +117,7 @@ const TelegramBotService = {
 
   async sendVacancyApplication(data) {
     try {
-      // Format message for Telegram
+      // 📋 Kanalga yuboriladigan xabar
       const message = `
 <b>📋 YANGI VAKANSIYA ARIZASI</b>
 
@@ -127,31 +134,35 @@ const TelegramBotService = {
 
 <b>⏰ Yuborilgan vaqt:</b> ${new Date().toLocaleString()}
       `;
-      
-      // Send message
+
+      // 1) Xabarni kanalga yuborish
       await this.sendMessage(message);
-      
-      // Send files if they exist
+
+      // 2) IELTS sertifikat yuborish
       if (data.ieltsCertificate) {
         const ieltsFormData = new FormData();
         ieltsFormData.append('chat_id', this.CHAT_ID);
         ieltsFormData.append('document', data.ieltsCertificate);
-        ieltsFormData.append('caption', 'IELTS sertifikati');
+        ieltsFormData.append('caption', '📄 IELTS Sertifikati');
+
         await this.sendDocument(ieltsFormData);
       }
-      
+
+      // 3) CV yuborish
       if (data.cv) {
         const cvFormData = new FormData();
         cvFormData.append('chat_id', this.CHAT_ID);
         cvFormData.append('document', data.cv);
-        cvFormData.append('caption', 'CV/Rezyume');
+        cvFormData.append('caption', '📄 CV / Rezyume');
+
         await this.sendDocument(cvFormData);
       }
-      
+
       return { success: true };
+
     } catch (error) {
       console.error('Vacancy application error:', error);
-      throw error;
+      return { success: false, error };
     }
   }
 };
@@ -1256,289 +1267,260 @@ const branches = [
     </div>
   );
 
-  // Form handlers
-  const handleContactChange = (e) => {
-    const { name, value } = e.target;
-    setContactForm(prev => ({ ...prev, [name]: value }));
-  };
+// ---------------------- FORM HANDLERS ----------------------
+const handleContactChange = (e) => {
+  const { name, value } = e.target;
+  setContactForm(prev => ({ ...prev, [name]: value }));
+};
 
-  const handleEventChange = (e) => {
-    const { name, value } = e.target;
-    setEventForm(prev => ({ ...prev, [name]: value }));
-  };
+const handleEventChange = (e) => {
+  const { name, value } = e.target;
+  setEventForm(prev => ({ ...prev, [name]: value }));
+};
 
-  const handleJoinChange = (e) => {
-    const { name, value } = e.target;
-    setJoinForm(prev => ({ ...prev, [name]: value }));
-  };
+const handleJoinChange = (e) => {
+  const { name, value } = e.target;
+  setJoinForm(prev => ({ ...prev, [name]: value }));
+};
 
-  const handleJoinFileChange = (e, field) => {
-    const file = e.target.files[0];
-    if (file) {
-      setJoinForm(prev => ({ ...prev, [field]: file }));
-    }
-  };
+const handleJoinFileChange = (e, field) => {
+  const file = e.target.files[0];
+  if (file) {
+    setJoinForm(prev => ({ ...prev, [field]: file }));
+  }
+};
 
-  const handlePhoneChange = (value, field) => {
-    if (field === 'phone1') {
-      setContactForm(prev => ({ ...prev, phone1: value }));
-    } else if (field === 'phone2') {
-      setContactForm(prev => ({ ...prev, phone2: value }));
-    } else if (field === 'phone') {
-      setEventForm(prev => ({ ...prev, phone: value }));
-      setJoinForm(prev => ({ ...prev, phone: value }));
-    }
-  };
+const handlePhoneChange = (value, field) => {
+  if (field === 'phone1') {
+    setContactForm(prev => ({ ...prev, phone1: value }));
+  } else if (field === 'phone2') {
+    setContactForm(prev => ({ ...prev, phone2: value }));
+  } else if (field === 'phone') {
+    setEventForm(prev => ({ ...prev, phone: value }));
+    setJoinForm(prev => ({ ...prev, phone: value }));
+  }
+};
 
-  // Form submission handlers - UPDATED WITH REAL SERVICES
-  const handleContactSubmit = async (e) => {
-    e.preventDefault();
-    setFormSubmitting(true);
-    
-    try {
-      const formData = {
-        ...contactForm,
-        language: activeLanguage.code,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Send to Google Sheets
-      await GoogleSheetsService.submitContactForm(formData);
-      
-      setSubmitStatus({
-        type: 'success',
-        message: activeLanguage.code === 'UZ' 
-          ? "Muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz." 
-          : activeLanguage.code === 'RU'
-          ? "Успешно отправлено! Мы свяжемся с вами в ближайшее время."
-          : "Successfully submitted! We'll contact you soon."
-      });
-      
-      // Reset form
-      setContactForm({
-        name: '',
-        age: '',
-        phone1: '',
-        phone2: '',
-        course: '',
-        format: 'guruh',
-        time: ''
-      });
-      
-      setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
-      
-    } catch (error) {
-      setSubmitStatus({
-        type: 'error',
-        message: activeLanguage.code === 'UZ'
-          ? "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
-          : activeLanguage.code === 'RU'
-          ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
-          : "An error occurred. Please try again."
-      });
-      console.error('Contact form error:', error);
-    } finally {
-      setFormSubmitting(false);
-    }
-  };
+// ---------------------- SUBMIT HANDLERS ----------------------
 
-  const handleEventSubmit = async (e) => {
-    e.preventDefault();
-    setFormSubmitting(true);
-    
-    try {
-      const formData = {
-        ...eventForm,
-        language: activeLanguage.code,
-        timestamp: new Date().toISOString()
-      };
-      
-      await GoogleSheetsService.submitEventForm(formData);
-      
-      setSubmitStatus({
-        type: 'success',
-        message: activeLanguage.code === 'UZ'
-          ? "Eventga muvaffaqiyatli ro'yxatdan o'tdingiz!"
-          : activeLanguage.code === 'RU'
-          ? "Вы успешно зарегистрировались на мероприятие!"
-          : "Successfully registered for the event!"
-      });
-      
-      // Reset form
-      setEventForm({
-        name: '',
-        age: '',
-        phone: ''
-      });
-      
-      setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
-      
-    } catch (error) {
-      setSubmitStatus({
-        type: 'error',
-        message: activeLanguage.code === 'UZ'
-          ? "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
-          : activeLanguage.code === 'RU'
-          ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
-          : "An error occurred. Please try again."
-      });
-      console.error('Event form error:', error);
-    } finally {
-      setFormSubmitting(false);
-    }
-  };
+// Contact form (misol uchun) - agar Sheetsga kerak bo‘lsa
+const handleContactSubmit = async (e) => {
+  e.preventDefault();
+  setFormSubmitting(true);
 
-  const handleJoinSubmit = async (e) => {
-    e.preventDefault();
-    setFormSubmitting(true);
-    
-    try {
-      // Send to Telegram
-      await TelegramBotService.sendVacancyApplication({
-        ...joinForm,
-        language: activeLanguage.code
-      });
-      
-      setSubmitStatus({
-        type: 'success',
-        message: activeLanguage.code === 'UZ'
-          ? "Arizangiz muvaffaqiyatli yuborildi! Tez orada HR xodim siz bilan bog'lanadi."
-          : activeLanguage.code === 'RU'
-          ? "Ваша заявка успешно отправлена! Сотрудник HR свяжется с вами в ближайшее время."
-          : "Your application has been successfully submitted! An HR representative will contact you soon."
-      });
-      
-      // Also send to Google Sheets for backup
-      try {
-        const formData = {
-          name: joinForm.name,
-          phone: joinForm.phone,
-          position: joinForm.position,
-          languages: joinForm.languages,
-          language: activeLanguage.code,
-          timestamp: new Date().toISOString()
-        };
-        
-        const formDataForSheets = new FormData();
-        Object.keys(formData).forEach(key => {
-          formDataForSheets.append(key, formData[key]);
-        });
-        formDataForSheets.append('formType', 'vacancy_application');
-        
-        await GoogleSheetsService.submitForm(formDataForSheets, 'vacancy_application');
-      } catch (sheetsError) {
-        console.log('Google Sheets backup failed, continuing...', sheetsError);
-      }
-      
-      // Reset form
-      setJoinForm({
-        name: '',
-        phone: '',
-        birthDate: '',
-        languages: '',
-        address: '',
-        position: '',
-        education: '',
-        experience: '',
-        ieltsCertificate: null,
-        cv: null,
-        additionalInfo: ''
-      });
-      
-      setJoinModalOpen(false);
-      
-      setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
-      
-    } catch (error) {
-      setSubmitStatus({
-        type: 'error',
-        message: activeLanguage.code === 'UZ'
-          ? "Xatolik yuz berdi. Iltimos, @BilimZiyoHR'ga to'g'ridan-to'g'ri yozing."
-          : activeLanguage.code === 'RU'
-          ? "Произошла ошибка. Пожалуйста, напишите напрямую @BilimZiyoHR."
-          : "An error occurred. Please write directly to @BilimZiyoHR."
-      });
-      console.error('Join form error:', error);
-    } finally {
-      setFormSubmitting(false);
-    }
-  };
+  try {
+    const formData = {
+      ...contactForm,
+      language: activeLanguage.code,
+      timestamp: new Date().toISOString(),
+      formType: 'contact'
+    };
 
-  const handleCourseRegister = async (course) => {
-    setFormSubmitting(true);
-    
-    try {
-      await GoogleSheetsService.submitCourseForm({
-        courseName: course.name,
-        price: course.details.price,
-        duration: course.details.duration,
-        language: activeLanguage.code,
-        timestamp: new Date().toISOString()
-      });
-      
-      setSubmitStatus({
-        type: 'success',
-        message: activeLanguage.code === 'UZ'
-          ? `${course.name} kursiga muvaffaqiyatli ro'yxatdan o'tdingiz!`
-          : activeLanguage.code === 'RU'
-          ? `Вы успешно зарегистрировались на курс ${course.name}!`
-          : `Successfully registered for ${course.name} course!`
-      });
-      
-      setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
-      
-    } catch (error) {
-      setSubmitStatus({
-        type: 'error',
-        message: activeLanguage.code === 'UZ'
-          ? "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
-          : activeLanguage.code === 'RU'
-          ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
-          : "An error occurred. Please try again."
-      });
-      console.error('Course registration error:', error);
-    } finally {
-      setFormSubmitting(false);
-    }
-  };
+    await GoogleSheetsService.submitContactForm(formData);
 
-  const openImageModal = (image) => {
-    setSelectedImage(image);
-  };
+    setSubmitStatus({
+      type: 'success',
+      message: activeLanguage.code === 'UZ'
+        ? "Muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz."
+        : activeLanguage.code === 'RU'
+        ? "Успешно отправлено! Мы свяжемся с вами в ближайшее время."
+        : "Successfully submitted! We'll contact you soon."
+    });
 
-  const closeImageModal = () => {
-    setSelectedImage(null);
-  };
+    setContactForm({
+      name: '',
+      age: '',
+      phone1: '',
+      phone2: '',
+      course: '',
+      format: 'guruh',
+      time: ''
+    });
 
-  const isIELTSRequired = joinForm.position === 'teacher' || joinForm.position === 'assistant';
+    setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
 
-  // Loading component
-  const LoadingSpinner = ({ text = "Yuklanmoqda..." }) => (
-    <div className="flex flex-col items-center justify-center py-12">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue mb-4"></div>
-      <span className="text-gray-600">{text}</span>
-    </div>
+  } catch (error) {
+    setSubmitStatus({
+      type: 'error',
+      message: activeLanguage.code === 'UZ'
+        ? "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+        : activeLanguage.code === 'RU'
+        ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
+        : "An error occurred. Please try again."
+    });
+    console.error('Contact form error:', error);
+  } finally {
+    setFormSubmitting(false);
+  }
+};
+
+// Event form → Event sheet
+const handleEventSubmit = async (e) => {
+  e.preventDefault();
+  setFormSubmitting(true);
+
+  try {
+    const formData = {
+      ...eventForm,
+      language: activeLanguage.code,
+      timestamp: new Date().toISOString(),
+      formType: 'event' // <-- Apps Script uchun
+    };
+
+    await GoogleSheetsService.submitEventForm(formData);
+
+    setSubmitStatus({
+      type: 'success',
+      message: activeLanguage.code === 'UZ'
+        ? "Eventga muvaffaqiyatli ro'yxatdan o'tdingiz!"
+        : activeLanguage.code === 'RU'
+        ? "Вы успешно зарегистрировались на мероприятие!"
+        : "Successfully registered for the event!"
+    });
+
+    setEventForm({ name: '', age: '', phone: '' });
+    setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
+
+  } catch (error) {
+    setSubmitStatus({
+      type: 'error',
+      message: activeLanguage.code === 'UZ'
+        ? "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+        : activeLanguage.code === 'RU'
+        ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
+        : "An error occurred. Please try again."
+    });
+    console.error('Event form error:', error);
+  } finally {
+    setFormSubmitting(false);
+  }
+};
+
+// Join/Vacancy form → faqat Telegram
+const handleJoinSubmit = async (e) => {
+  e.preventDefault();
+  setFormSubmitting(true);
+
+  try {
+    await TelegramBotService.sendVacancyApplication({
+      ...joinForm,
+      language: activeLanguage.code
+    });
+
+    setSubmitStatus({
+      type: 'success',
+      message: activeLanguage.code === 'UZ'
+        ? "Arizangiz muvaffaqiyatli yuborildi! Tez orada HR xodim siz bilan bog'lanadi."
+        : activeLanguage.code === 'RU'
+        ? "Ваша заявка успешно отправлена! Сотрудник HR свяжется с вами в ближайшее время."
+        : "Your application has been successfully submitted! An HR representative will contact you soon."
+    });
+
+    // Reset form
+    setJoinForm({
+      name: '',
+      phone: '',
+      birthDate: '',
+      languages: '',
+      address: '',
+      position: '',
+      education: '',
+      experience: '',
+      ieltsCertificate: null,
+      cv: null,
+      additionalInfo: ''
+    });
+
+    setJoinModalOpen(false);
+    setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
+
+  } catch (error) {
+    setSubmitStatus({
+      type: 'error',
+      message: activeLanguage.code === 'UZ'
+        ? "Xatolik yuz berdi. Iltimos, @BilimZiyoHR'ga to'g'ridan-to'g'ri yozing."
+        : activeLanguage.code === 'RU'
+        ? "Произошла ошибка. Пожалуйста, напишите напрямую @BilimZiyoHR."
+        : "An error occurred. Please write directly to @BilimZiyoHR."
+    });
+    console.error('Join form error:', error);
+  } finally {
+    setFormSubmitting(false);
+  }
+};
+
+// Course register → Qabul sheet
+const handleCourseRegister = async (course) => {
+  setFormSubmitting(true);
+
+  try {
+    const formData = {
+      courseName: course.name,
+      price: course.details.price,
+      duration: course.details.duration,
+      language: activeLanguage.code,
+      timestamp: new Date().toISOString(),
+      formType: 'course' // <-- Apps Script uchun
+    };
+
+    await GoogleSheetsService.submitCourseForm(formData);
+
+    setSubmitStatus({
+      type: 'success',
+      message: activeLanguage.code === 'UZ'
+        ? `${course.name} kursiga muvaffaqiyatli ro'yxatdan o'tdingiz!`
+        : activeLanguage.code === 'RU'
+        ? `Вы успешно зарегистрировались на курс ${course.name}!`
+        : `Successfully registered for ${course.name} course!`
+    });
+
+    setTimeout(() => setSubmitStatus({ type: '', message: '' }), 5000);
+
+  } catch (error) {
+    setSubmitStatus({
+      type: 'error',
+      message: activeLanguage.code === 'UZ'
+        ? "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+        : activeLanguage.code === 'RU'
+        ? "Произошла ошибка. Пожалуйста, попробуйте еще раз."
+        : "An error occurred. Please try again."
+    });
+    console.error('Course registration error:', error);
+  } finally {
+    setFormSubmitting(false);
+  }
+};
+
+// ---------------------- UI COMPONENTS ----------------------
+const openImageModal = (image) => setSelectedImage(image);
+const closeImageModal = () => setSelectedImage(null);
+const isIELTSRequired = joinForm.position === 'teacher' || joinForm.position === 'assistant';
+
+const LoadingSpinner = ({ text = "Yuklanmoqda..." }) => (
+  <div className="flex flex-col items-center justify-center py-12">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue mb-4"></div>
+    <span className="text-gray-600">{text}</span>
+  </div>
+);
+
+const StatusMessage = () => {
+  if (!submitStatus.message) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg ${
+        submitStatus.type === 'success' 
+          ? 'bg-green-500 text-white' 
+          : 'bg-red-500 text-white'
+      }`}
+    >
+      {submitStatus.message}
+    </motion.div>
   );
-
-  // Status Message Component
-  const StatusMessage = () => {
-    if (!submitStatus.message) return null;
-    
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg ${
-          submitStatus.type === 'success' 
-            ? 'bg-green-500 text-white' 
-            : 'bg-red-500 text-white'
-        }`}
-      >
-        {submitStatus.message}
-      </motion.div>
-    );
-  };
+};
 
   return (
     <div className='font-Main relative'>
@@ -2859,7 +2841,6 @@ const branches = [
                 value={contactForm.course}
                 onChange={handleContactChange}
                 className="w-full p-3 rounded-xl border border-blue/20 focus:ring-2 focus:ring-blue outline-none transition-all duration-300 text-sm lg:text-base"
-                required
               >
                 <option value="">{currentContent.common.select}</option>
                 {formattedCourses.map(course => (

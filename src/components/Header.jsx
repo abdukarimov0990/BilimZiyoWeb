@@ -186,10 +186,10 @@ const Header = () => {
                     <button
                       key={lang.code}
                       onClick={() => handleLanguageSelect(lang)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-all duration-200 group relative z-10 ${
+                      className={`w-full flex items-center gap-3 border-b border-black/20 px-4 py-3 text-sm transition-all duration-200 group relative z-10 ${
                         activeLanguage.code === lang.code
-                          ? 'bg-blue-500/25 text-black shadow-inner shadow-blue-500/20'
-                          : 'text-black hover:bg-blue-500/15 hover:text-black'
+                          ? 'bg-blue-500/50 text-black '
+                          : 'text-black hover:bg-blue-500/15  hover:text-black'
                       }`}
                     >
                       <img 
@@ -202,7 +202,7 @@ const Header = () => {
                         <span className="text-xs text-blue-black">{lang.name}</span>
                       </div>
                       {activeLanguage.code === lang.code && (
-                        <div className="ml-auto w-2 h-2 rounded-full bg-blue-300 shadow-sm" />
+                        <div className="ml-auto w-2 h-2 rounded-full bg-black shadow-sm" />
                       )}
                     </button>
                   ))}
@@ -240,8 +240,10 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
-      <div
+  {
+    mobileMenuOpen && (
+      <div className="w-full h-screen inset-0" onClick={()=> setMobileMenuOpen(false)}>
+              <div
         className={`fixed inset-0 z-40 transition-all duration-500 ${
           mobileMenuOpen 
             ? 'opacity-100 pointer-events-auto' 
@@ -299,7 +301,7 @@ const Header = () => {
                 href={i}
                 to={nav.link}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-xl font-medium text-black hover:text-black transition-all duration-300 py-3 px-6 rounded-xl hover:bg-blue-500/15 w-full text-center border border-transparent hover:border-blue-300/20 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
+                className="text-xl flex justify-center font-medium text-black hover:text-black transition-all duration-300 py-3 px-6 rounded-xl hover:bg-blue-500/15 w-full text-center border border-transparent hover:border-blue-300/20 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
               >
                 {nav.nav}
               </a>
@@ -309,7 +311,7 @@ const Header = () => {
             <a
             href='#contact'
               onClick={() => setMobileMenuOpen(false)}
-              className="px-8 py-4 rounded-xl bg-gradient-to-r from-blue-500/25 to-blue-400/20 text-black font-semibold shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 transition-all duration-300 border border-blue-300/40 w-full mt-4"
+              className="px-8 py-4 rounded-xl flex justify-center items-center bg-gradient-to-r from-blue-500/25 to-blue-400/20 text-black font-semibold shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 transition-all duration-300 border border-blue-300/40 w-full mt-4"
               style={{
                 background: `
                   linear-gradient(
@@ -326,6 +328,9 @@ const Header = () => {
           </div>
         </div>
       </div>
+      </div>
+    )
+  }
     </header>
   );
 };

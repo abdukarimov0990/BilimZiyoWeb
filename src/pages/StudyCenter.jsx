@@ -1566,19 +1566,19 @@ const StatusMessage = () => {
                   <div className="bg-green-500/20 p-2 rounded-lg">
                     <FaPhone className="text-green-600 w-4 h-4 lg:w-5 lg:h-5" />
                   </div>
-                  <div>
+                  <a href="tel:+998783333773<">
                     <p className="font-semibold text-gray-800 text-sm lg:text-base">+998 78 333 37 73</p>
                     <p className="text-xs lg:text-sm text-gray-600">{currentContent.common.mainNumber}</p>
-                  </div>
+                  </a>
                 </div>
                 <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
                   <div className="bg-blue-500/20 p-2 rounded-lg">
                     <FaPhone className="text-blue-600 w-4 h-4 lg:w-5 lg:h-5" />
                   </div>
-                  <div>
+                  <a href='tel:+998 94 731 37 73'>
                     <p className="font-semibold text-gray-800 text-sm lg:text-base">+998 94 731 37 73</p>
                     <p className="text-xs lg:text-sm text-gray-600">{currentContent.common.additionalNumber}</p>
-                  </div>
+                  </a>
                 </div>
                 <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
                   <div className="bg-purple-500/20 p-2 rounded-lg">

@@ -2993,7 +2993,7 @@ const StatusMessage = () => {
 
           {/* Bottom section */}
           <div className="border-t border-gray-800 mt-6 lg:mt-8 pt-6 lg:pt-8 text-center text-gray-400 text-sm lg:text-base">
-            <p>{currentContent.footer.copyright}</p>
+            <p>2026 | BILIM ZIYO MAKTABI | BARCHA HUQUQLAR HIMOYALANGAN!</p>
           </div>
         </div>
       </footer>

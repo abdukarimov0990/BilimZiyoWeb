@@ -20,72 +20,61 @@ import PhoneInput from '../components/PhoneInput'
 
 // Services implementation
 const GoogleSheetsService = {
-  // Google Sheets API Configuration
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw7jU03iOeiCL7wYWLW2xBUIkZ7rr4TWk2nBo4C1onxpx7K14lHHs14bgFGLLj6ReQl2A/exec', // Replace with your Google Apps Script URL
-  
+  // ✅ Google Apps Script Web App URL
+  SCRIPT_URL:
+    "https://script.google.com/macros/s/AKfycbw7jU03iOeiCL7wYWLW2xBUIkZ7rr4TWk2nBo4C1onxpx7K14lHHs14bgFGLLj6ReQl2A/exec",
+
   async submitForm(data, formType) {
-    try {await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: JSON.stringify({
-        formType: 'school',            // << shu qo‘shildi
-        name: formData.name,
-        phone: formData.phone,
-        studentAge: formData.studentAge,
-        class: formData.class,
-        message: formData.message,
-        timestamp: uzbekistanTimestamp,
-        language: activeLanguage.code,
-        source: 'School Website'
-      }),
-    });
-    
-      const formData = new FormData();
-      
-      // Add all form data
-      Object.keys(data).forEach(key => {
-        if (key === 'ieltsCertificate' || key === 'cv') {
-          if (data[key]) {
-            formData.append(key, data[key]);
-          }
-        } else {
-          formData.append(key, data[key] || '');
+    try {
+      // ✅ URL bor-yo‘qligini tekshiramiz
+      if (!this.SCRIPT_URL || !this.SCRIPT_URL.includes("script.google.com")) {
+        throw new Error("Apps Script URL topilmadi yoki noto‘g‘ri")
+      }
+
+      const fd = new FormData()
+
+      // ✅ Add all form data
+      Object.keys(data || {}).forEach((key) => {
+        const val = data[key]
+
+        // file fields
+        if (key === "ieltsCertificate" || key === "cv") {
+          if (val) fd.append(key, val)
+          return
         }
-      });
-      
-      // Add form type
-      formData.append('formType', formType);
-      formData.append('timestamp', new Date().toISOString());
-      
-      const response = await fetch(this.SCRIPT_URL, {
-        method: 'POST',
-        body: formData,
-        mode: 'no-cors' // Important for Google Apps Script
-      });
-      
-      return { success: true };
+
+        fd.append(key, val ?? "")
+      })
+
+      // ✅ Add meta
+      fd.append("formType", formType)
+      fd.append("timestamp", new Date().toISOString())
+
+      await fetch(this.SCRIPT_URL, {
+        method: "POST",
+        body: fd,
+        mode: "no-cors", // GAS uchun (client-side)
+      })
+
+      return { success: true }
     } catch (error) {
-      console.error('Google Sheets submission error:', error);
-      throw error;
+      console.error("Google Sheets submission error:", error)
+      throw error
     }
   },
 
   submitEventForm(formData) {
-    return this.submitForm(formData, 'event_registration');
+    return this.submitForm(formData, "event_registration")
   },
 
   submitContactForm(formData) {
-    return this.submitForm(formData, 'contact_form');
+    return this.submitForm(formData, "contact_form")
   },
 
   submitCourseForm(formData) {
-    return this.submitForm(formData, 'course_registration');
-  }
-};
-
+    return this.submitForm(formData, "course_registration")
+  },
+}
 const TelegramBotService = {
   // ⚠️ BOT_TOKEN frontendda ochiq – faqat test yoki yopiq loyiha uchun!
   BOT_TOKEN: '8329831078:AAEhId7V7E1WENj8kldRevxyH2ABNb4goaE',

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import { BookOpen, BrainCircuit, Globe2, GraduationCapIcon, icons, LightbulbIcon, RocketIcon, School2, TargetIcon, Users2 } from 'lucide-react'
 import { FaArrowRight, FaBolt, FaCalendarCheck, FaChalkboardTeacher, FaChevronDown, FaMapMarkerAlt, FaPlay, FaRegStar, FaSchool, FaUserGraduate, FaUsers, FaPhone, FaEnvelope, FaFacebook, FaTelegram, FaInstagram, FaFileUpload, FaUser, FaBriefcase } from 'react-icons/fa'
@@ -18,7 +18,6 @@ import logo from '../assets/img/BZwhite.png'
 import useMeasure from "react-use-measure"
 import PhoneInput from '../components/PhoneInput'
 
-// Services implementation
 const GoogleSheetsService = {
   // ✅ Google Apps Script Web App URL
   SCRIPT_URL:
@@ -1002,8 +1001,35 @@ const branches = [
   {name:"Karvon 3/2", link:"https://www.google.com/maps/place/23GF%2B6X2,+Angren,+Toshkent+Viloyati,+Oʻzbekiston/@41.0257195,70.0748662,146m/data=!3m1!1e3!4m6!3m5!1s0x38afe98ad77c9f73:0x34fcfef85a0ffa85!8m2!3d41.0257247!4d70.0748298!16s%2Fg%2F11lmntrs9v?entry=tts&g_ep=EgoyMDI1MTIwOS4wIPu8ASoASAFQAw%3D%3D&skid=1df2538d-1fb8-4165-b342-d4fdf125210e"},
   {name:"Angren 2/2",link:"https://www.google.com/maps/search/41.019491,+70.087877?entry=tts&g_ep=EgoyMDI1MTIwOS4wIPu8ASoASAFQAw%3D%3D&skid=04b2b2ed-f16d-48cd-95b4-ecc1a549a4dd"}
 ]
-  // Fetch all data
-  useEffect(() => {
+const firstLoad = useRef(true);
+
+useEffect(() => {
+  const scrollToHash = (behavior = "auto") => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const id = hash.slice(1);
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.scrollIntoView({ behavior, block: "start" });
+  };
+
+  // ✅ 1) Initial load: AUTO (animatsiyasiz)
+  // ✅ Browser ham scroll qilishi mumkin, shuning uchun 0ms timeout bilan "yakuniy" pozitsiyani to‘g‘rilab qo‘yamiz
+  setTimeout(() => scrollToHash("auto"), 0);
+  firstLoad.current = false;
+
+  // ✅ 2) Keyin hash o‘zgarsa: SMOOTH
+  const onHashChange = () => {
+    scrollToHash("smooth");
+  };
+
+  window.addEventListener("hashchange", onHashChange);
+  return () => window.removeEventListener("hashchange", onHashChange);
+}, []);
+
+useEffect(() => {
     const fetchAllData = async () => {
       try {
         const [
@@ -2674,7 +2700,7 @@ const StatusMessage = () => {
       </section>
 
       {/* Events Section */}
-      <section id='event' className='py-12 lg:py-24 overflow-hidden relative'>
+      <section id="event" className=' py-12 lg:py-24 overflow-hidden relative'>
         <motion.div
           className="container text-center"
           initial={{ opacity: 0 }}

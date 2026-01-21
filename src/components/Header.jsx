@@ -161,7 +161,16 @@ const Header = () => {
 
               {/* Language Dropdown */}
               {languageOpen && (
-                <div 
+  <>
+    {/* Overlay (transparent) */}
+    <div
+      className="fixed inset-0 w-full h-screen z-[60]"
+      onClick={() => setLanguageOpen(false)}
+      aria-hidden="true"
+    />
+
+    {/* Dropdown */}
+    <div 
                   className="absolute right-0 mt-2 w-48 bg-white backdrop-blur-3xl rounded-xl border border-blue-300/40 shadow-2xl shadow-blue-500/25 overflow-hidden z-50"
                   style={{
                     WebkitBackdropFilter: 'blur(50px) saturate(200%)',
@@ -207,7 +216,9 @@ const Header = () => {
                     </button>
                   ))}
                 </div>
-              )}
+  </>
+)}
+
             </div>
 
             {/* Register Button */}

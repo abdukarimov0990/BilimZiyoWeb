@@ -179,8 +179,8 @@ const BASE_URL = 'https://bilimziyo-backend.asosit.uz';
 const translations = {
   UZ: {
     hero: {
-      title: "Yoshlar kelajagi uchun eng yaxshi yo'l",
-      subtitle: "shu yerdan boshlanadi",
+      title: "Yoshlar kelajagi uchun eng yaxshi",
+      subtitle: " yo'l shu yerdan boshlanadi",
       description: `15yil ichida "Bilim Ziyo", 20 000 dan ortiq o'quvchilarga ta'lim berdi va 1000 ga yaqin natijalarni qo'lga kiritdi!`,
       registerBtn: "Ro'xatdan o'tish",
       schoolBtn: "Xususiy Maktab"
@@ -1561,23 +1561,14 @@ const StatusMessage = () => {
               transition={{ duration: 0.5, ease: "easeInOut" }}
               className="absolute bottom-full right-0 mb-4 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-gray-200 min-w-64"
             >
-              <div className="space-y-3">
+              <a href="tel:+998783333773" className="space-y-3">
                 <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
                   <div className="bg-green-500/20 p-2 rounded-lg">
                     <FaPhone className="text-green-600 w-4 h-4 lg:w-5 lg:h-5" />
                   </div>
-                  <a href="tel:+998783333773<">
+                  <a href="tel:+998783333773">
                     <p className="font-semibold text-gray-800 text-sm lg:text-base">+998 78 333 37 73</p>
                     <p className="text-xs lg:text-sm text-gray-600">{currentContent.common.mainNumber}</p>
-                  </a>
-                </div>
-                <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
-                  <div className="bg-blue-500/20 p-2 rounded-lg">
-                    <FaPhone className="text-blue-600 w-4 h-4 lg:w-5 lg:h-5" />
-                  </div>
-                  <a href='tel:+998 94 731 37 73'>
-                    <p className="font-semibold text-gray-800 text-sm lg:text-base">+998 94 731 37 73</p>
-                    <p className="text-xs lg:text-sm text-gray-600">{currentContent.common.additionalNumber}</p>
                   </a>
                 </div>
                 <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
@@ -1589,7 +1580,7 @@ const StatusMessage = () => {
                     <p className="text-xs lg:text-sm text-gray-600">{currentContent.common.email}</p>
                   </div>
                 </div>
-              </div>
+              </a>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1624,7 +1615,7 @@ const StatusMessage = () => {
 
         <div className="relative z-10 text-center px-4 lg:px-0">
           <motion.h1
-            className='text-4xl lg:text-7xl text-center font-semibold leading-tight lg:leading-normal'
+            className='text-4xl lg:text-6xl text-center font-semibold leading-[1.2]'
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}

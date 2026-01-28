@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import { BookOpen, BrainCircuit, Globe2, GraduationCapIcon, icons, LightbulbIcon, RocketIcon, School2, TargetIcon, Users2 } from 'lucide-react'
-import { FaArrowRight, FaBolt, FaCalendarCheck, FaChalkboardTeacher, FaChevronDown, FaMapMarkerAlt, FaPlay, FaRegStar, FaSchool, FaUserGraduate, FaUsers, FaPhone, FaEnvelope, FaFacebook, FaTelegram, FaInstagram, FaFileUpload, FaUser, FaBriefcase } from 'react-icons/fa'
+import { FaArrowRight, FaBolt, FaCalendarCheck, FaChalkboardTeacher, FaChevronDown, FaMapMarkerAlt, FaPlay, FaRegStar, FaSchool, FaUserGraduate, FaUsers, FaPhone, FaEnvelope, FaFacebook, FaTelegram, FaInstagram, FaFileUpload, FaUser, FaBriefcase, FaYoutube } from 'react-icons/fa'
 import { MdArrowRightAlt } from 'react-icons/md'
 import { AnimatePresence, motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -427,9 +427,9 @@ const translations = {
       ]
     },
     events: {
-      title: "Sunday",
-      subtitle: "eventlar:",
-      registerBtn: "Eventlarga ro'yxatdan o'ting",
+      title: "Sunda",
+      subtitle: '"event"lar:',
+      registerBtn: "Tadbirlarga ro'yxatdan o'ting",
       namePlaceholder: "Ism Familiyangiz",
       agePlaceholder: "Yoshingiz",
       phonePlaceholder: "Telefon raqamingiz",
@@ -2946,13 +2946,13 @@ useHashScroll();
                 {currentContent.footer.description}
               </p>
               <div className="flex gap-3 lg:gap-4">
-                <a href="#" className="text-gray-400 hover:text-blue transition-colors duration-300">
-                  <FaFacebook size={18} className="lg:w-5 lg:h-5" />
+                <a href="https://www.youtube.com/@BilimZiyoUz" className="text-gray-400 hover:text-blue transition-colors duration-300">
+                  <FaYoutube size={18} className="lg:w-5 lg:h-5" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-blue transition-colors duration-300">
+                <a href="https://t.me/BilimZiyoUz" className="text-gray-400 hover:text-blue transition-colors duration-300">
                   <FaTelegram size={18} className="lg:w-5 lg:h-5" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-blue transition-colors duration-300">
+                <a href="https://www.instagram.com/bilimziyouz/" className="text-gray-400 hover:text-blue transition-colors duration-300">
                   <FaInstagram size={18} className="lg:w-5 lg:h-5" />
                 </a>
               </div>
@@ -3018,7 +3018,7 @@ useHashScroll();
 
           {/* Bottom section */}
           <div className="border-t border-gray-800 mt-6 lg:mt-8 pt-6 lg:pt-8 text-center text-gray-400 text-sm lg:text-base">
-            <p>2026 | BILIM ZIYO MAKTABI | BARCHA HUQUQLAR HIMOYALANGAN!</p>
+            <p>2026 | BILIM ZIYO O'QUV MARKAZI | BARCHA HUQUQLAR HIMOYALANGAN!</p>
           </div>
         </div>
       </footer>

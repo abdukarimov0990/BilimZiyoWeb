@@ -427,13 +427,13 @@ const translations = {
       ]
     },
     events: {
-      title: "Sunda",
+      title: "Sunday",
       subtitle: '"event"lar:',
       registerBtn: "Tadbirlarga ro'yxatdan o'ting",
       namePlaceholder: "Ism Familiyangiz",
       agePlaceholder: "Yoshingiz",
       phonePlaceholder: "Telefon raqamingiz",
-      submitBtn: "Ro'yxatdan o'tish"
+      submitBtn: "Tadbirlarga ro'yxatdan o'ting"
     },
     contact: {
       title: "Biz bilan bog'laning",

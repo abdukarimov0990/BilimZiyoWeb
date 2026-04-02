@@ -19,7 +19,7 @@ const Header = () => {
         { nav: "Kurslarimiz", link: "#courses" },
         { nav: "Jamoa", link: "#teachers" },
         { nav: "FAQ", link: "#FAQ" },
-        { nav: "Vakansiya", link: "#Vacancy" },
+        { nav: "Vakansiya", link: "#team" },
       ],
       register: "Ro'yxatdan o'tish",
     },
@@ -29,7 +29,7 @@ const Header = () => {
         { nav: "Курсы", link: "#courses" },
         { nav: "Команда", link: "#teachers" },
         { nav: "FAQ", link: "#FAQ" },
-        { nav: "Vakansiya", link: "#Vacancy" },
+        { nav: "Vakansiya", link: "#team" },
 
       ],
       register: "Регистрация",
@@ -40,6 +40,8 @@ const Header = () => {
         { nav: "Courses", link: "#courses" },
         {nav: "Teachers", link: "#teachers"  },
         { nav: "FAQ", link: "#FAQ" },
+                { nav: "Vacansy", link: "#team" },
+
       ],
       register: "Register",
     },
@@ -143,94 +145,93 @@ const Header = () => {
           {/* Right Side */}
           <div className="flex items-center gap-3 z-50">
             {/* Language Selector */}
-            <div className="relative">
-              <button
-                onClick={() => setLanguageOpen(!languageOpen)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black backdrop-blur-lg hover:bg-blue-500/20 transition-all duration-300 group shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
-                style={{
-                  background: `
-                    linear-gradient(
-                      135deg,
-                      rgba(59, 130, 246, 0.15) 0%,
-                      rgba(96, 165, 250, 0.08) 100%
-                    )
-                  `,
-                }}
-              >
-                <img 
-                  src={activeLanguage.flag} 
-                  alt={activeLanguage.name} 
-                  className="w-5 h-5 rounded-full transition-transform duration-300 group-hover:scale-110 drop-shadow" 
-                />
-                <span className="text-sm font-medium drop-shadow-sm text-black">
-                  {activeLanguage.code}
-                </span>
-                <BiChevronDown
-                  className={`transition-all duration-300 ${languageOpen ? 'rotate-180 text-black' : 'text-text-black'}`}
-                />
-              </button>
+    <div className="relative">
+      {/* Overlay (pastda) */}
+      {languageOpen && (
+        <div
+          className="fixed inset-0 w-full h-screen z-[50]"
+          onClick={() => setLanguageOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
-              {/* Language Dropdown */}
-              {languageOpen && (
-  <>
-    {/* Overlay (transparent) */}
-    <div
-      className="fixed inset-0 w-full h-screen z-[60]"
-      onClick={() => setLanguageOpen(false)}
-      aria-hidden="true"
-    />
+      {/* Button */}
+      <button
+        onClick={() => setLanguageOpen(!languageOpen)}
+        className="relative z-[60] flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black backdrop-blur-lg hover:bg-blue-500/20 transition-all duration-300 group shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
+        style={{
+          background: `
+            linear-gradient(
+              135deg,
+              rgba(59, 130, 246, 0.15) 0%,
+              rgba(96, 165, 250, 0.08) 100%
+            )
+          `,
+        }}
+      >
+        <img
+          src={activeLanguage.flag}
+          alt={activeLanguage.name}
+          className="w-5 h-5 rounded-full z-90 transition-transform duration-300 group-hover:scale-110 drop-shadow"
+        />
+        <span className="text-sm font-medium drop-shadow-sm text-black">
+          {activeLanguage.code}
+        </span>
+        <BiChevronDown
+          className={`transition-all duration-300 ${languageOpen ? 'rotate-180 text-black' : 'text-text-black'}`}
+        />
+      </button>
 
-    {/* Dropdown */}
-    <div 
-                  className="absolute right-0 mt-2 w-48 bg-white backdrop-blur-3xl rounded-xl border border-blue-300/40 shadow-2xl shadow-blue-500/25 overflow-hidden z-50"
-                  style={{
-                    WebkitBackdropFilter: 'blur(50px) saturate(200%)',
-                    backdropFilter: 'blur(50px) saturate(200%)',
-                  }}
-                >
-                  {/* Dropdown Light Effect */}
-                  <div
-                    className="absolute inset-0 rounded-xl pointer-events-none"
-                    style={{
-                      background: `
-                        radial-gradient(
-                          circle at 50% 0%,
-                          rgba(147, 197, 253, 0.2) 0%,
-                          transparent 50%
-                        )
-                      `,
-                    }}
-                  />
-                  
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => handleLanguageSelect(lang)}
-                      className={`w-full flex items-center gap-3 border-b border-black/20 px-4 py-3 text-sm transition-all duration-200 group relative z-10 ${
-                        activeLanguage.code === lang.code
-                          ? 'bg-blue-500/50 text-black '
-                          : 'text-black hover:bg-blue-500/15  hover:text-black'
-                      }`}
-                    >
-                      <img 
-                        src={lang.flag} 
-                        alt={lang.name} 
-                        className="w-5 h-5 rounded-full transition-transform duration-300 group-hover:scale-110 drop-shadow" 
-                      />
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium drop-shadow-sm">{lang.code}</span>
-                        <span className="text-xs text-blue-black">{lang.name}</span>
-                      </div>
-                      {activeLanguage.code === lang.code && (
-                        <div className="ml-auto w-2 h-2 rounded-full bg-black shadow-sm" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-  </>
-)}
+      {/* Dropdown */}
+      {languageOpen && (
+        <div
+          className="absolute right-0 mt-2 w-48 bg-white backdrop-blur-3xl rounded-xl border border-blue-300/40 shadow-2xl shadow-blue-500/25 overflow-hidden z-[70]"
+          style={{
+            WebkitBackdropFilter: 'blur(50px) saturate(200%)',
+            backdropFilter: 'blur(50px) saturate(200%)',
+          }}
+        >
+          {/* Dropdown Light Effect */}
+          <div
+            className="absolute inset-0 rounded-xl pointer-events-none"
+            style={{
+              background: `
+                radial-gradient(
+                  circle at 50% 0%,
+                  rgba(147, 197, 253, 0.2) 0%,
+                  transparent 50%
+                )
+              `,
+            }}
+          />
 
-            </div>
+          {languages.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => handleLanguageSelect(lang)}
+              className={`w-full flex items-center gap-3 border-b border-black/20 px-4 py-3 text-sm transition-all duration-200 group relative z-10 ${
+                activeLanguage.code === lang.code
+                  ? 'bg-blue-500/50 text-black '
+                  : 'text-black hover:bg-blue-500/15 hover:text-black'
+              }`}
+            >
+              <img
+                src={lang.flag}
+                alt={lang.name}
+                className="w-5 h-5 rounded-full transition-transform duration-300 group-hover:scale-110 drop-shadow"
+              />
+              <div className="flex flex-col items-start">
+                <span className="font-medium drop-shadow-sm">{lang.code}</span>
+                <span className="text-xs text-blue-black">{lang.name}</span>
+              </div>
+              {activeLanguage.code === lang.code && (
+                <div className="ml-auto w-2 h-2 rounded-full bg-black shadow-sm" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
 
             {/* Register Button */}
             <a

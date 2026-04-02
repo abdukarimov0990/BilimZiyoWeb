@@ -17,6 +17,7 @@ import { Link } from 'react-router';
 import logo from '../assets/img/BZwhite.png'
 import useMeasure from "react-use-measure"
 import PhoneInput from '../components/PhoneInput'
+import Header from '../components/Header'
 function useHashScroll() {
   useEffect(() => {
     const scrollToHash = (behavior = "auto") => {
@@ -1284,6 +1285,7 @@ useEffect(() => {
   // Background Illustration Component
   const BackgroundIllustrations = ({ sectionClass = "" }) => (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${sectionClass}`}>
+
       {backgroundIcons.map((item, index) => (
         <motion.div
           key={index}

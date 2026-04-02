@@ -4,14 +4,16 @@ import { Outlet, useLocation } from 'react-router'
 
 const MainLayout = () => {
   const location = useLocation();
-  
-  // Sheader ko'rinadigan sahifalar ro'yxati
+
+  // Header ko'rinmasligi kerak bo'lgan yo'llar
+  const hideHeaderRoutes = ['/mock', '/thankyou'];
+  const showHeader = !hideHeaderRoutes.includes(location.pathname);
 
   return (
     <div className='min-h-screen flex flex-col font-Main'>
-      <Header/>
+      {showHeader && <Header />}
       <main className='grow mt-[100px]'>
-        <Outlet/>
+        <Outlet />
       </main>
     </div>
   )

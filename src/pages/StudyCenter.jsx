@@ -1680,7 +1680,7 @@ useHashScroll();
               hover:before:translate-x-0 w-full sm:w-auto text-center
             ">
               <span className="relative z-10 transition-colors duration-500 group-hover:text-white text-sm lg:text-base">
-                Mock Test
+                Mock IELTS
               </span>
             </Link>
 

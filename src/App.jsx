@@ -10,7 +10,8 @@ const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<MainLayout/>}>
-        <Route path="/" element={<IELTSForm />} />        
+        <Route path="/mock" element={<IELTSForm />} />      
+        <Route path='/' element={<StudyCenter/>}/>
       </Route>
     )
   )

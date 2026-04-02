@@ -1,5 +1,5 @@
 import React from 'react'
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router'
 import MainLayout from './Layouts/MainLayout'
 import StudyCenter from './pages/StudyCenter'
 import IELTSForm from "./pages/IELTSForm";
@@ -10,7 +10,7 @@ const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<MainLayout/>}>
-        <Route path="/mock" element={<IELTSForm />} />      
+        <Route path="mock" element={<IELTSForm />} />      
         <Route path='/' element={<StudyCenter/>}/>
       </Route>
     )

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function Ielts() {
+export default function IELTSForm() {
   const [form, setForm] = useState({
     name: "",
     phone: "",

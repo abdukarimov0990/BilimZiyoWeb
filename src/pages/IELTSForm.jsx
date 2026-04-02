@@ -72,10 +72,10 @@ const IELTSform = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a192f] px-4">
+    <div className="min-h-screen flex mt-[-100px] items-center justify-center bg-[#0a192f] px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
         <h2 className="text-2xl font-bold text-center text-[#0a192f] mb-6">
-          Ro'yxatdan o'tish
+          IELTS MOCK EXAM | REGISTRATION
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">

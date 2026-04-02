@@ -1,131 +1,148 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 
-export default function IELTSForm() {
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    age: "",
+const IELTSform = () => {
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [phone, setPhone] = useState("");
+  const [age, setAge] = useState("");
+
+  const [errors, setErrors] = useState({
+    name: false,
+    surname: false,
+    phone: false,
+    age: false,
   });
 
+  const validatePhone = (phone) => {
+    return /^\d{2} \d{3} \d{2} \d{2}$/.test(phone);
+  };
+
+  // Telefon raqamni formatlash funksiyasi
   const formatPhone = (value) => {
-    let digits = value.replace(/\D/g, "");
+    // faqat raqamlarni qoldiramiz
+    const digits = value.replace(/\D/g, "");
+    // formatlash: XX XXX XX XX
+    const part1 = digits.slice(0, 2);
+    const part2 = digits.slice(2, 5);
+    const part3 = digits.slice(5, 7);
+    const part4 = digits.slice(7, 9);
 
-    if (!digits.startsWith("998")) {
-      digits = "998" + digits;
-    }
-
-    digits = digits.slice(0, 12);
-
-    let formatted = "+" + digits;
-
-    if (digits.length > 3) formatted = "+" + digits.slice(0, 3) + " " + digits.slice(3);
-    if (digits.length > 5) formatted = "+" + digits.slice(0, 3) + " " + digits.slice(3, 5) + " " + digits.slice(5);
-    if (digits.length > 8) formatted = "+" + digits.slice(0, 3) + " " + digits.slice(3, 5) + " " + digits.slice(5, 8) + " " + digits.slice(8);
-    if (digits.length > 10) formatted = "+" + digits.slice(0, 3) + " " + digits.slice(3, 5) + " " + digits.slice(5, 8) + " " + digits.slice(8, 10) + " " + digits.slice(10);
+    let formatted = "";
+    if (part1) formatted = part1;
+    if (part2) formatted += " " + part2;
+    if (part3) formatted += " " + part3;
+    if (part4) formatted += " " + part4;
 
     return formatted;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "phone") {
-      setForm({ ...form, phone: formatPhone(value) });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+  const handlePhoneChange = (e) => {
+    setPhone(formatPhone(e.target.value));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const payload = {
-      ...form,
-      time: new Date().toLocaleString(),
+    const newErrors = {
+      name: !name.trim(),
+      surname: !surname.trim(),
+      phone: !validatePhone(phone),
+      age: !age || Number(age) <= 0,
     };
 
-    try {
-      await fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+    setErrors(newErrors);
 
-      alert("Ro'yxatdan o'tdingiz!");
+    if (Object.values(newErrors).some(Boolean)) return;
 
-      setForm({ name: "", phone: "", age: "" });
-    } catch (error) {
-      alert("Xatolik yuz berdi");
-    }
+    const now = new Date();
+
+    const payload = {
+      Ism: name,
+      Familiya: surname,
+      Telefon: "+998 " + phone,
+      Yosh: age,
+      SanaSoat: now.toLocaleDateString() + " " + now.toLocaleTimeString(),
+    };
+
+    localStorage.setItem("formData", JSON.stringify(payload));
+    navigate("/thankyou");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-white p-4">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-blue-900 mb-6 text-center">
-          IELTS Mock Registration
+    <div className="min-h-screen flex items-center justify-center bg-[#0a192f] px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+        <h2 className="text-2xl font-bold text-center text-[#0a192f] mb-6">
+          Ro'yxatdan o'tish
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Ism sharifi"
-            value={form.name}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
-          />
+          {/* Name */}
+          <div>
+            <input
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0a192f]"
+              placeholder="Ism"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">Ism kiriting</p>
+            )}
+          </div>
 
-          <input
-            type="text"
-            name="phone"
-            placeholder="+998 99 999 9999"
-            value={form.phone}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
-          />
+          {/* Surname */}
+          <div>
+            <input
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0a192f]"
+              placeholder="Familiya"
+              value={surname}
+              onChange={(e) => setSurname(e.target.value)}
+            />
+            {errors.surname && (
+              <p className="text-red-500 text-sm mt-1">Familiya kiriting</p>
+            )}
+          </div>
 
-          <input
-            type="number"
-            name="age"
-            placeholder="Yoshi"
-            value={form.age}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
-          />
+          {/* Phone */}
+          <div>
+            <input
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0a192f]"
+              placeholder="88 888 88 88"
+              value={phone}
+              onChange={handlePhoneChange}
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm mt-1">Telefon noto‘g‘ri</p>
+            )}
+          </div>
 
+          {/* Age */}
+          <div>
+            <input
+              type="number"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0a192f]"
+              placeholder="Yosh"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+            />
+            {errors.age && (
+              <p className="text-red-500 text-sm mt-1">Yosh kiriting</p>
+            )}
+          </div>
+
+          {/* Button */}
           <button
             type="submit"
-            className="w-full bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-800 transition"
+            className="w-full bg-[#0a192f] text-white py-2 rounded-lg font-semibold hover:bg-[#112240] transition"
           >
-            Ro'yxatdan o'tish
+            Yuborish
           </button>
         </form>
       </div>
     </div>
   );
-}
+};
 
-/*
-GOOGLE SHEETS SCRIPT (Apps Script):
-
-function doPost(e) {
-  const sheet = SpreadsheetApp.openById("YOUR_SHEET_ID").getSheetByName("Sheet1");
-  const data = JSON.parse(e.postData.contents);
-
-  sheet.appendRow([
-    data.name,
-    data.phone,
-    data.age,
-    data.time
-  ]);
-
-  return ContentService.createTextOutput("Success");
-}
-*/
+export default IELTSform;

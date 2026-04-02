@@ -5,12 +5,14 @@ import StudyCenter from './pages/StudyCenter'
 import IELTSForm from "./pages/IELTSForm";
 
 import { LanguageProvider } from './context/LanguageContext'
+import ThankYou from './pages/Thankyou';
 
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<MainLayout/>}>
         <Route path="mock" element={<IELTSForm />} />      
+        <Route path="thankyou" element={<ThankYou />} />      
         <Route index path='/' element={<StudyCenter/>}/>
       </Route>
     )

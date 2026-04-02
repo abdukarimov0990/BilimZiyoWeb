@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     // Dev serverda refresh qilganda 404 chiqmasligi uchun
-    historyApiFallback: true
+    historyApiFallback: true  
   },
   build: {
     rollupOptions: {

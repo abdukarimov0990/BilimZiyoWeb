@@ -1,5 +1,5 @@
 import React from 'react'
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router'
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom'
 import MainLayout from './Layouts/MainLayout'
 import StudyCenter from './pages/StudyCenter'
 import IELTSForm from "./pages/IELTSForm";

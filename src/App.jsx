@@ -11,7 +11,7 @@ const App = () => {
     createRoutesFromElements(
       <Route element={<MainLayout/>}>
         <Route path="mock" element={<IELTSForm />} />      
-        <Route path='/' element={<StudyCenter/>}/>
+        <Route index path='/' element={<StudyCenter/>}/>
       </Route>
     )
   )

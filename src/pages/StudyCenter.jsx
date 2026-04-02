@@ -1671,19 +1671,6 @@ useHashScroll();
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6, ease: "easeInOut" }}
           >
-                        <Link  to="mock" className="
-              relative overflow-hidden 
-              px-6 lg:px-8 py-3 lg:py-5 border rounded-full border-blue text-blue
-              group transition-all duration-500
-              before:content-[''] before:absolute before:inset-0 
-              before:bg-blue before:translate-x-full before:transition-transform before:duration-500 before:rounded-full
-              hover:before:translate-x-0 w-full sm:w-auto text-center
-            ">
-              <span className="relative z-10 transition-colors duration-500 group-hover:text-white text-sm lg:text-base">
-                Mock IELTS
-              </span>
-            </Link>
-
             <a href='#contact' className="
               relative overflow-hidden 
               py-3 lg:py-2 pl-6 pr-3 

@@ -20,7 +20,6 @@ const Header = () => {
         { nav: "Jamoa", link: "#teachers" },
         { nav: "FAQ", link: "#FAQ" },
         { nav: "Vakansiya", link: "#Vacancy" },
-
       ],
       register: "Ro'yxatdan o'tish",
     },
@@ -127,6 +126,18 @@ const Header = () => {
                 />
               </a>
             ))}
+                          <Link
+                to="mock"
+                className="relative text-black font-medium tracking-wide transition-all duration-300 group"
+              >
+                <span className="relative z-10 group-hover:text-blue-100 drop-shadow-sm">
+                  IELTS mock
+                </span>
+                <span 
+                  className="absolute bottom-[-2px] left-0 w-0 h-[2px] bg-gradient-to-r from-blue-300 to-blue-100 transition-all duration-300 group-hover:w-full shadow-lg shadow-blue-300/50"
+                />
+              </Link>
+
           </nav>
 
           {/* Right Side */}

@@ -2,7 +2,7 @@ import React from 'react'
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router'
 import MainLayout from './Layouts/MainLayout'
 import StudyCenter from './pages/StudyCenter'
-import IELTSForm from './pages/ielts'
+import Ielts from './pages/Ielts'
 
 import { LanguageProvider } from './context/LanguageContext'
 
@@ -11,7 +11,7 @@ const App = () => {
     createRoutesFromElements(
       <Route element={<MainLayout/>}>
         <Route path='/' element={<StudyCenter/>}/>
-        <Route path='/ielts' element={<IELTSForm/>}/>
+        <Route path='/ielts' element={<Ielts/>}/>
         
       </Route>
     )

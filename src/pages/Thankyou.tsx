@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, CheckCircle2, RefreshCcw, XCircle } from "lucide-react";
+import { TELEGRAM_BOT_LINK } from "../constants/telegram";
 
 const ThankYou = () => {
   const [error, setError] = useState(false);
@@ -45,6 +46,8 @@ const ThankYou = () => {
     sendData();
   }, []);
 
+
+  
   const statusConfig = error
     ? {
         badge: "Yuborilmadi",
@@ -144,6 +147,26 @@ const ThankYou = () => {
                     label="Mock exam sanasi"
                     value={submittedData?.MockExamSana}
                   />
+                </div>
+
+                <div className="mt-4 rounded-[18px] border border-[#033568]/8 bg-[linear-gradient(180deg,#f8fbff_0%,#f2f7fc_100%)] px-3.5 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] md:mt-6 md:rounded-2xl md:px-4 md:py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#033568]/60">
+                    Telegram bot
+                  </p>
+                  <h3 className="mt-2 text-[15px] font-bold leading-6 text-slate-800 md:text-base">
+                    Ro'yxatdan o'tganingiz uchun rahmat!
+                  </h3>
+                  <p className="mt-2 text-[13px] leading-5 text-slate-500 md:text-sm md:leading-6">
+                    Mock exam haqida muhim ma'lumotlarni olish uchun Telegram botga o'ting:
+                  </p>
+                  <a
+                    href={TELEGRAM_BOT_LINK}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-4 inline-flex w-full items-center justify-center rounded-[18px] bg-[#033568] px-5 py-3.5 text-[15px] font-bold text-white transition hover:bg-[#02284f] md:rounded-2xl md:px-6 md:py-4 md:text-base"
+                  >
+                    Botga o'tish
+                  </a>
                 </div>
               </div>
 

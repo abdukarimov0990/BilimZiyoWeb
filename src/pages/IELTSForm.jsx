@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { TELEGRAM_BOT_LINK } from "../constants/telegram";
+import { fetchMockExamData } from "../services/mockExamService";
 
-const EXAM_DATE_SHEET_ID = "1y-SLaCkJUKYGWeF_Ic_nWjieK458qrhYWa8s83noWFI";
-const EXAM_DATE_SHEET_NAME = "Lead";
-const EXAM_DATE_RANGE = "B1";
 const FALLBACK_EXAM_DATE = "2026-yil 3-aprelda";
 
 const IELTSForm = () => {
@@ -15,6 +14,7 @@ const IELTSForm = () => {
   const [age, setAge] = useState("");
   const [examDateText, setExamDateText] = useState(FALLBACK_EXAM_DATE);
   const [isDateLoading, setIsDateLoading] = useState(true);
+  const [hasActiveExam, setHasActiveExam] = useState(true);
 
   const [errors, setErrors] = useState({
     name: false,
@@ -25,33 +25,20 @@ const IELTSForm = () => {
 
   useEffect(() => {
     const fetchExamDate = async () => {
-      if (!EXAM_DATE_SHEET_ID || EXAM_DATE_SHEET_ID === "PASTE_PUBLIC_SHEET_ID") {
-        setIsDateLoading(false);
-        return;
-      }
-
       try {
-        const normalizedRange = EXAM_DATE_RANGE.includes(":")
-          ? EXAM_DATE_RANGE
-          : `${EXAM_DATE_RANGE}:${EXAM_DATE_RANGE}`;
+        const mockExam = await fetchMockExamData();
 
-        const url = `https://docs.google.com/spreadsheets/d/${EXAM_DATE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(
-          EXAM_DATE_SHEET_NAME
-        )}&range=${encodeURIComponent(normalizedRange)}`;
-
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`GViz CSV request failed with status ${response.status}`);
-        }
-
-        const text = (await response.text()).trim();
-        const formattedDate = formatExamDate(text);
-
-        if (formattedDate) {
-          setExamDateText(formattedDate);
+        if (mockExam.hasExam) {
+          setExamDateText(mockExam.examDateDisplay);
+          setHasActiveExam(true);
+        } else {
+          setExamDateText("");
+          setHasActiveExam(false);
         }
       } catch (error) {
         console.error("Failed to fetch exam date from Google Sheets:", error);
+        setHasActiveExam(false);
+        setExamDateText("");
       } finally {
         setIsDateLoading(false);
       }
@@ -84,6 +71,10 @@ const IELTSForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!hasActiveExam) {
+      return;
+    }
 
     const newErrors = {
       name: !name.trim(),
@@ -127,10 +118,16 @@ const IELTSForm = () => {
 
               <div className="space-y-3 md:space-y-4">
                 <h1 className="max-w-2xl text-[clamp(1.55rem,7vw,1.95rem)] font-black leading-[1.05] text-white md:text-5xl">
-                  {isDateLoading ? "Mock exam sanasi yuklanmoqda..." : `${examDateText} bo'lib o'tadigan mock exam uchun registratsiyadan o'ting`}
+                  {isDateLoading
+                    ? "Mock exam sanasi yuklanmoqda..."
+                    : hasActiveExam
+                      ? `${examDateText} bo'lib o'tadigan mock exam uchun registratsiyadan o'ting`
+                      : "Hozircha hech qanday mock exam mavjud emas."}
                 </h1>
                 <p className="max-w-xl text-[clamp(13px,3.6vw,15px)] leading-5 text-white/75 md:text-base md:leading-7">
-                  Natijangizni oldindan sinab ko'ring, real imtihon formatiga moslashib oling va Bilim Ziyo jamoasidan tezkor aloqa oling.
+                  {hasActiveExam
+                    ? "Natijangizni oldindan sinab ko'ring, real imtihon formatiga moslashib oling va Bilim Ziyo jamoasidan tezkor aloqa oling."
+                    : "Mock exam sanalaridan xabardor bo'lish uchun Telegram botga o'ting."}
                 </p>
               </div>
             </div>
@@ -153,169 +150,139 @@ const IELTSForm = () => {
 
           <div className="bg-white p-[clamp(12px,3.7vw,16px)] text-[#0a192f] md:p-8 lg:p-10">
             <div className="mx-auto max-w-md">
-              <div className="mb-4 rounded-[20px] bg-[linear-gradient(180deg,#ffffff_0%,#f7f9fc_100%)] p-1 md:mb-8 md:rounded-none md:bg-none md:p-0">
-                <div className="rounded-[18px] border border-slate-100 bg-white p-3.5 shadow-[0_10px_28px_rgba(3,53,104,0.06)] md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#033568]/60 md:text-sm md:tracking-[0.24em]">
-                    Registration Form
-                  </p>
-                  <h2 className="mt-2 text-[clamp(1.45rem,6vw,1.9rem)] font-black leading-tight md:mt-3 md:text-3xl">
-                    Joyingizni hozir band qiling
-                  </h2>
-                  <p className="mt-2 text-[13px] leading-5 text-slate-500 md:mt-3 md:text-sm md:leading-6">
-                    Ma'lumotlaringizni qoldiring. Tasdiqlash bo'yicha jamoamiz siz bilan bog'lanadi.
-                  </p>
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-[13px] font-semibold text-slate-700 md:mb-2 md:text-sm">
-                    Ism
-                  </label>
-                  <input
-                    className="w-full rounded-[18px] border border-slate-200 bg-slate-50 px-3.5 py-3.5 text-[15px] outline-none transition placeholder:text-slate-400 focus:border-[#033568] focus:bg-white focus:ring-4 focus:ring-[#033568]/10 md:rounded-2xl md:px-4 md:py-3.5 md:text-base"
-                    placeholder="Ismingizni kiriting"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                  {errors.name && (
-                    <p className="mt-2 text-sm text-red-500">Ism kiriting</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-[13px] font-semibold text-slate-700 md:mb-2 md:text-sm">
-                    Familiya
-                  </label>
-                  <input
-                    className="w-full rounded-[18px] border border-slate-200 bg-slate-50 px-3.5 py-3.5 text-[15px] outline-none transition placeholder:text-slate-400 focus:border-[#033568] focus:bg-white focus:ring-4 focus:ring-[#033568]/10 md:rounded-2xl md:px-4 md:py-3.5 md:text-base"
-                    placeholder="Familiyangizni kiriting"
-                    value={surname}
-                    onChange={(e) => setSurname(e.target.value)}
-                  />
-                  {errors.surname && (
-                    <p className="mt-2 text-sm text-red-500">Familiya kiriting</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-[13px] font-semibold text-slate-700 md:mb-2 md:text-sm">
-                    Telefon raqam
-                  </label>
-                  <div className="flex items-center rounded-[18px] border border-slate-200 bg-slate-50 px-3.5 transition focus-within:border-[#033568] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#033568]/10 md:rounded-2xl md:px-4">
-                    <span className="mr-2.5 border-r border-slate-200 pr-2.5 text-[13px] font-semibold text-slate-500 md:mr-3 md:pr-3 md:text-sm">
-                      +998
-                    </span>
-                    <input
-                      type="tel"
-                      className="w-full bg-transparent py-3.5 text-[15px] outline-none placeholder:text-slate-400 md:py-3.5 md:text-base"
-                      placeholder="90 123 45 67"
-                      value={phone}
-                      onChange={handlePhoneChange}
-                    />
+              {hasActiveExam ? (
+                <>
+                  <div className="mb-4 rounded-[20px] bg-[linear-gradient(180deg,#ffffff_0%,#f7f9fc_100%)] p-1 md:mb-8 md:rounded-none md:bg-none md:p-0">
+                    <div className="rounded-[18px] border border-slate-100 bg-white p-3.5 shadow-[0_10px_28px_rgba(3,53,104,0.06)] md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#033568]/60 md:text-sm md:tracking-[0.24em]">
+                        Registration Form
+                      </p>
+                      <h2 className="mt-2 text-[clamp(1.45rem,6vw,1.9rem)] font-black leading-tight md:mt-3 md:text-3xl">
+                        Joyingizni hozir band qiling
+                      </h2>
+                      <p className="mt-2 text-[13px] leading-5 text-slate-500 md:mt-3 md:text-sm md:leading-6">
+                        Ma'lumotlaringizni qoldiring. Tasdiqlash bo'yicha jamoamiz siz bilan bog'lanadi.
+                      </p>
+                    </div>
                   </div>
-                  {errors.phone && (
-                    <p className="mt-2 text-sm text-red-500">Telefon raqamni to'g'ri kiriting</p>
-                  )}
-                </div>
 
-                <div>
-                  <label className="mb-1.5 block text-[13px] font-semibold text-slate-700 md:mb-2 md:text-sm">
-                    Yosh
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full rounded-[18px] border border-slate-200 bg-slate-50 px-3.5 py-3.5 text-[15px] outline-none transition placeholder:text-slate-400 focus:border-[#033568] focus:bg-white focus:ring-4 focus:ring-[#033568]/10 md:rounded-2xl md:px-4 md:py-3.5 md:text-base"
-                    placeholder="Yoshingiz"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                  />
-                  {errors.age && (
-                    <p className="mt-2 text-sm text-red-500">Yosh kiriting</p>
-                  )}
-                </div>
+                  <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+                    <div>
+                      <label className="mb-1.5 block text-[13px] font-semibold text-slate-700 md:mb-2 md:text-sm">
+                        Ism
+                      </label>
+                      <input
+                        className="w-full rounded-[18px] border border-slate-200 bg-slate-50 px-3.5 py-3.5 text-[15px] outline-none transition placeholder:text-slate-400 focus:border-[#033568] focus:bg-white focus:ring-4 focus:ring-[#033568]/10 md:rounded-2xl md:px-4 md:py-3.5 md:text-base"
+                        placeholder="Ismingizni kiriting"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                      {errors.name && (
+                        <p className="mt-2 text-sm text-red-500">Ism kiriting</p>
+                      )}
+                    </div>
 
-                <div className="rounded-[18px] border border-[#033568]/8 bg-[linear-gradient(180deg,#f8fbff_0%,#f2f7fc_100%)] p-3.5 text-sm leading-5 text-slate-600 md:rounded-[24px] md:p-4 md:leading-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#033568]/70">Mock exam sanasi</p>
-                  <p className="mt-1.5 text-[15px] font-semibold text-[#033568] md:mt-2 md:text-base">
-                    {isDateLoading ? "Google Sheets'dan sana olinmoqda..." : examDateText}
+                    <div>
+                      <label className="mb-1.5 block text-[13px] font-semibold text-slate-700 md:mb-2 md:text-sm">
+                        Familiya
+                      </label>
+                      <input
+                        className="w-full rounded-[18px] border border-slate-200 bg-slate-50 px-3.5 py-3.5 text-[15px] outline-none transition placeholder:text-slate-400 focus:border-[#033568] focus:bg-white focus:ring-4 focus:ring-[#033568]/10 md:rounded-2xl md:px-4 md:py-3.5 md:text-base"
+                        placeholder="Familiyangizni kiriting"
+                        value={surname}
+                        onChange={(e) => setSurname(e.target.value)}
+                      />
+                      {errors.surname && (
+                        <p className="mt-2 text-sm text-red-500">Familiya kiriting</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-[13px] font-semibold text-slate-700 md:mb-2 md:text-sm">
+                        Telefon raqam
+                      </label>
+                      <div className="flex items-center rounded-[18px] border border-slate-200 bg-slate-50 px-3.5 transition focus-within:border-[#033568] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#033568]/10 md:rounded-2xl md:px-4">
+                        <span className="mr-2.5 border-r border-slate-200 pr-2.5 text-[13px] font-semibold text-slate-500 md:mr-3 md:pr-3 md:text-sm">
+                          +998
+                        </span>
+                        <input
+                          type="tel"
+                          className="w-full bg-transparent py-3.5 text-[15px] outline-none placeholder:text-slate-400 md:py-3.5 md:text-base"
+                          placeholder="90 123 45 67"
+                          value={phone}
+                          onChange={handlePhoneChange}
+                        />
+                      </div>
+                      {errors.phone && (
+                        <p className="mt-2 text-sm text-red-500">Telefon raqamni to'g'ri kiriting</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-[13px] font-semibold text-slate-700 md:mb-2 md:text-sm">
+                        Yosh
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full rounded-[18px] border border-slate-200 bg-slate-50 px-3.5 py-3.5 text-[15px] outline-none transition placeholder:text-slate-400 focus:border-[#033568] focus:bg-white focus:ring-4 focus:ring-[#033568]/10 md:rounded-2xl md:px-4 md:py-3.5 md:text-base"
+                        placeholder="Yoshingiz"
+                        value={age}
+                        onChange={(e) => setAge(e.target.value)}
+                      />
+                      {errors.age && (
+                        <p className="mt-2 text-sm text-red-500">Yosh kiriting</p>
+                      )}
+                    </div>
+
+                    <div className="rounded-[18px] border border-[#033568]/8 bg-[linear-gradient(180deg,#f8fbff_0%,#f2f7fc_100%)] p-3.5 text-sm leading-5 text-slate-600 md:rounded-[24px] md:p-4 md:leading-6">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#033568]/70">Mock exam sanasi</p>
+                      <p className="mt-1.5 text-[15px] font-semibold text-[#033568] md:mt-2 md:text-base">
+                        {isDateLoading ? "Google Sheets'dan sana olinmoqda..." : examDateText}
+                      </p>
+                    </div>
+
+                    <div className="sticky bottom-2 z-10 bg-white/96 pt-1.5 md:static md:bg-transparent md:pt-0">
+                      <button
+                        type="submit"
+                        className="w-full rounded-[18px] bg-[#033568] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_rgba(3,53,104,0.22)] transition hover:bg-[#02284f] md:rounded-2xl md:px-6 md:py-4 md:text-base md:shadow-none"
+                      >
+                        Registratsiyani yuborish
+                      </button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
+                  <div className="rounded-full bg-[#033568]/10 p-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#033568]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h2 className="mt-5 text-[clamp(1.3rem,5vw,1.7rem)] font-black text-[#0a192f]">
+                    Hozircha mock exam mavjud emas
+                  </h2>
+                  <p className="mt-3 max-w-sm text-[14px] leading-6 text-slate-500">
+                    Mock exam sanalaridan xabardor bo'lish uchun Telegram botimizga a'zo bo'ling.
                   </p>
-                </div>
-
-                <div className="sticky bottom-2 z-10 bg-white/96 pt-1.5 md:static md:bg-transparent md:pt-0">
-                  <button
-                    type="submit"
-                    className="w-full rounded-[18px] bg-[#033568] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_28px_rgba(3,53,104,0.22)] transition hover:bg-[#02284f] md:rounded-2xl md:px-6 md:py-4 md:text-base md:shadow-none"
+                  <a
+                    href={TELEGRAM_BOT_LINK}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-6 inline-flex items-center gap-2.5 rounded-[18px] bg-[#033568] px-8 py-4 text-[15px] font-bold text-white shadow-[0_12px_28px_rgba(3,53,104,0.22)] transition hover:bg-[#02284f] md:rounded-2xl md:text-base"
                   >
-                    Registratsiyani yuborish
-                  </button>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                    </svg>
+                    Telegram botga o'tish
+                  </a>
                 </div>
-              </form>
+              )}
             </div>
           </div>
         </div>
       </div>
     </section>
   );
-};
-
-const formatExamDate = (rawText) => {
-  if (!rawText) return null;
-
-  const normalizedCsvValue = rawText
-    .split("\n")[0]
-    .replace(/^"|"$/g, "")
-    .replace(/""/g, '"')
-    .trim();
-
-  if (!normalizedCsvValue) {
-    return null;
-  }
-
-  return normalizeDateLabel(normalizedCsvValue);
-};
-
-const normalizeDateLabel = (value) => {
-  const rawValue = value.trim();
-  const dateFromGviz = rawValue.match(/Date\((\d+),(\d+),(\d+)/);
-
-  if (dateFromGviz) {
-    const year = Number(dateFromGviz[1]);
-    const monthIndex = Number(dateFromGviz[2]);
-    const day = Number(dateFromGviz[3]);
-
-    return formatUzbekDate(new Date(year, monthIndex, day));
-  }
-
-  const parsedDate = new Date(rawValue);
-  if (!Number.isNaN(parsedDate.getTime())) {
-    return formatUzbekDate(parsedDate);
-  }
-
-  if (rawValue.endsWith("da")) {
-    return rawValue;
-  }
-
-  return `${rawValue}da`;
-};
-
-const formatUzbekDate = (date) => {
-  const months = [
-    "yanvar",
-    "fevral",
-    "mart",
-    "aprel",
-    "may",
-    "iyun",
-    "iyul",
-    "avgust",
-    "sentabr",
-    "oktabr",
-    "noyabr",
-    "dekabr",
-  ];
-
-  return `${date.getFullYear()}-yil ${date.getDate()}-${months[date.getMonth()]}da`;
 };
 
 export default IELTSForm;

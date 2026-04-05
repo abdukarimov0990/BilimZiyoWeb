@@ -55,15 +55,17 @@ function useHashScroll() {
 }
 
 const GoogleSheetsService = {
-  // ✅ Google Apps Script Web App URL
-  SCRIPT_URL:
-    "https://script.google.com/macros/s/AKfycbw7jU03iOeiCL7wYWLW2xBUIkZ7rr4TWk2nBo4C1onxpx7K14lHHs14bgFGLLj6ReQl2A/exec",
+  // ✅ Google Apps Script Web App URLs
+  CONTACT_SCRIPT_URL:
+    "https://script.google.com/macros/s/AKfycbyO5rwmugxFXI7XUQiU2queSY_c5kkQIPTLGGYH3l5A1vImC4sC8gELjWiFJH4porgf/exec",
+  EVENT_SCRIPT_URL:
+    "https://script.google.com/macros/s/AKfycbyWmlHNp5ovbJkQnIMgGkHPx4ApKbhKnnMC8nYMe1qphAVzb3CUSzIRicp_OYOq2Ops/exec",
 
-  async submitForm(data, formType) {
+  async submitForm(data, formType, scriptUrl) {
     try {
-      // ✅ URL bor-yo‘qligini tekshiramiz
-      if (!this.SCRIPT_URL || !this.SCRIPT_URL.includes("script.google.com")) {
-        throw new Error("Apps Script URL topilmadi yoki noto‘g‘ri")
+      // ✅ URL bor-yo’qligini tekshiramiz
+      if (!scriptUrl || !scriptUrl.includes("script.google.com")) {
+        throw new Error("Apps Script URL topilmadi yoki noto’g’ri")
       }
 
       const fd = new FormData()
@@ -85,7 +87,7 @@ const GoogleSheetsService = {
       fd.append("formType", formType)
       fd.append("timestamp", new Date().toISOString())
 
-      await fetch(this.SCRIPT_URL, {
+      await fetch(scriptUrl, {
         method: "POST",
         body: fd,
         mode: "no-cors", // GAS uchun (client-side)
@@ -99,15 +101,15 @@ const GoogleSheetsService = {
   },
 
   submitEventForm(formData) {
-    return this.submitForm(formData, "event_registration")
+    return this.submitForm(formData, "event_registration", this.EVENT_SCRIPT_URL)
   },
 
   submitContactForm(formData) {
-    return this.submitForm(formData, "contact_form")
+    return this.submitForm(formData, "contact_form", this.CONTACT_SCRIPT_URL)
   },
 
   submitCourseForm(formData) {
-    return this.submitForm(formData, "course_registration")
+    return this.submitForm(formData, "course_registration", this.CONTACT_SCRIPT_URL)
   },
 }
 const TelegramBotService = {

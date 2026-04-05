@@ -209,7 +209,7 @@ const TelegramBotService = {
   }
 };
 
-const BASE_URL = 'https://bilimziyo-backend.asosit.uz';
+const BASE_URL = 'https://backend.bilimziyo.uz';
 
 const translations = {
   UZ: {

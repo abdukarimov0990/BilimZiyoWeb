@@ -24,19 +24,19 @@ const ThankYou = () => {
       formData.append("SanaSoat", data.SanaSoat);
 
       try {
-        const res = await fetch(
+        // Google Apps Script CORS header qaytarmaydi, shuning uchun no-cors.
+        // Bunda javob "opaque" bo'ladi (res.ok o'qib bo'lmaydi), so'rov xatosiz
+        // tugasa muvaffaqiyatli deb hisoblaymiz.
+        await fetch(
           "https://script.google.com/macros/s/AKfycbziQIcrZ-DNDK-UzTRNMHZfObsPncfioTvVQRug9_ZUOb1D23fuyL3spDVKqnDbYMogLQ/exec",
           {
             method: "POST",
             body: formData,
+            mode: "no-cors",
           }
         );
 
-        if (res.ok) {
-          localStorage.removeItem("formData");
-        } else {
-          throw new Error("Failed");
-        }
+        localStorage.removeItem("formData");
       } catch (err) {
         console.error(err);
         setError(true);

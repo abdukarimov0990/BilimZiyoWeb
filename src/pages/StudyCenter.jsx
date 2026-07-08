@@ -114,55 +114,68 @@ const GoogleSheetsService = {
 }
 const TelegramBotService = {
   // ⚠️ BOT_TOKEN frontendda ochiq – faqat test yoki yopiq loyiha uchun!
-  BOT_TOKEN: '8329831078:AAEhId7V7E1WENj8kldRevxyH2ABNb4goaE',
+  // @bilimziyoforwardbot — "Bilim Ziyo HR | SAYT" kanaliga forward qiladi
+  BOT_TOKEN: '8824044382:AAERUREwfvWCu8B42J66K-jJsmc8I843MrY',
 
   // ✅ Public kanal bo‘lsa:
   CHAT_ID: '-1003290075200',
 
 
-  async sendMessage(text) {
+  // Universal POST — Telegram `ok:false` ni tekshiradi va 429 (flood limit)da
+  // retry_after bo'yicha qayta uradi. Xato bo'lsa throw qiladi (jimgina yutilmaydi).
+  async _post(url, options, attempt = 0) {
+    let result;
     try {
-      const response = await fetch(
-        `https://api.telegram.org/bot${this.BOT_TOKEN}/sendMessage`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: this.CHAT_ID,
-            text: text,
-            parse_mode: 'HTML'
-          })
-        }
-      );
-
-      return await response.json();
+      const response = await fetch(url, options);
+      result = await response.json();
     } catch (error) {
-      console.error('Telegram message error:', error);
+      // Tarmoq xatosi — bir necha marta qayta uramiz
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+        return this._post(url, options, attempt + 1);
+      }
+      console.error('Telegram tarmoq xatosi:', error);
       throw error;
     }
+
+    // Flood limit — kutib qayta yuboramiz
+    if (!result.ok && result.error_code === 429 && attempt < 5) {
+      const retryAfter = (result.parameters?.retry_after ?? 2) + 1;
+      await new Promise(r => setTimeout(r, retryAfter * 1000));
+      return this._post(url, options, attempt + 1);
+    }
+
+    if (!result.ok) {
+      console.error('Telegram API xatosi:', result);
+      throw new Error(result.description || 'Telegram API xatosi');
+    }
+    return result;
+  },
+
+  async sendMessage(text) {
+    return this._post(`https://api.telegram.org/bot${this.BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: this.CHAT_ID,
+        text,
+        parse_mode: 'HTML',
+      }),
+    });
   },
 
   async sendDocument(formData) {
-    try {
-      const response = await fetch(
-        `https://api.telegram.org/bot${this.BOT_TOKEN}/sendDocument`,
-        {
-          method: 'POST',
-          body: formData
-        }
-      );
-
-      return await response.json();
-    } catch (error) {
-      console.error('Telegram document error:', error);
-      throw error;
-    }
+    return this._post(`https://api.telegram.org/bot${this.BOT_TOKEN}/sendDocument`, {
+      method: 'POST',
+      body: formData,
+    });
   },
 
   async sendVacancyApplication(data) {
-    try {
-      // 📋 Kanalga yuboriladigan xabar
-      const message = `
+    const delay = (ms) => new Promise(r => setTimeout(r, ms));
+
+    // 📋 Kanalga yuboriladigan xabar
+    const message = `
 <b>📋 YANGI VAKANSIYA ARIZASI</b>
 
 <b>👤 Ism-sharif:</b> ${data.name}
@@ -179,35 +192,30 @@ const TelegramBotService = {
 <b>⏰ Yuborilgan vaqt:</b> ${new Date().toLocaleString()}
       `;
 
-      // 1) Xabarni kanalga yuborish
-      await this.sendMessage(message);
+    // 1) Matnli xabar
+    await this.sendMessage(message);
 
-      // 2) IELTS sertifikat yuborish
-      if (data.ieltsCertificate) {
-        const ieltsFormData = new FormData();
-        ieltsFormData.append('chat_id', this.CHAT_ID);
-        ieltsFormData.append('document', data.ieltsCertificate);
-        ieltsFormData.append('caption', '📄 IELTS Sertifikati');
-
-        await this.sendDocument(ieltsFormData);
-      }
-
-      // 3) CV yuborish
-      if (data.cv) {
-        const cvFormData = new FormData();
-        cvFormData.append('chat_id', this.CHAT_ID);
-        cvFormData.append('document', data.cv);
-        cvFormData.append('caption', '📄 CV / Rezyume');
-
-        await this.sendDocument(cvFormData);
-      }
-
-      return { success: true };
-
-    } catch (error) {
-      console.error('Vacancy application error:', error);
-      return { success: false, error };
+    // 2) IELTS sertifikat (kanalga tez-tez yuborishda flood limitga tushmaslik uchun pauza)
+    if (data.ieltsCertificate) {
+      await delay(700);
+      const ieltsFormData = new FormData();
+      ieltsFormData.append('chat_id', this.CHAT_ID);
+      ieltsFormData.append('document', data.ieltsCertificate);
+      ieltsFormData.append('caption', '📄 IELTS Sertifikati');
+      await this.sendDocument(ieltsFormData);
     }
+
+    // 3) CV / Rezyume
+    if (data.cv) {
+      await delay(700);
+      const cvFormData = new FormData();
+      cvFormData.append('chat_id', this.CHAT_ID);
+      cvFormData.append('document', data.cv);
+      cvFormData.append('caption', '📄 CV / Rezyume');
+      await this.sendDocument(cvFormData);
+    }
+
+    return { success: true };
   }
 };
 
